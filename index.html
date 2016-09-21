@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="Adam Smallcomb">
+		
+		<title>Berry Table Viewer</title>
+
+		<link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
+		<link rel='stylesheet' type='text/css' href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
+		<link rel='stylesheet' type='text/css' href='assets/css/demo.css'>
+		<link rel='stylesheet' type='text/css' href='assets/css/table.css'>
+		<link rel='stylesheet' type='text/css' href='src/vendor/css/colorpicker.min.css'>
+
+	</head>
+
+	<body>		
+		<div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="./" style="line-height: 40px;font-size:10px;">
+						<span style="line-height: 40px;margin-left:10px;font-size: 20px;font-weight: 200;color: #cccccf;">Berry Table Viewer</span>
+					</a>
+				</div>
+
+			</div><!-- /.container -->
+		</div><!-- /.navbar -->
+		<div class="container col-md-6" style="width:100%">
+			<div class="row">
+ 				<div class="col-md-12 col-xs-12" id="first">
+
+					</div>
+			</div>
+		</div>
+
+
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js" charset="utf-8"></script>
+
+		<script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
+		<script type='text/javascript' src='//twitter.github.com/hogan.js/builds/3.0.1/hogan-3.0.1.js'></script>
+
+		<!-- // <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3//jquery-ui.min.js'></script> -->
+
+		<script type="text/javascript" src="assets/js/sortable.js"></script>
+		<script type='text/javascript' src='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+		<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/autosize.js/1.18.13/jquery.autosize.min.js'></script>
+		
+		<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/mathjs/1.0.1/math.min.js'></script>
+		<script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+		<script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/jStorage/0.4.4/jstorage.min.js"></script>
+
+		<script type="text/javascript" src="assets/js/bin/full.berry.min.js"></script>
+		
+		<script type='text/javascript' src='assets/js/cob.js'></script>
+		<script type='text/javascript' src='assets/js/content.cob.js'></script>		
+		<!-- // <script type='text/javascript' src='assets/js/form.cob.js'></script>		 -->
+		<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js'></script>		
+		<script type='text/javascript' src='//cdn.tinymce.com/4/tinymce.min.js'></script>
+
+
+
+		<script type='text/javascript' src='src/vendor/js/colorpicker.min.js'></script>
+		<script type='text/javascript' src='assets/js/bin/bootstrap.full.berry.js'></script>
+		<script type='text/javascript' src='assets/js/backbone.min.js'></script>
+		<script type='text/javascript' src='src/js/collection.js'></script>
+		<script type='text/javascript' src='src/js/table.js'></script>
+		<script type='text/javascript' src='src/js/data.js'></script>
+
+		<script type='text/template' name="table">
+	<div class="well" style="background:#fff">
+	<div class="form"></div>		
+	<div class="paginate-footer"></div>
+	<table class="table table-bordered table-striped table-hover dataTable">
+		<thead>
+			<tr style="background:#fff;cursor:pointer">
+				{{#items}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort"></i> {{label}}</h6></th>{{/items}}
+				<th>Actions</th>
+			</tr>				
+			<tr style="background:#fff;" class="filter">
+				{{#items}}<td data-inline="{{cname}}"></td>{{/items}}
+				<th><button class="btn btn-warning btn-sm">Reset</button></th>
+			</tr>
+		</thead>
+		<tbody class="list-group">
+			<tr><td>
+				<div class="alert alert-info" role="alert">You have no items.</div>
+			</td></tr>
+		</tbody>
+	</table>
+	<div class="paginate-footer"></div>
+<div>
+		</script>
+
+		<script type='text/template' name="table_footer">
+<div>
+	<nav class="pull-right">
+		<ul class="pagination" style="margin:0">
+			<li><a data-page="1" href="javascript:void(0);" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>{{#pages}}
+				<li class="{{active}}"><a data-page="{{name}}" href="javascript:void(0);">{{name}}</a></li>
+			{{/pages}}
+			<li><a data-page="" href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
+		</ul>
+	</nav>
+	<h5 class="range">Showing {{first}} to {{last}} of {{size}} entries</h5>
+</div>
+		</script>
+
+		<script type='text/template' name="table_row">
+<tr class="filterable">
+	{{#items}}
+	<td>{{{name}}}</td>
+	{{/items}}
+	<td style="min-width:100px">
+		<!-- <div class="btn-group" role="group">
+			<span class="btn btn-xs btn-info" data-event="edit" href="#">Edit</span>
+			<span class="btn btn-xs btn-danger" data-event="delete" href="#">Delete</spab>
+		</div> -->
+		<!-- Split button -->
+		<div class="btn-group">
+		  <button type="button" class="btn btn-xs btn-info go">Go to</button>
+		  <button type="button" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <span class="caret"></span>
+		    <span class="sr-only">Toggle Dropdown</span>
+		  </button>
+		  <ul class="dropdown-menu dropdown-menu-right">
+		    <li><a href="javascript:void(0);" data-event="edit"><i class="fa fa-pencil"></i> Edit</a></li>
+		    <li><a href="javascript:void(0);" data-event="delete"><i class="fa fa-times"></i> Delete</a></li>
+		  </ul>
+		</div>
+	</td>
+</tr>
+		</script>
+
+		<script type='text/javascript' >
+			templates['table_row'] = Hogan.compile(document.getElementsByName('table_row')[0].innerHTML)
+			templates['table_footer'] = Hogan.compile(document.getElementsByName('table_footer')[0].innerHTML)
+			templates['table'] = Hogan.compile(document.getElementsByName('table')[0].innerHTML)
+//templates['list'] = Hogan.compile('<div class="list-group"></div>');
+
+
+
+		</script>
+		<script type='text/javascript' >
+
+			$('body').keydown(function(event) {
+				switch(event.keyCode) {
+					case 27://escape
+							cb.deactivate();
+						break;
+				}
+			});
+		</script>
+
+</body></html>
