@@ -22,9 +22,8 @@ tableBuilder = function(container) {
 			new berryDrupeletListView({ 'model': model, container: container});
 		});
 		var renderObj = _.clone(myStack.config.attributes);
-
-		var showing = (this.collection.length>(options.count * options.page))? (options.count * options.page) : this.collection.length;
-		options.pagecount = Math.ceil(this.collection.length / options.count);
+		var showing = (this.collection.models.length>(options.count * options.page))? (options.count * options.page) : this.collection.models.length;
+		options.pagecount = Math.ceil(this.collection.models.length / options.count);
 		renderObj.pages = [];
 		for(var i = 1; i <= options.pagecount; i++){
 			var page = {name: i};
@@ -33,7 +32,7 @@ tableBuilder = function(container) {
 			}
 			renderObj.pages.push(page);
 		}
-		renderObj.size = this.collection.length;
+		renderObj.size = this.collection.models.length;
 		renderObj.last = showing;
 		renderObj.first = ( (options.count * (options.page-1) ) + 1);
 		this.$el.find('.paginate-footer').html(templates['table_footer'].render(renderObj,templates));
@@ -75,7 +74,7 @@ tableBuilder = function(container) {
 		this.search = function(pageFilter){
 			// console.log(pageFilter);
 
-			this.collection = new liveCollection(
+			this.collection = new itemcollection(
 
 			myStack.collection.filter(function(anyModel) {
 					var keep = $.isEmptyObject(pageFilter);
@@ -308,13 +307,13 @@ function render(template, data){
 	  }
 		return response;
 	}
-	Backbone.Collection.prototype.grab = function(options) {
-		var ordered = this.sortBy(options.sort);
-		if(!options.reverse){
-			ordered = ordered.reverse();
-		}
-		return ordered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
-	};
+	// Backbone.Collection.prototype.grab = function(options) {
+	// 	var ordered = this.sortBy(options.sort);
+	// 	if(!options.reverse){
+	// 		ordered = ordered.reverse();
+	// 	}
+	// 	return ordered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
+	// };
 
 
 
@@ -466,37 +465,37 @@ berryDrupeletView = Backbone.LiveView.extend({
 });
 
 
-liveModel = Backbone.Model.extend({
-	urlRoot: '/documents',
-	preventSave: false,
-  initialize: function(options) {
-  	this.attributes.workflow = this.attributes.workflow || this.initial;
-		this.attributes[this.attributes.workflow || this.initial] = true;
+// liveModel = Backbone.Model.extend({
+// 	urlRoot: '/documents',
+// 	preventSave: false,
+//   initialize: function(options) {
+//   	this.attributes.workflow = this.attributes.workflow || this.initial;
+// 		this.attributes[this.attributes.workflow || this.initial] = true;
 
-    this.bind('change', function() {
-    	if(!this.preventSave && this.hasChanged() && typeof this.collection !== 'undefined' && !this.hasChanged('_id')) {
-    		this.locked = true;
+//     this.bind('change', function() {
+//     	if(!this.preventSave && this.hasChanged() && typeof this.collection !== 'undefined' && !this.hasChanged('_id')) {
+//     		this.locked = true;
 
-    		var callback = function(){
-					this.locked = false;
-				};
-				if(typeof this.attributes._id == 'undefined'){
-					callback = function(stuff){
-						this.locked = false;
-					};
-				}
-			 	this.save(this.attributes,{patch: true, wait: true, success: $.proxy(callback,this) });	
-			}
-		});
-	},
-});
+//     		var callback = function(){
+// 					this.locked = false;
+// 				};
+// 				if(typeof this.attributes._id == 'undefined'){
+// 					callback = function(stuff){
+// 						this.locked = false;
+// 					};
+// 				}
+// 			 	this.save(this.attributes,{patch: true, wait: true, success: $.proxy(callback,this) });	
+// 			}
+// 		});
+// 	},
+// });
 
-liveCollection = Backbone.Collection.extend({
-		initialize: function(models, options){
-			// this.localStorage = new Backbone.LocalStorage(options.config._id)
-			this.id = 1;//options.config.id;
-		},
-		model: liveModel,
-		url: '/documents',
-});
+// liveCollection = Backbone.Collection.extend({
+// 		initialize: function(models, options){
+// 			// this.localStorage = new Backbone.LocalStorage(options.config._id)
+// 			this.id = 1;//options.config.id;
+// 		},
+// 		model: liveModel,
+// 		url: '/documents',
+// });
 

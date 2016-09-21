@@ -16,12 +16,18 @@ function itemcollection(models, options){
 		}
 		return ordered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
 	};
+	this.filter = function(func){
+		return _.filter(this.models,func)
+	}
+
+
 
 	this.models = [];
 
-if(models){
-	this.load(models);
-}
+	if(models){
+		this.load(models);
+	}
+
 	// itemcollection.instances[this.options.name] = this;
 }
 
@@ -30,14 +36,17 @@ itemcollection.model = function(owner, initial) {
 	this.owner = owner;
 	this.attributes = {};
 	$.extend(true, this.attributes, this.defaults, initial);
-	// this.uuid = Berry.getUID();
 };
 
 $.extend(itemcollection.model.prototype, {
-
 	validate: function() {return true;},
 	toJSON: function(){return this.attributes}
 });
+
+
+
+
+
 
 itemcollection.instances = {};
 itemcollection.model.extend = Berry.field.extend;
