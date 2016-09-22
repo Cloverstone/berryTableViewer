@@ -17,7 +17,7 @@ function itemcollection(models, options){
 		return ordered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
 	};
 	this.filter = function(func){
-		return _.filter(this.models,func)
+		return _.filter(this.models, func)
 	}
 
 
@@ -35,6 +35,8 @@ function itemcollection(models, options){
 itemcollection.model = function(owner, initial) {
 	this.owner = owner;
 	this.attributes = {};
+	// denu
+	this.schema = myform;
 	$.extend(true, this.attributes, this.defaults, initial);
 };
 

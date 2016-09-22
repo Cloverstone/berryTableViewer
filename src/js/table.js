@@ -1,13 +1,14 @@
 $(function(){
+myform = [
+			{type:"text", name:"title", label:"Title"},
+			{type:"select", name:"status", label: "Status", options:[{label:'Started', value:'started'}, {label:'Created', value:'created'}]}
+
+			];
 myStack = {
 	collection: new itemcollection(data), 
 	config: {
 	// views:{item:"<div>{{email}}</div>"},
-		attributes:{form:[
-			{type:"text", name:"title", label:"Title"},
-			{type:"select", name:"status", label: "Status", options:[{label:'Started', value:'started'}, {label:'Created', value:'created'}]}
-
-			]}
+		attributes:{form:myform}
 	}
 
 };
@@ -73,16 +74,14 @@ tableBuilder = function(container) {
 		// template: "list",
 		this.search = function(pageFilter){
 			// console.log(pageFilter);
-
 			this.collection = new itemcollection(
-
-			myStack.collection.filter(function(anyModel) {
+				_.pluck(myStack.collection.filter(function(anyModel) {
 					var keep = $.isEmptyObject(pageFilter);
 					for(var filter in pageFilter) {
 						keep = keep || ($.score((anyModel.attributes[filter]+'').replace(/\s+/g, " ").toLowerCase(), (pageFilter[filter]+'').toLowerCase() ) > 0.40);
 					}
 					return keep;
-				})
+				}), 'attributes')
 			, {config: myStack.config});
 
 		}
@@ -106,6 +105,7 @@ tableBuilder = function(container) {
 			return {'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase())} 
 		})};
 		var template = Hogan.compile(templates['table'].render(summary, templates));
+		debugger;
 		berryDrupeletListView = berryDrupeletView.extend({view: Hogan.compile(templates['table_row'].render(summary, templates)) });
 	 	var filterFields = _.map($.extend(true, {},myStack.config.attributes.form), function(val){
 		var name = (val.name|| val.label.split(' ').join('_').toLowerCase());
@@ -203,7 +203,6 @@ tableBuilder = function(container) {
 		draw: this.draw
 	}
 }
-
 tb = new tableBuilder($('#first'))
 // tb.container.html(tb.render());
 
@@ -385,6 +384,8 @@ Backbone.LiveView = Backbone.View.extend({
 	},
 	prep: function(view){
 		if(view.find('[data-popins]').length > 0){
+					debugger;
+
 			this.berry = view.berry({ popins: {container: '#content'}, renderer: 'popins', model: this.model});
 		}
 
