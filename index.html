@@ -55,12 +55,9 @@
 		
 		<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/mathjs/1.0.1/math.min.js'></script>
 		<script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
-		<script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/jStorage/0.4.4/jstorage.min.js"></script>
 
 		<script type="text/javascript" src="assets/js/bin/full.berry.min.js"></script>
 		
-		<script type='text/javascript' src='assets/js/cob.js'></script>
-		<script type='text/javascript' src='assets/js/content.cob.js'></script>		
 		<!-- // <script type='text/javascript' src='assets/js/form.cob.js'></script>		 -->
 		<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js'></script>		
 		<script type='text/javascript' src='//cdn.tinymce.com/4/tinymce.min.js'></script>
@@ -69,9 +66,11 @@
 
 		<script type='text/javascript' src='src/vendor/js/colorpicker.min.js'></script>
 		<script type='text/javascript' src='assets/js/bin/bootstrap.full.berry.js'></script>
-		<script type='text/javascript' src='assets/js/backbone.min.js'></script>
+		<!--script type='text/javascript' src='assets/js/backbone.min.js'></script-->
 		<script type='text/javascript' src='src/js/collection.js'></script>
 		<script type='text/javascript' src='src/js/table.js'></script>
+		<script type='text/javascript' src='src/js/utils.js'></script>
+		<script type='text/javascript' src='src/js/view.js'></script>
 		<script type='text/javascript' src='src/js/data.js'></script>
 
 		<script type='text/template' name="table">
@@ -82,7 +81,7 @@
 		<thead>
 			<tr style="background:#fff;cursor:pointer">
 				{{#items}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort"></i> {{label}}</h6></th>{{/items}}
-				<th>Actions</th>
+				<th style="width: 100px;">Actions</th>
 			</tr>				
 			<tr style="background:#fff;" class="filter">
 				{{#items}}<td data-inline="{{cname}}"></td>{{/items}}

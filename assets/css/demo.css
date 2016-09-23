@@ -39,24 +39,7 @@ color: #ccc;
 .navbar-brand {
     padding: 5px 15px;
 }
-#schema_editor { 
-	height:500px;
-}
-#editor { 
-	position: relative;
-}
-/*#cb-form{
-    left: 50px !important;
-    right: 50px !important;
-    top: 130px !important;
-    bottom: 30px !important;
 
-}*/
-#showwidgets{float:right;}
-#alt-sidebar { 
-	padding-top:0px;
-	/*height:500px;*/
-}
 
 li a, li a:hover, li a:active, li a:visited{
 color: #2F353E;
@@ -73,3 +56,10 @@ pre{margin:0px 0;
      border-radius: 0; 
   }
 
+
+
+
+[data-popins]{ border-bottom: 1px dotted;}
+[data-popins]{cursor: pointer; }
+
+thead .form-group{margin-bottom:0;}

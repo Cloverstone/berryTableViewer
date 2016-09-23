@@ -10,7 +10,7 @@ function itemcollection(models, options){
 		}
 	};
 	this.grab = function(options) {
-		var ordered = _.sortBy(this.models, options.sort);
+		var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });
 		if(!options.reverse){
 			ordered = ordered.reverse();
 		}
@@ -19,16 +19,10 @@ function itemcollection(models, options){
 	this.filter = function(func){
 		return _.filter(this.models, func)
 	}
-
-
-
 	this.models = [];
-
 	if(models){
 		this.load(models);
 	}
-
-	// itemcollection.instances[this.options.name] = this;
 }
 
 
@@ -37,6 +31,9 @@ itemcollection.model = function(owner, initial) {
 	this.attributes = {};
 	// denu
 	this.schema = myform;
+	this.set = function(newAtts){
+		this.attributes = newAtts;
+	}
 	$.extend(true, this.attributes, this.defaults, initial);
 };
 
@@ -66,3 +63,5 @@ itemcollection.model.prototype.off = Berry.prototype.off;
 itemcollection.model.prototype.trigger = Berry.prototype.trigger;
 
 itemcollection.changed = false;
+
+
