@@ -85,7 +85,7 @@
 			</tr>				
 			<tr style="background:#fff;" class="filter">
 				{{#items}}<td data-inline="{{cname}}"></td>{{/items}}
-				<th><button class="btn btn-warning btn-sm">Reset</button></th>
+				<th><button name="reset-search" class="btn btn-warning btn-sm">Reset</button></th>
 			</tr>
 		</thead>
 		<tbody class="list-group">
@@ -148,7 +148,7 @@
 
 		</script>
 		<script type='text/javascript' >
-			tb = new tableBuilder({container: '#first',schema:[
+			bb = new breadBaker({container: '#first',schema:[
 				{type:"text", name:"title", label:"Title"},
 				{type:"select", name:"status", label: "Status", options:[{label:'Started', value:'Started'}, {label:'Created', value:'Created'}]}
 

@@ -1,4 +1,4 @@
-tableBuilder = function(options) {
+breadBaker = function(options) {
 	this.draw = function() {
 		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
@@ -93,7 +93,7 @@ tableBuilder = function(options) {
 				val.type = 'select';
 			case 'select':
 				val.default = {label: 'No Filter', value: ''};
-				val.value = '-';
+				val.value = '';
 				break;
 			default:
 		}
@@ -104,6 +104,24 @@ tableBuilder = function(options) {
 		}
 		return val;
 	});
+	this.defaults = {};
+	_.map(filterFields, function(val){
+		switch(val.type){
+			case 'text':
+				val.value = '';
+				break;
+			case 'checkbox':
+				val.value = 'false';
+			case 'radio':
+				val.value = '';
+			case 'select':
+				val.value = '';
+				break;
+			default:
+		}
+		this.defaults[val.name] = val.value;
+	}.bind(this));
+
 
 	function render(){
 		return template.render();
@@ -115,7 +133,7 @@ tableBuilder = function(options) {
 			this.draw();
 		}, this);
 
-		this.filter = $el.find('.filter').berry({renderer: 'inline', attributes: {},disableMath: true, suppress: true, fields: filterFields }).on('change', function(){
+		this.filter = $el.find('.filter').berry({renderer: 'inline', attributes: this.defaults,disableMath: true, suppress: true, fields: filterFields }).on('change', function(){
 			this.draw();
 		}, this);
 
@@ -128,6 +146,11 @@ tableBuilder = function(options) {
 
 		this.$el.on('click','[data-page]', changePage.bind(this));
 		this.$el.on('click','[data-sort]', changeSort.bind(this));
+		this.$el.on('click','[name="reset-search"]', function(){
+			// debugger;
+			this.filter.populate(this.defaults)
+			this.draw();
+		}.bind(this));
 		this.draw();
 
 	}

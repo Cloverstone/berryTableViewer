@@ -5,39 +5,35 @@ function viewitem(options){
 
 		this.$el.find('[data-event]').off();
 
-		this.$el.replaceWith($(renderMath(this.view.render(this.model.attributes , templates), this.model.attributes)));
-		this.prep(this.$el);
-	}
+		this.$el.replaceWith(this.setElement(renderMath(this.view.render(this.model.attributes , templates), this.model.attributes)).$el);
 
-
-	this.prep = function(view){
-		if(view.find('[data-popins]').length > 0){
-			this.berry = view.berry({ popins: {container: '#first', viewport:{ selector: 'body', padding: 20 }}, renderer: 'popins', model: this.model});
+		if(this.$el.find('[data-popins]').length > 0){
+			this.berry = this.$el.berry({ popins: {container: '#first', viewport:{ selector: 'body', padding: 20 }}, renderer: 'popins', model: this.model});
 		}
 
-		view.find('[data-event]').hide();
+		this.$el.find('[data-event]').hide();
 		var temp = [];
-		view.find('[data-event]').each(function(){
+		this.$el.find('[data-event]').each(function(){
 			temp.push($(this).data('event'));
 		})
 
 
-		view.find('[data-event="delete"]').show().on('click', function(){
+		this.$el.find('[data-event="delete"]').show().on('click', function(){
 			console.log('delete');
 		});
-		view.find('[data-event="edit"]').show().on('click', function(){
+		this.$el.find('[data-event="edit"]').show().on('click', function(){
 			console.log('edit');
 		});
 
-		// view.find("abbr.timeago").timeago();
-		view.find("[data-moment]").each(function(item){
+		// this.$el.find("abbr.timeago").timeago();
+		this.$el.find("[data-moment]").each(function(item){
 			$(this).html(moment.utc($(this).data('moment')).format($(this).data('format')) );
 		});
-		view.find(".sparkline").each(function(){
+		this.$el.find(".sparkline").each(function(){
 			$(this).peity($(this).data('type'), {radius: $(this).data('radius')});
 		});
-
 	}
+
 	this.view = Hogan.compile(templates['table_row'].render(options.summary, templates));
 
 	this.setElement = function(html){
