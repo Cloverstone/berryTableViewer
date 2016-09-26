@@ -1,4 +1,13 @@
-
+_.mixin({
+  compactObject: function(o) {
+    _.each(o, function(v, k) {
+      if(!v && (v !== 0)) {
+        delete o[k];
+      }
+    });
+    return o;
+  }
+});
 
 
 (function($) {
