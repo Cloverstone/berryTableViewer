@@ -1,0 +1,18 @@
+<div>
+	<nav class="pull-right">
+	{{#size}}
+		<ul class="pagination" style="margin:0">
+			<li><a data-page="1" href="javascript:void(0);" aria-label="First"><span aria-hidden="true">&laquo;</span></a></li>
+			<li><a data-page="dec" href="javascript:void(0);" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
+			{{#pages}}
+				<li class="{{active}}"><a data-page="{{name}}" href="javascript:void(0);">{{name}}</a></li>
+			{{/pages}}
+			<li><a data-page="inc" href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
+			<li><a data-page="" href="javascript:void(0);" aria-label="Last"><span aria-hidden="true">&raquo;</span></a></li>
+
+		</ul>
+	{{/size}}
+	</nav>
+	<h5 class="range">{{#size}}Showing {{first}} to {{last}} of {{size}} entries{{/size}}{{^size}}No matching entries{{/size}}</h5>
+
+</div>

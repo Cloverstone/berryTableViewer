@@ -67,99 +67,16 @@
 		<script type='text/javascript' src='src/vendor/js/colorpicker.min.js'></script>
 		<script type='text/javascript' src='assets/js/bin/bootstrap.full.berry.js'></script>
 		<!--script type='text/javascript' src='assets/js/backbone.min.js'></script-->
-		<script type='text/javascript' src='src/js/collection.js'></script>
 		<script type='text/javascript' src='src/js/data.js'></script>
 		<script type='text/javascript' src='src/js/table.js'></script>
-		<script type='text/javascript' src='src/js/utils.js'></script>
-		<script type='text/javascript' src='src/js/view.js'></script>
 
-		<script type='text/template' name="table">
-	<div class="well" style="background:#fff">
-	<div class="form"></div>		
-	<div class="paginate-footer"></div>
-	<table class="table table-bordered table-striped table-hover dataTable">
-		<thead>
-			<tr style="background:#fff;cursor:pointer">
-				{{#items}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort"></i> {{label}}</h6></th>{{/items}}
-				<th style="width: 100px;">Actions</th>
-			</tr>				
-			<tr style="background:#fff;" class="filter">
-				{{#items}}<td data-inline="{{cname}}"></td>{{/items}}
-				<th><button name="reset-search" class="btn btn-warning btn-sm">Reset</button></th>
-			</tr>
-		</thead>
-		<tbody class="list-group">
-			<tr><td>
-				<div class="alert alert-info" role="alert">You have no items.</div>
-			</td></tr>
-		</tbody>
-	</table>
-	<div class="paginate-footer"></div>
-<div>
-		</script>
-
-		<script type='text/template' name="table_footer">
-<div>
-	<nav class="pull-right">
-		<ul class="pagination" style="margin:0">
-			<li><a data-page="1" href="javascript:void(0);" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>{{#pages}}
-				<li class="{{active}}"><a data-page="{{name}}" href="javascript:void(0);">{{name}}</a></li>
-			{{/pages}}
-			<li><a data-page="" href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>
-		</ul>
-	</nav>
-	<h5 class="range">Showing {{first}} to {{last}} of {{size}} entries</h5>
-</div>
-		</script>
-
-		<script type='text/template' name="table_row">
-<tr class="filterable">
-	{{#items}}
-	<td>{{{name}}}</td>
-	{{/items}}
-	<td style="min-width:100px">
-		<!-- <div class="btn-group" role="group">
-			<span class="btn btn-xs btn-info" data-event="edit" href="#">Edit</span>
-			<span class="btn btn-xs btn-danger" data-event="delete" href="#">Delete</spab>
-		</div> -->
-		<!-- Split button -->
-		<div class="btn-group">
-		  <button type="button" class="btn btn-xs btn-info go">Go to</button>
-		  <button type="button" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		    <span class="caret"></span>
-		    <span class="sr-only">Toggle Dropdown</span>
-		  </button>
-		  <ul class="dropdown-menu dropdown-menu-right">
-		    <li><a href="javascript:void(0);" data-event="edit"><i class="fa fa-pencil"></i> Edit</a></li>
-		    <li><a href="javascript:void(0);" data-event="delete"><i class="fa fa-times"></i> Delete</a></li>
-		  </ul>
-		</div>
-	</td>
-</tr>
-		</script>
-
-		<script type='text/javascript' >
-			templates['table_row'] = Hogan.compile(document.getElementsByName('table_row')[0].innerHTML)
-			templates['table_footer'] = Hogan.compile(document.getElementsByName('table_footer')[0].innerHTML)
-			templates['table'] = Hogan.compile(document.getElementsByName('table')[0].innerHTML)
-//templates['list'] = Hogan.compile('<div class="list-group"></div>');
-
-
-
-		</script>
 		<script type='text/javascript' >
 			bb = new breadBaker({container: '#first',schema:[
 				{type:"text", name:"title", label:"Title"},
 				{type:"select", name:"status", label: "Status", options:[{label:'Started', value:'Started'}, {label:'Created', value:'Created'}]}
 
 			], data: data})
-			$('body').keydown(function(event) {
-				switch(event.keyCode) {
-					case 27://escape
-							cb.deactivate();
-						break;
-				}
-			});
+			
 		</script>
 
 </body></html>

@@ -1,0 +1,23 @@
+<tr class="filterable">
+	{{#items}}
+	<td>{{{name}}}</td>
+	{{/items}}
+	<td style="min-width:100px">
+		<!-- <div class="btn-group" role="group">
+			<span class="btn btn-xs btn-info" data-event="edit" href="#">Edit</span>
+			<span class="btn btn-xs btn-danger" data-event="delete" href="#">Delete</spab>
+		</div> -->
+		<!-- Split button -->
+		<div class="btn-group">
+		  <button type="button" class="btn btn-xs btn-info go">Go to</button>
+		  <button type="button" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <span class="caret"></span>
+		    <span class="sr-only">Toggle Dropdown</span>
+		  </button>
+		  <ul class="dropdown-menu dropdown-menu-right">
+		    <li><a href="javascript:void(0);" data-event="edit"><i class="fa fa-pencil"></i> Edit</a></li>
+		    <li><a href="javascript:void(0);" data-event="delete"><i class="fa fa-times"></i> Delete</a></li>
+		  </ul>
+		</div>
+	</td>
+</tr>

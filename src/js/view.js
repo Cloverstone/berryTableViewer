@@ -21,9 +21,11 @@ function viewitem(options){
 		this.$el.find('[data-event="delete"]').show().on('click', function(){
 			console.log('delete');
 		});
-		this.$el.find('[data-event="edit"]').show().on('click', function(){
-			console.log('edit');
-		});
+		this.$el.find('[data-event="edit"]').show().on('click', $.proxy(function(){
+			$().berry({legend: 'Edit', model:this.model}).on('saved', function() {
+				this.update();
+			}, this)
+		},this));
 
 		// this.$el.find("abbr.timeago").timeago();
 		this.$el.find("[data-moment]").each(function(item){
