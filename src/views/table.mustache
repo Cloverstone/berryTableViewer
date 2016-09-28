@@ -1,14 +1,15 @@
 	<div class="well" style="background:#fff">
 	<div class="form"></div>		
-	<div class="paginate-footer"></div>
+	<div class="paginate-footer" style="overflow:hidden"></div>
+	<div class="table-responsive">
 	<table class="table table-bordered table-striped table-hover dataTable">
 		<thead>
-			<tr style="background:#fff;cursor:pointer">
+			<tr style="background:#fff;cursor:pointer" class="noselect">
 				{{#items}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort"></i> {{label}}</h6></th>{{/items}}
 				<th style="width: 100px;">Actions</th>
 			</tr>				
 			<tr style="background:#fff;" class="filter">
-				{{#items}}<td data-inline="{{cname}}"></td>{{/items}}
+				{{#items}}<td data-inline="{{cname}}" id="{{id}}"></td>{{/items}}
 				<th><button name="reset-search" class="btn btn-warning btn-sm">Reset</button></th>
 			</tr>
 		</thead>
@@ -18,5 +19,6 @@
 			</td></tr>
 		</tbody>
 	</table>
-	<div class="paginate-footer"></div>
+</div>
+	<div class="paginate-footer" style="overflow:hidden"></div>
 <div>

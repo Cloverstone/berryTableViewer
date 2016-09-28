@@ -1,18 +1,25 @@
- function breadBaker(options) {
+function breadBaker(options) {
 	this.draw = function() {
 		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
 
 		var container = this.$el.find('.list-group');
 		container.empty();
-		_.each(this.grab(options), function(model){
-			new viewitem({ 'model': model, container: container, summary:summary});
-		});
+		
+		this.search(options);
+
 		var renderObj = {};
-		var showing = (this.lastGrabbed>(options.count * options.page))? (options.count * options.page) : this.lastGrabbed;
 		options.pagecount = Math.ceil(this.lastGrabbed / options.count);
 		renderObj.pages = [];
 
+        if(options.page > options.pagecount){
+            options.page = options.pagecount || 1;
+        }
+        var showing = (this.lastGrabbed>(options.count * options.page))? (options.count * options.page) : this.lastGrabbed;
+
+        _.each(this.grab(options), function(model){
+			new viewitem({ 'model': model, container: container, summary:summary});
+		});
 		var startpage = options.page - 2;
 		if(startpage < 1){startpage = 1}
 		var endpage = options.page + 2;
@@ -70,33 +77,9 @@
 
 	var options = $.extend({count: 5, page: 1, sort: 'createdAt', reverse: false}, options);
 
-	options.data = _.map(_.map(options.data, Berry.processOpts), function(item){
-    item.show = true;
-    item.isEnabled = true;
-    return item;
-	})
-	
-	var summary = {'items': _.map(options.schema, function(val){
-		var name = (val.name|| val.label.split(' ').join('_').toLowerCase());
-		switch(val.type){
-			case 'date':
-				name = '<span data-moment="{{'+name+'}}" data-format="L"></span>'
-				break;
-			case 'select':
-				name = '<span data-popins="'+name+'"></span>'
-				break;
-			case 'color':
-				name = '<div class="btn btn-default" style="background-color:{{'+name+'}}">{{'+name+'}}</div> {{'+name+'}}'
-				break;
-			default:
-				name = '{{'+ name + '}}'
-		}
-		return {'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase())} 
-	})};
-	var template = Hogan.compile(templates['table'].render(summary, templates));
+	options.schema = _.map(options.schema, Berry.processOpts);
 
-		// berryDrupeletListView = berryDrupeletView.extend({view: Hogan.compile(templates['table_row'].render(summary, templates)) });
-	var filterFields = _.map($.extend(true, {},options.schema), function(val){
+	var filterFields = _.map($.extend(true, {}, options.schema), function(val){
 		var name = (val.name|| val.label.split(' ').join('_').toLowerCase());
 		switch(val.type){
 			case 'textarea':
@@ -120,8 +103,37 @@
 				return _.omit(item, 'selected');
 			})
 		}
+		val.id = val.id || Berry.getUID();
+		val.show = {};
+        val.isEnabled = true;
 		return val;
 	});
+	if(typeof options.columns == 'object'){
+    	filterFields = _.filter(filterFields, function(item){
+    	    return (_.contains(options.columns, item.name) || _.contains(options.columns,item.id))
+    	})
+	}
+
+	var summary = {'items': _.map(filterFields, function(val){
+		var name = (val.name|| val.label.split(' ').join('_').toLowerCase());
+		switch(val.type){
+			case 'date':
+				name = '<span data-moment="{{'+name+'}}" data-format="L"></span>'
+				break;
+			case 'select':
+				// name = '<span data-popins="'+name+'"></span>'
+				name = '{{'+ name + '}}'
+				break;
+			case 'color':
+				name = '<div class="btn btn-default" style="background-color:{{'+name+'}}">{{'+name+'}}</div> {{'+name+'}}'
+				break;
+			default:
+				name = '{{'+ name + '}}'
+		}
+		return {'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id} 
+	})};
+	var template = Hogan.compile(templates['table'].render(summary, templates));
+
 	this.defaults = {};
 	_.map(filterFields, function(val){
 		switch(val.type){
@@ -146,13 +158,12 @@
 	}
 	function onload($el){
 		this.$el = $el;
-		this.berry = $el.find('.form').berry({attributes: options, actions: false, fields: [{label:'Records per page', name:'count', type: 'select', options: [5,10,15,20,{label: 'All', value: 100}], columns: 7},{label: 'Search', name:'filter', columns: 5, offset: 0, pre: '<i class="fa fa-filter"></i>'}]}).on('change:count', function(){
+		this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 100}, options: options.entries || [5,10,15,20] , columns: 2},{label: 'Search', name:'filter', columns: 5, offset: 5, pre: '<i class="fa fa-filter"></i>'}]}).on('change:count', function(){
 			$.extend(options, this.berry.toJSON());
 			options.count = parseInt(options.count,10);
 			this.draw();
 		}, this);
-
-		this.filter = $el.find('.filter').berry({renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: filterFields }).on('change', function(){
+		this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: filterFields }).on('change', function(){
 			this.draw();
 		}, this);
 
@@ -178,21 +189,35 @@
 		this.draw();
 
 	}
-
-	this.grab = function(options) {
-		var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });
+    this.search = function(options){
+        var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });
 		if(!options.reverse){
 			ordered = ordered.reverse();
 		}
 		ordered = _.filter(ordered, function(anyModel) {
+
 			var keep = $.isEmptyObject(options.search);
 			for(var filter in options.search) {
-				keep = keep || ($.score((anyModel.attributes[filter]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
+			    var temp;
+			    if(typeof _.where(options.schema, {name:filter})[0].options == 'undefined') {
+			    	temp = ($.score((anyModel.attributes[filter]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
+			    }else{
+			        temp = (anyModel.attributes[filter]+'' == options.search[filter]+'')
+			    }
+			 //   keep = keep|| temp;
+			    keep = temp;
+			    if(!keep){break;}
 			}
+			
+			
+			
 			return keep;
 		})
 		this.lastGrabbed = ordered.length;
-		return ordered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
+		this.filtered = ordered;
+    }
+	this.grab = function(options) {
+		return this.filtered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
 	};
 	this.models = [];
 
@@ -232,10 +257,13 @@ function viewitem(options){
 			console.log('delete');
 		});
 		this.$el.find('[data-event="edit"]').show().on('click', $.proxy(function(){
-			$().berry({legend: 'Edit', model:this.model}).on('saved', function() {
+			$().berry({name:'edit',legend: 'Edit', model:this.model}).on('saved', function() {
 				if(typeof this.model.owner.options.edit == 'function'){
 					this.model.owner.options.edit(this.model);
 				}
+				//else if(typeof this.model.owner.options.edit == 'string' && typeof  == 'function' ){
+				    
+				//}
 				this.update();
 			}, this)
 		},this));
@@ -274,7 +302,6 @@ function viewitem(options){
 }
 
 
-
 function tableModel (owner, initial) {
 	this.owner = owner;
 	this.attributes = {};
@@ -283,7 +310,7 @@ function tableModel (owner, initial) {
 		this.attributes = newAtts;
 	}
 	$.extend(true, this.attributes, this.defaults, initial);
-	this.toJSON = function(){return this.attributes}
+	this.toJSON = function() {return this.attributes}
 
 };
 
@@ -292,7 +319,6 @@ tableModel.prototype.addSub = Berry.prototype.addSub;
 tableModel.prototype.on = Berry.prototype.on;
 tableModel.prototype.off = Berry.prototype.off;
 tableModel.prototype.trigger = Berry.prototype.trigger;
-
 
 
 _.mixin({
@@ -358,9 +384,7 @@ _.mixin({
     return 0.0;
   };
 })(jQuery);
-
-
 if (!!!templates) var templates = {};
-templates["table"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"well\" style=\"background:#fff\">");t.b("\n" + i);t.b("	<div class=\"form\"></div>		");t.b("\n" + i);t.b("	<div class=\"paginate-footer\"></div>");t.b("\n" + i);t.b("	<table class=\"table table-bordered table-striped table-hover dataTable\">");t.b("\n" + i);t.b("		<thead>");t.b("\n" + i);t.b("			<tr style=\"background:#fff;cursor:pointer\">");t.b("\n" + i);t.b("				");if(t.s(t.f("items",c,p,1),c,p,0,253,384,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<th data-sort=\"");t.b(t.v(t.f("cname",c,p,0)));t.b("\"><h6 style=\"margin: 2px;font-size:13px;white-space: nowrap\"><i class=\"fa fa-sort\"></i> ");t.b(t.v(t.f("label",c,p,0)));t.b("</h6></th>");});c.pop();}t.b("\n" + i);t.b("				<th style=\"width: 100px;\">Actions</th>");t.b("\n" + i);t.b("			</tr>				");t.b("\n" + i);t.b("			<tr style=\"background:#fff;\" class=\"filter\">");t.b("\n" + i);t.b("				");if(t.s(t.f("items",c,p,1),c,p,0,513,546,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<td data-inline=\"");t.b(t.v(t.f("cname",c,p,0)));t.b("\"></td>");});c.pop();}t.b("\n" + i);t.b("				<th><button name=\"reset-search\" class=\"btn btn-warning btn-sm\">Reset</button></th>");t.b("\n" + i);t.b("			</tr>");t.b("\n" + i);t.b("		</thead>");t.b("\n" + i);t.b("		<tbody class=\"list-group\">");t.b("\n" + i);t.b("			<tr><td>");t.b("\n" + i);t.b("				<div class=\"alert alert-info\" role=\"alert\">You have no items.</div>");t.b("\n" + i);t.b("			</td></tr>");t.b("\n" + i);t.b("		</tbody>");t.b("\n" + i);t.b("	</table>");t.b("\n" + i);t.b("	<div class=\"paginate-footer\"></div>");t.b("\n" + i);t.b("<div>");return t.fl(); },partials: {}, subs: {  }});
-templates["table_footer"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div>");t.b("\n" + i);t.b("	<nav class=\"pull-right\">");t.b("\n" + i);if(t.s(t.f("size",c,p,1),c,p,0,42,702,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("		<ul class=\"pagination\" style=\"margin:0\">");t.b("\n" + i);t.b("			<li><a data-page=\"1\" href=\"javascript:void(0);\" aria-label=\"First\"><span aria-hidden=\"true\">&laquo;</span></a></li>");t.b("\n" + i);t.b("			<li><a data-page=\"dec\" href=\"javascript:void(0);\" aria-label=\"Previous\"><span aria-hidden=\"true\">&lsaquo;</span></a></li>");t.b("\n" + i);if(t.s(t.f("pages",c,p,1),c,p,0,343,443,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("				<li class=\"");t.b(t.v(t.f("active",c,p,0)));t.b("\"><a data-page=\"");t.b(t.v(t.f("name",c,p,0)));t.b("\" href=\"javascript:void(0);\">");t.b(t.v(t.f("name",c,p,0)));t.b("</a></li>");t.b("\n" + i);});c.pop();}t.b("			<li><a data-page=\"inc\" href=\"javascript:void(0);\" aria-label=\"Next\"><span aria-hidden=\"true\">&rsaquo;</span></a></li>");t.b("\n" + i);t.b("			<li><a data-page=\"\" href=\"javascript:void(0);\" aria-label=\"Last\"><span aria-hidden=\"true\">&raquo;</span></a></li>");t.b("\n");t.b("\n" + i);t.b("		</ul>");t.b("\n" + i);});c.pop();}t.b("	</nav>");t.b("\n" + i);t.b("	<h5 class=\"range\">");if(t.s(t.f("size",c,p,1),c,p,0,748,797,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("Showing ");t.b(t.v(t.f("first",c,p,0)));t.b(" to ");t.b(t.v(t.f("last",c,p,0)));t.b(" of ");t.b(t.v(t.f("size",c,p,0)));t.b(" entries");});c.pop();}if(!t.s(t.f("size",c,p,1),c,p,1,0,0,"")){t.b("No matching entries");};t.b("</h5>");t.b("\n");t.b("\n" + i);t.b("</div>");return t.fl(); },partials: {}, subs: {  }});
+templates["table"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"well\" style=\"background:#fff\">");t.b("\n" + i);t.b("	<div class=\"form\"></div>		");t.b("\n" + i);t.b("	<div class=\"paginate-footer\" style=\"overflow:hidden\"></div>");t.b("\n" + i);t.b("	<div class=\"table-responsive\">");t.b("\n" + i);t.b("	<table class=\"table table-bordered table-striped table-hover dataTable\">");t.b("\n" + i);t.b("		<thead>");t.b("\n" + i);t.b("			<tr style=\"background:#fff;cursor:pointer\" class=\"noselect\">");t.b("\n" + i);t.b("				");if(t.s(t.f("items",c,p,1),c,p,0,326,457,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<th data-sort=\"");t.b(t.v(t.f("cname",c,p,0)));t.b("\"><h6 style=\"margin: 2px;font-size:13px;white-space: nowrap\"><i class=\"fa fa-sort\"></i> ");t.b(t.v(t.f("label",c,p,0)));t.b("</h6></th>");});c.pop();}t.b("\n" + i);t.b("				<th style=\"width: 100px;\">Actions</th>");t.b("\n" + i);t.b("			</tr>				");t.b("\n" + i);t.b("			<tr style=\"background:#fff;\" class=\"filter\">");t.b("\n" + i);t.b("				");if(t.s(t.f("items",c,p,1),c,p,0,586,631,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<td data-inline=\"");t.b(t.v(t.f("cname",c,p,0)));t.b("\" id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"></td>");});c.pop();}t.b("\n" + i);t.b("				<th><button name=\"reset-search\" class=\"btn btn-warning btn-sm\">Reset</button></th>");t.b("\n" + i);t.b("			</tr>");t.b("\n" + i);t.b("		</thead>");t.b("\n" + i);t.b("		<tbody class=\"list-group\">");t.b("\n" + i);t.b("			<tr><td>");t.b("\n" + i);t.b("				<div class=\"alert alert-info\" role=\"alert\">You have no items.</div>");t.b("\n" + i);t.b("			</td></tr>");t.b("\n" + i);t.b("		</tbody>");t.b("\n" + i);t.b("	</table>");t.b("\n" + i);t.b("</div>");t.b("\n" + i);t.b("	<div class=\"paginate-footer\" style=\"overflow:hidden\"></div>");t.b("\n" + i);t.b("<div>");return t.fl(); },partials: {}, subs: {  }});
+templates["table_footer"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div>");t.b("\n" + i);t.b("	<nav class=\"pull-right\">");t.b("\n" + i);if(t.s(t.f("size",c,p,1),c,p,0,42,751,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("		<ul class=\"pagination\" style=\"margin:0\">");t.b("\n" + i);t.b("			<li class=\"pagination-first\"><a data-page=\"1\" href=\"javascript:void(0);\" aria-label=\"First\"><span aria-hidden=\"true\">&laquo;</span></a></li>");t.b("\n" + i);t.b("			<li><a data-page=\"dec\" href=\"javascript:void(0);\" aria-label=\"Previous\"><span aria-hidden=\"true\">&lsaquo;</span></a></li>");t.b("\n" + i);if(t.s(t.f("pages",c,p,1),c,p,0,368,468,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("				<li class=\"");t.b(t.v(t.f("active",c,p,0)));t.b("\"><a data-page=\"");t.b(t.v(t.f("name",c,p,0)));t.b("\" href=\"javascript:void(0);\">");t.b(t.v(t.f("name",c,p,0)));t.b("</a></li>");t.b("\n" + i);});c.pop();}t.b("			<li><a data-page=\"inc\" href=\"javascript:void(0);\" aria-label=\"Next\"><span aria-hidden=\"true\">&rsaquo;</span></a></li>");t.b("\n" + i);t.b("			<li class=\"pagination-last\"><a data-page=\"\" href=\"javascript:void(0);\" aria-label=\"Last\"><span aria-hidden=\"true\">&raquo;</span></a></li>");t.b("\n");t.b("\n" + i);t.b("		</ul>");t.b("\n" + i);});c.pop();}t.b("	</nav>");t.b("\n" + i);t.b("	<h5 class=\"range\">");if(t.s(t.f("size",c,p,1),c,p,0,797,846,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("Showing ");t.b(t.v(t.f("first",c,p,0)));t.b(" to ");t.b(t.v(t.f("last",c,p,0)));t.b(" of ");t.b(t.v(t.f("size",c,p,0)));t.b(" entries");});c.pop();}if(!t.s(t.f("size",c,p,1),c,p,1,0,0,"")){t.b("No matching entries");};t.b("</h5>");t.b("\n");t.b("\n" + i);t.b("</div>");return t.fl(); },partials: {}, subs: {  }});
 templates["table_row"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr class=\"filterable\">");t.b("\n" + i);if(t.s(t.f("items",c,p,1),c,p,0,35,58,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("	<td>");t.b(t.t(t.f("name",c,p,0)));t.b("</td>");t.b("\n" + i);});c.pop();}t.b("	<td style=\"min-width:100px\">");t.b("\n" + i);t.b("		<!-- <div class=\"btn-group\" role=\"group\">");t.b("\n" + i);t.b("			<span class=\"btn btn-xs btn-info\" data-event=\"edit\" href=\"#\">Edit</span>");t.b("\n" + i);t.b("			<span class=\"btn btn-xs btn-danger\" data-event=\"delete\" href=\"#\">Delete</spab>");t.b("\n" + i);t.b("		</div> -->");t.b("\n" + i);t.b("		<!-- Split button -->");t.b("\n" + i);t.b("		<div class=\"btn-group\">");t.b("\n" + i);t.b("		  <button type=\"button\" class=\"btn btn-xs btn-info go\">Go to</button>");t.b("\n" + i);t.b("		  <button type=\"button\" class=\"btn btn-xs btn-info dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">");t.b("\n" + i);t.b("		    <span class=\"caret\"></span>");t.b("\n" + i);t.b("		    <span class=\"sr-only\">Toggle Dropdown</span>");t.b("\n" + i);t.b("		  </button>");t.b("\n" + i);t.b("		  <ul class=\"dropdown-menu dropdown-menu-right\">");t.b("\n" + i);t.b("		    <li><a href=\"javascript:void(0);\" data-event=\"edit\"><i class=\"fa fa-pencil\"></i> Edit</a></li>");t.b("\n" + i);t.b("		    <li><a href=\"javascript:void(0);\" data-event=\"delete\"><i class=\"fa fa-times\"></i> Delete</a></li>");t.b("\n" + i);t.b("		  </ul>");t.b("\n" + i);t.b("		</div>");t.b("\n" + i);t.b("	</td>");t.b("\n" + i);t.b("</tr>");return t.fl(); },partials: {}, subs: {  }});
