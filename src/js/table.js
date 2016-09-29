@@ -75,11 +75,11 @@ function breadBaker(options) {
 		this.draw();
 	}
 
-	var options = $.extend({count: 5, page: 1, sort: 'createdAt', reverse: false}, options);
+	var options = $.extend({count: options.count || 5, page: 1, sort: 'createdAt', reverse: false}, options);
 
 	options.schema = _.map(options.schema, Berry.processOpts);
 
-	var filterFields = _.map($.extend(true, {}, options.schema), function(val){
+	options.filterFields = _.map($.extend(true, {}, options.filters || options.schema), function(val){
 		var name = (val.name|| val.label.split(' ').join('_').toLowerCase());
 		switch(val.type){
 			case 'textarea':
@@ -104,25 +104,30 @@ function breadBaker(options) {
 			})
 		}
 		val.id = val.id || Berry.getUID();
+		val.search = val.name;
+		val.name = val.id;
 		val.show = {};
         val.isEnabled = true;
 		return val;
 	});
 	if(typeof options.columns == 'object'){
-    	filterFields = _.filter(filterFields, function(item){
+    	options.filterFields = _.filter(options.filterFields, function(item){
     	    return (_.contains(options.columns, item.name) || _.contains(options.columns,item.id))
     	})
 	}
 
-	var summary = {'items': _.map(filterFields, function(val){
-		var name = (val.name|| val.label.split(' ').join('_').toLowerCase());
+	var summary = {'items': _.map(options.filterFields, function(val){
+		var name = (val.search|| val.label.split(' ').join('_').toLowerCase());
 		switch(val.type){
 			case 'date':
 				name = '<span data-moment="{{'+name+'}}" data-format="L"></span>'
 				break;
 			case 'select':
-				// name = '<span data-popins="'+name+'"></span>'
-				name = '{{'+ name + '}}'
+			    if(options.inlineEdit){
+    				name = '<span data-popins="'+name+'"></span>';
+			    }else{
+    				name = '{{'+ name + '}}'
+			    }
 				break;
 			case 'color':
 				name = '<div class="btn btn-default" style="background-color:{{'+name+'}}">{{'+name+'}}</div> {{'+name+'}}'
@@ -130,12 +135,12 @@ function breadBaker(options) {
 			default:
 				name = '{{'+ name + '}}'
 		}
-		return {'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id} 
+		return {'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
 	})};
 	var template = Hogan.compile(templates['table'].render(summary, templates));
 
 	this.defaults = {};
-	_.map(filterFields, function(val){
+	_.map(options.filterFields, function(val){
 		switch(val.type){
 			case 'text':
 				val.value = '';
@@ -156,14 +161,19 @@ function breadBaker(options) {
 	function render(){
 		return template.render();
 	}
+	var silentPopulate = function(attributes,fields) {this.each(function(attributes) {if(!this.isContainer) {this.setValue(Berry.search(attributes, this.getPath()));}}, [attributes], this.fields);}
+
 	function onload($el){
 		this.$el = $el;
-		this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 100}, options: options.entries || [5,10,15,20] , columns: 2},{label: 'Search', name:'filter', columns: 5, offset: 5, pre: '<i class="fa fa-filter"></i>'}]}).on('change:count', function(){
+		this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 100}, options: options.entries || [5,10,15,20] , columns: 2},{label:false,name:"reset",type:'raw',value:'<button name="reset-search" class="btn btn-warning btn-sm" style="margin-top: 30px;">Reset</button>',columns: 2},{label: 'Search', name:'filter', columns: 5, offset: 3, pre: '<i class="fa fa-filter"></i>'}]}).on('change:count', function(){
 			$.extend(options, this.berry.toJSON());
 			options.count = parseInt(options.count,10);
 			this.draw();
 		}, this);
-		this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: filterFields }).on('change', function(){
+
+
+
+		this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 			this.draw();
 		}, this);
 
@@ -183,26 +193,28 @@ function breadBaker(options) {
 		this.$el.on('click','[data-page]', changePage.bind(this));
 		this.$el.on('click','[data-sort]', changeSort.bind(this));
 		this.$el.on('click','[name="reset-search"]', function(){
-			this.filter.populate(this.defaults)
+        	silentPopulate.call(this.filter,this.defaults)
 			this.draw();
 		}.bind(this));
 		this.draw();
 
 	}
     this.search = function(options){
+
         var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });
 		if(!options.reverse){
 			ordered = ordered.reverse();
 		}
+		filterMap = this.filterMap;
 		ordered = _.filter(ordered, function(anyModel) {
 
 			var keep = $.isEmptyObject(options.search);
 			for(var filter in options.search) {
 			    var temp;
-			    if(typeof _.where(options.schema, {name:filter})[0].options == 'undefined') {
-			    	temp = ($.score((anyModel.attributes[filter]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
+			    if(typeof _.where(options.filterFields, {id:filter})[0].options == 'undefined') {
+			    	temp = ($.score((anyModel.attributes[this.filterMap[filter]]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
 			    }else{
-			        temp = (anyModel.attributes[filter]+'' == options.search[filter]+'')
+			        temp = (anyModel.attributes[this.filterMap[filter]]+'' == options.search[filter]+'')
 			    }
 			 //   keep = keep|| temp;
 			    keep = temp;
@@ -222,7 +234,11 @@ function breadBaker(options) {
 	this.models = [];
 
 	this.options = options;
-
+	this.filterMap = {}
+	_.map(options.filterFields, function(item){
+	    this.filterMap[item.id] = item.search ;
+	}.bind(this));
+	
 	var fields = {
 		Title: {},
 		Feed: {type: 'select', label_key: 'title', value_key: '_id', required: true, default: {title: 'Current Collection', _id: 'collection'}},
@@ -384,7 +400,8 @@ _.mixin({
     return 0.0;
   };
 })(jQuery);
+
 if (!!!templates) var templates = {};
-templates["table"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"well\" style=\"background:#fff\">");t.b("\n" + i);t.b("	<div class=\"form\"></div>		");t.b("\n" + i);t.b("	<div class=\"paginate-footer\" style=\"overflow:hidden\"></div>");t.b("\n" + i);t.b("	<div class=\"table-responsive\">");t.b("\n" + i);t.b("	<table class=\"table table-bordered table-striped table-hover dataTable\">");t.b("\n" + i);t.b("		<thead>");t.b("\n" + i);t.b("			<tr style=\"background:#fff;cursor:pointer\" class=\"noselect\">");t.b("\n" + i);t.b("				");if(t.s(t.f("items",c,p,1),c,p,0,326,457,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<th data-sort=\"");t.b(t.v(t.f("cname",c,p,0)));t.b("\"><h6 style=\"margin: 2px;font-size:13px;white-space: nowrap\"><i class=\"fa fa-sort\"></i> ");t.b(t.v(t.f("label",c,p,0)));t.b("</h6></th>");});c.pop();}t.b("\n" + i);t.b("				<th style=\"width: 100px;\">Actions</th>");t.b("\n" + i);t.b("			</tr>				");t.b("\n" + i);t.b("			<tr style=\"background:#fff;\" class=\"filter\">");t.b("\n" + i);t.b("				");if(t.s(t.f("items",c,p,1),c,p,0,586,631,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<td data-inline=\"");t.b(t.v(t.f("cname",c,p,0)));t.b("\" id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"></td>");});c.pop();}t.b("\n" + i);t.b("				<th><button name=\"reset-search\" class=\"btn btn-warning btn-sm\">Reset</button></th>");t.b("\n" + i);t.b("			</tr>");t.b("\n" + i);t.b("		</thead>");t.b("\n" + i);t.b("		<tbody class=\"list-group\">");t.b("\n" + i);t.b("			<tr><td>");t.b("\n" + i);t.b("				<div class=\"alert alert-info\" role=\"alert\">You have no items.</div>");t.b("\n" + i);t.b("			</td></tr>");t.b("\n" + i);t.b("		</tbody>");t.b("\n" + i);t.b("	</table>");t.b("\n" + i);t.b("</div>");t.b("\n" + i);t.b("	<div class=\"paginate-footer\" style=\"overflow:hidden\"></div>");t.b("\n" + i);t.b("<div>");return t.fl(); },partials: {}, subs: {  }});
+templates["table"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div class=\"well\" style=\"background:#fff\">");t.b("\n" + i);t.b("	<div class=\"form\"></div>		");t.b("\n" + i);t.b("	<div class=\"paginate-footer\" style=\"overflow:hidden\"></div>");t.b("\n" + i);t.b("	<div class=\"table-responsive\">");t.b("\n" + i);t.b("	<table class=\"table table-bordered table-striped table-hover dataTable\">");t.b("\n" + i);t.b("		<thead>");t.b("\n" + i);t.b("			<tr style=\"background:#fff;cursor:pointer\" class=\"noselect\">");t.b("\n" + i);t.b("				");if(t.s(t.f("items",c,p,1),c,p,0,326,481,"{{ }}")){t.rs(c,p,function(c,p,t){if(t.s(t.f("visible",c,p,1),c,p,0,338,469,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<th data-sort=\"");t.b(t.v(t.f("cname",c,p,0)));t.b("\"><h6 style=\"margin: 2px;font-size:13px;white-space: nowrap\"><i class=\"fa fa-sort\"></i> ");t.b(t.v(t.f("label",c,p,0)));t.b("</h6></th>");});c.pop();}});c.pop();}t.b("\n" + i);t.b("				<th style=\"width: 100px;\">Actions</th>");t.b("\n" + i);t.b("			</tr>				");t.b("\n" + i);t.b("			<tr style=\"background:#fff;\" class=\"filter\">");t.b("\n" + i);t.b("				");if(t.s(t.f("items",c,p,1),c,p,0,610,679,"{{ }}")){t.rs(c,p,function(c,p,t){if(t.s(t.f("visible",c,p,1),c,p,0,622,667,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<td data-inline=\"");t.b(t.v(t.f("cname",c,p,0)));t.b("\" id=\"");t.b(t.v(t.f("id",c,p,0)));t.b("\"></td>");});c.pop();}});c.pop();}t.b("\n" + i);t.b("				<th><button name=\"reset-search\" class=\"btn btn-warning btn-sm\">Reset</button></th>");t.b("\n" + i);t.b("			</tr>");t.b("\n" + i);t.b("		</thead>");t.b("\n" + i);t.b("		<tbody class=\"list-group\">");t.b("\n" + i);t.b("			<tr><td>");t.b("\n" + i);t.b("				<div class=\"alert alert-info\" role=\"alert\">You have no items.</div>");t.b("\n" + i);t.b("			</td></tr>");t.b("\n" + i);t.b("		</tbody>");t.b("\n" + i);t.b("	</table>");t.b("\n" + i);t.b("</div>");t.b("\n" + i);t.b("	<div class=\"paginate-footer\" style=\"overflow:hidden\"></div>");t.b("\n" + i);t.b("<div>");return t.fl(); },partials: {}, subs: {  }});
 templates["table_footer"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<div>");t.b("\n" + i);t.b("	<nav class=\"pull-right\">");t.b("\n" + i);if(t.s(t.f("size",c,p,1),c,p,0,42,751,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("		<ul class=\"pagination\" style=\"margin:0\">");t.b("\n" + i);t.b("			<li class=\"pagination-first\"><a data-page=\"1\" href=\"javascript:void(0);\" aria-label=\"First\"><span aria-hidden=\"true\">&laquo;</span></a></li>");t.b("\n" + i);t.b("			<li><a data-page=\"dec\" href=\"javascript:void(0);\" aria-label=\"Previous\"><span aria-hidden=\"true\">&lsaquo;</span></a></li>");t.b("\n" + i);if(t.s(t.f("pages",c,p,1),c,p,0,368,468,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("				<li class=\"");t.b(t.v(t.f("active",c,p,0)));t.b("\"><a data-page=\"");t.b(t.v(t.f("name",c,p,0)));t.b("\" href=\"javascript:void(0);\">");t.b(t.v(t.f("name",c,p,0)));t.b("</a></li>");t.b("\n" + i);});c.pop();}t.b("			<li><a data-page=\"inc\" href=\"javascript:void(0);\" aria-label=\"Next\"><span aria-hidden=\"true\">&rsaquo;</span></a></li>");t.b("\n" + i);t.b("			<li class=\"pagination-last\"><a data-page=\"\" href=\"javascript:void(0);\" aria-label=\"Last\"><span aria-hidden=\"true\">&raquo;</span></a></li>");t.b("\n");t.b("\n" + i);t.b("		</ul>");t.b("\n" + i);});c.pop();}t.b("	</nav>");t.b("\n" + i);t.b("	<h5 class=\"range\">");if(t.s(t.f("size",c,p,1),c,p,0,797,846,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("Showing ");t.b(t.v(t.f("first",c,p,0)));t.b(" to ");t.b(t.v(t.f("last",c,p,0)));t.b(" of ");t.b(t.v(t.f("size",c,p,0)));t.b(" entries");});c.pop();}if(!t.s(t.f("size",c,p,1),c,p,1,0,0,"")){t.b("No matching entries");};t.b("</h5>");t.b("\n");t.b("\n" + i);t.b("</div>");return t.fl(); },partials: {}, subs: {  }});
-templates["table_row"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr class=\"filterable\">");t.b("\n" + i);if(t.s(t.f("items",c,p,1),c,p,0,35,58,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("	<td>");t.b(t.t(t.f("name",c,p,0)));t.b("</td>");t.b("\n" + i);});c.pop();}t.b("	<td style=\"min-width:100px\">");t.b("\n" + i);t.b("		<!-- <div class=\"btn-group\" role=\"group\">");t.b("\n" + i);t.b("			<span class=\"btn btn-xs btn-info\" data-event=\"edit\" href=\"#\">Edit</span>");t.b("\n" + i);t.b("			<span class=\"btn btn-xs btn-danger\" data-event=\"delete\" href=\"#\">Delete</spab>");t.b("\n" + i);t.b("		</div> -->");t.b("\n" + i);t.b("		<!-- Split button -->");t.b("\n" + i);t.b("		<div class=\"btn-group\">");t.b("\n" + i);t.b("		  <button type=\"button\" class=\"btn btn-xs btn-info go\">Go to</button>");t.b("\n" + i);t.b("		  <button type=\"button\" class=\"btn btn-xs btn-info dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">");t.b("\n" + i);t.b("		    <span class=\"caret\"></span>");t.b("\n" + i);t.b("		    <span class=\"sr-only\">Toggle Dropdown</span>");t.b("\n" + i);t.b("		  </button>");t.b("\n" + i);t.b("		  <ul class=\"dropdown-menu dropdown-menu-right\">");t.b("\n" + i);t.b("		    <li><a href=\"javascript:void(0);\" data-event=\"edit\"><i class=\"fa fa-pencil\"></i> Edit</a></li>");t.b("\n" + i);t.b("		    <li><a href=\"javascript:void(0);\" data-event=\"delete\"><i class=\"fa fa-times\"></i> Delete</a></li>");t.b("\n" + i);t.b("		  </ul>");t.b("\n" + i);t.b("		</div>");t.b("\n" + i);t.b("	</td>");t.b("\n" + i);t.b("</tr>");return t.fl(); },partials: {}, subs: {  }});
+templates["table_row"] = new Hogan.Template({code: function (c,p,i) { var t=this;t.b(i=i||"");t.b("<tr class=\"filterable\">");t.b("\n" + i);if(t.s(t.f("items",c,p,1),c,p,0,35,82,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("	");if(t.s(t.f("visible",c,p,1),c,p,0,49,68,"{{ }}")){t.rs(c,p,function(c,p,t){t.b("<td>");t.b(t.t(t.f("name",c,p,0)));t.b("</td>");});c.pop();}t.b("\n" + i);});c.pop();}t.b("	<td style=\"min-width:100px\">");t.b("\n" + i);t.b("		<!-- <div class=\"btn-group\" role=\"group\">");t.b("\n" + i);t.b("			<span class=\"btn btn-xs btn-info\" data-event=\"edit\" href=\"#\">Edit</span>");t.b("\n" + i);t.b("			<span class=\"btn btn-xs btn-danger\" data-event=\"delete\" href=\"#\">Delete</spab>");t.b("\n" + i);t.b("		</div> -->");t.b("\n" + i);t.b("		<!-- Split button -->");t.b("\n" + i);t.b("		<div class=\"btn-group\">");t.b("\n" + i);t.b("		  <button type=\"button\" class=\"btn btn-xs btn-info go\">Go to</button>");t.b("\n" + i);t.b("		  <button type=\"button\" class=\"btn btn-xs btn-info dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">");t.b("\n" + i);t.b("		    <span class=\"caret\"></span>");t.b("\n" + i);t.b("		    <span class=\"sr-only\">Toggle Dropdown</span>");t.b("\n" + i);t.b("		  </button>");t.b("\n" + i);t.b("		  <ul class=\"dropdown-menu dropdown-menu-right\">");t.b("\n" + i);t.b("		    <li><a href=\"javascript:void(0);\" data-event=\"edit\"><i class=\"fa fa-pencil\"></i> Edit</a></li>");t.b("\n" + i);t.b("		    <li><a href=\"javascript:void(0);\" data-event=\"delete\"><i class=\"fa fa-times\"></i> Delete</a></li>");t.b("\n" + i);t.b("		  </ul>");t.b("\n" + i);t.b("		</div>");t.b("\n" + i);t.b("	</td>");t.b("\n" + i);t.b("</tr>");return t.fl(); },partials: {}, subs: {  }});

@@ -1,3 +1,4 @@
+
 _.mixin({
   compactObject: function(o) {
     _.each(o, function(v, k) {
@@ -61,3 +62,4 @@ _.mixin({
     return 0.0;
   };
 })(jQuery);
+

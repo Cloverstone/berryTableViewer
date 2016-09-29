@@ -68,10 +68,14 @@
 		<script type='text/javascript' src='assets/js/bin/bootstrap.full.berry.js'></script>
 		<!--script type='text/javascript' src='assets/js/backbone.min.js'></script-->
 		<script type='text/javascript' src='src/js/data.js'></script>
-		<script type='text/javascript' src='src/js/table.js'></script>
+		<script type='text/javascript' src='src/js/bread.js'></script>
+		<script type='text/javascript' src='src/js/view.js'></script>
+		<script type='text/javascript' src='src/js/collection.js'></script>
+		<script type='text/javascript' src='src/js/utils.js'></script>
+		<script type='text/javascript' src='src/js/views.js'></script>
 
 		<script type='text/javascript' >
-			bb = new breadBaker({container: '#first',schema:[
+			bb = new breadViewer({container: '#first',schema:[
 				{type:"text", name:"title", label:"Title"},
 				{type:"select", name:"status", label: "Status", options:[{label:'Started', value:'Started'}, {label:'Created', value:'Created'}]}
 

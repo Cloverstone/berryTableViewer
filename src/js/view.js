@@ -1,11 +1,11 @@
+
 function viewitem(options){
 
 	this.update = function() {
 		if(typeof this.berry !== 'undefined'){this.berry.destroy();}
 
 		this.$el.find('[data-event]').off();
-
-		this.$el.replaceWith(this.setElement(renderMath(this.view.render(this.model.attributes , templates), this.model.attributes)).$el);
+		this.$el.replaceWith(this.setElement(this.view.render(this.model , templates)).$el);
 
 		if(this.$el.find('[data-popins]').length > 0){
 			this.berry = this.$el.berry({ popins: {container: '#first', viewport:{ selector: 'body', padding: 20 }}, renderer: 'popins', model: this.model});
@@ -17,12 +17,15 @@ function viewitem(options){
 			temp.push($(this).data('event'));
 		})
 
-
-		this.$el.find('[data-event="delete"]').show().on('click', function(){
-			console.log('delete');
-		});
+		this.$el.find('[data-event="delete"]').show()
 		this.$el.find('[data-event="edit"]').show().on('click', $.proxy(function(){
-			$().berry({legend: 'Edit', model:this.model}).on('saved', function() {
+			$().berry({name:'modal',legend: '<i class="fa fa-pencil-square-o"></i> Edit', model:this.model}).on('saved', function() {
+				if(typeof this.model.owner.options.edit == 'function'){
+					this.model.owner.options.edit(this.model);
+				}
+				//else if(typeof this.model.owner.options.edit == 'string' && typeof  == 'function' ){
+				    
+				//}
 				this.update();
 			}, this)
 		},this));
@@ -46,7 +49,6 @@ function viewitem(options){
 
 	this.model = options.model;
 	this.$el  = $('<tr>');
-	// this.setElement(renderMath(this.view.render(this.model.attributes ), this.model.attributes));
 	if(options.container){
 		options.container.append(this.$el);
 	}
@@ -60,5 +62,4 @@ function viewitem(options){
 	this.update();
 
 }
-
 
