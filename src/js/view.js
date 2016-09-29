@@ -11,14 +11,13 @@ function viewitem(options){
 			this.berry = this.$el.berry({ popins: {container: '#first', viewport:{ selector: 'body', padding: 20 }}, renderer: 'popins', model: this.model});
 		}
 
-		this.$el.find('[data-event]').hide();
 		var temp = [];
 		this.$el.find('[data-event]').each(function(){
 			temp.push($(this).data('event'));
 		})
 
-		this.$el.find('[data-event="delete"]').show()
-		this.$el.find('[data-event="edit"]').show().on('click', $.proxy(function(){
+		this.$el.find('[data-event="delete"]')
+		this.$el.find('[data-event="edit"]').on('click', $.proxy(function(){
 			$().berry({name:'modal',legend: '<i class="fa fa-pencil-square-o"></i> Edit', model:this.model}).on('saved', function() {
 				if(typeof this.model.owner.options.edit == 'function'){
 					this.model.owner.options.edit(this.model);

@@ -4,8 +4,6 @@ function breadViewer(options) {
 		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
 
-		var container = this.$el.find('.list-group');
-		container.empty();
 		
 		this.search(options);
 
@@ -18,9 +16,13 @@ function breadViewer(options) {
         }
         var showing = (this.lastGrabbed>(options.count * options.page))? (options.count * options.page) : this.lastGrabbed;
 
-        _.each(this.grab(options), function(model){
-			new viewitem({ 'model': model, container: container, summary:summary});
+		
+
+		var newContainer = $('<tbody class="list-group">');
+    _.each(this.grab(options), function(model){
+			new viewitem({ 'model': model, container: newContainer, summary:summary});
 		});
+		var container = this.$el.find('.list-group').empty().replaceWith(newContainer);
 		var startpage = options.page - 2;
 		if(startpage < 1){startpage = 1}
 		var endpage = options.page + 2;
@@ -190,7 +192,7 @@ function breadViewer(options) {
 
 		if($el.find('.form').length){
 			this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [
-					{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 100}, options: options.entries || [5,10,15,20] , columns: 2},
+					{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [5,10,15,20] , columns: 2},
 					// {label:false,name:"reset",type:'raw',value:'<button name="reset-search" class="btn btn-warning btn-sm" style="margin-top: 30px;">Reset Filter</button>',columns: 2},
 					{label:false,name:"reset",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:8},
 					// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-filter"></i>'}
@@ -228,7 +230,7 @@ function breadViewer(options) {
         	silentPopulate.call(this.filter,this.defaults)
 			this.draw();
 		}.bind(this));
-		this.$el.find('[data-event="add"]').show().on('click', $.proxy(function(){
+		this.$el.find('[data-event="add"]').on('click', $.proxy(function(){
 			$().berry({name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}).on('save', function() {
 				if(Berries.modal.validate()){
 				    var newModel = new tableModel(this, Berries.modal.toJSON());
