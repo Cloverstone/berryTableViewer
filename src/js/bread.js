@@ -1,25 +1,21 @@
-
 function breadViewer(options) {
 	this.draw = function() {
 		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
 
-		
 		this.search(options);
 
 		var renderObj = {};
 		options.pagecount = Math.ceil(this.lastGrabbed / options.count);
 		renderObj.pages = [];
 
-        if(options.page > options.pagecount){
-            options.page = options.pagecount || 1;
-        }
-        var showing = (this.lastGrabbed>(options.count * options.page))? (options.count * options.page) : this.lastGrabbed;
-
-		
+		if(options.page > options.pagecount){
+				options.page = options.pagecount || 1;
+		}
+		var showing = (this.lastGrabbed>(options.count * options.page))? (options.count * options.page) : this.lastGrabbed;
 
 		var newContainer = $('<tbody class="list-group">');
-    _.each(this.grab(options), function(model){
+		_.each(this.grab(options), function(model){
 			new viewitem({ 'model': model, container: newContainer, summary:summary});
 		});
 		var container = this.$el.find('.list-group').empty().replaceWith(newContainer);
@@ -78,25 +74,27 @@ function breadViewer(options) {
 		this.draw();
 	}
 
-	var options = $.extend({count: options.count || 5, page: 1, sort: 'createdAt', reverse: false}, options);
+	var options = $.extend({count: options.count || 25, page: 1, sort: 'createdAt', reverse: false}, options);
 
 	options.schema = _.map(_.map(options.schema, Berry.processOpts), function(item){
-        item.value = item.value || item.default;
-	    delete item.default;
-	    return item;
+		item.value = item.value || item.default;
+		delete item.default;
+		return item;
 	});
 
 	options.filterFields = _.map($.extend(true, {}, options.filters || options.schema), function(val){
-		var name = (val.name|| val.label.split(' ').join('_').toLowerCase());
+		val = Berry.normalizeItem(val);
+		name = val.name;
 		switch(val.type){
 			case 'textarea':
 			case 'contenteditable':
 			case 'ace':
 			case 'color':
+			case 'date':
 				val.type = 'text';
 				break;
 			case 'checkbox':
-				val.choices = [{label: 'False', value: 'false'}, {label: 'True', value: 'True'}];
+				val.choices = [{label: val.falsestate || 'False', value: val.falsestate || 'false'}, {label: val.truestate || 'True', value: val.truestate || 'True'}];
 			case 'radio':
 				val.type = 'select';
 			case 'select':
@@ -114,13 +112,13 @@ function breadViewer(options) {
 		val.search = val.name;
 		val.name = val.id;
 		val.show = {};
-        val.isEnabled = true;
+				val.isEnabled = true;
 		return val;
 	});
 	if(typeof options.columns == 'object'){
-    	options.filterFields = _.filter(options.filterFields, function(item){
-    	    return (_.contains(options.columns, item.name) || _.contains(options.columns,item.id))
-    	})
+			options.filterFields = _.filter(options.filterFields, function(item){
+					return (_.contains(options.columns, item.name) || _.contains(options.columns,item.id))
+			})
 	}
 
 	var summary = {'start':'{{', 'end':'}}','items': _.map(options.filterFields, function(val){
@@ -130,11 +128,11 @@ function breadViewer(options) {
 				name = '<span data-moment="{{attributes.'+name+'}}" data-format="L"></span>'
 				break;
 			case 'select':
-			    if(options.inlineEdit){
-    				name = '<span data-popins="'+name+'"></span>';
-			    }else{
-    				name = '{{attributes.'+ name + '}}'
-			    }
+					if(options.inlineEdit){
+						name = '<span data-popins="'+name+'"></span>';
+					}else{
+						name = '{{attributes.'+ name + '}}'
+					}
 				break;
 			case 'color':
 				name = '<div class="btn btn-default" style="background-color:{{attributes.'+name+'}}">{{attributes.'+name+'}}</div> {{attributes.'+name+'}}'
@@ -176,23 +174,23 @@ function breadViewer(options) {
 
 
 		this.$el.on('click', '[data-event="delete"]', function(e){
-		        		    var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
+										var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
 
-		    if(confirm("Are you sure you want to delete? \nThis operation can not be undone.\n\n"+ _.values(this.models[index].attributes).join('\n') )){
-    
-    			if(typeof this.options.delete == 'function'){
-    				this.options.delete(this.models[index]);
-    			}
-                this.models.splice(index,1);
-                this.draw();
-		    }
+				if(confirm("Are you sure you want to delete? \nThis operation can not be undone.\n\n"+ _.values(this.models[index].attributes).join('\n') )){
+		
+					if(typeof this.options.delete == 'function'){
+						this.options.delete(this.models[index]);
+					}
+								this.models.splice(index,1);
+								this.draw();
+				}
 		}.bind(this));
 
 
 
 		if($el.find('.form').length){
 			this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [
-					{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [5,10,15,20] , columns: 2},
+					{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [25, 50 ,100] , columns: 2},
 					// {label:false,name:"reset",type:'raw',value:'<button name="reset-search" class="btn btn-warning btn-sm" style="margin-top: 30px;">Reset Filter</button>',columns: 2},
 					{label:false,name:"reset",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:8},
 					// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-filter"></i>'}
@@ -219,37 +217,36 @@ function breadViewer(options) {
 			}
 		}
 		// this.collection.on('add', $.proxy(function(record) {
- 	// 		new viewitem({ 'model': record , container: this.$el.find('.list-group'),summary: summary});
- 	// 		this.draw();
+	// 		new viewitem({ 'model': record , container: this.$el.find('.list-group'),summary: summary});
+	// 		this.draw();
 		// }, this));
 		
 
 		this.$el.on('click','[data-page]', changePage.bind(this));
 		this.$el.on('click','[data-sort]', changeSort.bind(this));
 		this.$el.on('click','[name="reset-search"]', function(){
-        	silentPopulate.call(this.filter,this.defaults)
+					silentPopulate.call(this.filter,this.defaults)
 			this.draw();
 		}.bind(this));
 		this.$el.find('[data-event="add"]').on('click', $.proxy(function(){
-			$().berry({name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}).on('save', function() {
+			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
 				if(Berries.modal.validate()){
-				    var newModel = new tableModel(this, Berries.modal.toJSON());
-				    this.models.push(newModel);
-				    Berries.modal.trigger('saved');
-				    this.draw();
-				    
-				    if(typeof this.options.add == 'function'){
-				        this.options.add(newModel);
-			        }
+						var newModel = new tableModel(this, Berries.modal.toJSON());
+						this.models.push(newModel);
+						Berries.modal.trigger('saved');
+						this.draw();
+						
+						if(typeof this.options.add == 'function'){
+								this.options.add(newModel);
+							}
 				}
 			}, this)
 		},this));
 		this.draw();
 
 	}
-    this.search = function(options){
-
-        var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });
+	this.search = function(options) {
+		var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });
 		if(!options.reverse){
 			ordered = ordered.reverse();
 		}
@@ -258,24 +255,22 @@ function breadViewer(options) {
 
 			var keep = $.isEmptyObject(options.search);
 			for(var filter in options.search) {
-			    var temp;
-			    if(typeof _.where(options.filterFields, {id:filter})[0].options == 'undefined') {
-			    	temp = ($.score((anyModel.attributes[this.filterMap[filter]]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
-			    }else{
-			        temp = (anyModel.attributes[this.filterMap[filter]]+'' == options.search[filter]+'')
-			    }
+					var temp;
+					if(typeof _.where(options.filterFields, {id:filter})[0].options == 'undefined') {
+						temp = ($.score((anyModel.attributes[this.filterMap[filter]]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
+					}else{
+						temp = (anyModel.attributes[this.filterMap[filter]]+'' == options.search[filter]+'')
+					}
 			 //   keep = keep|| temp;
-			    keep = temp;
-			    if(!keep){break;}
+					keep = temp;
+					if(!keep){break;}
 			}
-			
-			
 			
 			return keep;
 		})
 		this.lastGrabbed = ordered.length;
 		this.filtered = ordered;
-    }
+	}
 	this.grab = function(options) {
 		return this.filtered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
 	};
@@ -284,7 +279,7 @@ function breadViewer(options) {
 	this.options = options;
 	this.filterMap = {}
 	_.map(options.filterFields, function(item){
-	    this.filterMap[item.id] = item.search ;
+			this.filterMap[item.id] = item.search ;
 	}.bind(this));
 	
 	var fields = {
@@ -293,5 +288,7 @@ function breadViewer(options) {
 	}
 	$(options.container).html(render.call(this));
 	onload.call(this, $(options.container));
-
+	this.getCSV = function(){
+		csvify(_.map(this.filtered, function(item){return item.attributes}),_.pluck(this.options.schema, 'name'))
+	}
 }

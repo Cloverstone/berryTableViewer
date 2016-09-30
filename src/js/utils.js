@@ -63,3 +63,25 @@ _.mixin({
   };
 })(jQuery);
 
+
+csvify = function(data, labels){
+
+  var csv = '"'+labels.join('", "')+'"\n';
+
+
+  csv += data.map(function(d){
+      return JSON.stringify(values(d));
+  })
+  .join('\n') 
+  .replace(/(^\[)|(\]$)/mg, '')
+
+
+  // var encodedUri = encodeURI(csv);
+  // var encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  var link = document.createElement("a");
+  link.setAttribute("href", 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+  link.setAttribute("download", "customers.csv");
+  document.body.appendChild(link); // Required for FF
+  link.click();
+  document.body.removeChild(link); 
+}

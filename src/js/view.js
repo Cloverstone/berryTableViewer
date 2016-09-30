@@ -18,7 +18,7 @@ function viewitem(options){
 
 		this.$el.find('[data-event="delete"]')
 		this.$el.find('[data-event="edit"]').on('click', $.proxy(function(){
-			$().berry({name:'modal',legend: '<i class="fa fa-pencil-square-o"></i> Edit', model:this.model}).on('saved', function() {
+			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model:this.model}, this.model.owner.options.berry || {} ) ).on('saved', function() {
 				if(typeof this.model.owner.options.edit == 'function'){
 					this.model.owner.options.edit(this.model);
 				}
