@@ -16,7 +16,7 @@ function viewitem(options){
 			temp.push($(this).data('event'));
 		})
 
-		this.$el.find('[data-event="delete"]')
+		// this.$el.find('[data-event="delete"]')
 		this.$el.find('[data-event="edit"]').on('click', $.proxy(function(){
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model:this.model}, this.model.owner.options.berry || {} ) ).on('saved', function() {
 				if(typeof this.model.owner.options.edit == 'function'){
@@ -27,6 +27,11 @@ function viewitem(options){
 				//}
 				this.update();
 			}, this)
+		},this));
+		this.$el.find('[data-event="mark"]').on('click', $.proxy(function(e){
+			// debugger;
+			this.model.checked = e.currentTarget.checked;
+			this.model.trigger('check');
 		},this));
 
 		// this.$el.find("abbr.timeago").timeago();

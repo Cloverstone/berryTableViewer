@@ -18,7 +18,7 @@
 
 	<body>		
 		<div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-			<div class="container">
+			<div class="">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
 						<span class="sr-only">Toggle navigation</span>
@@ -75,7 +75,11 @@
 		<script type='text/javascript' src='src/js/views.js'></script>
 
 		<script type='text/javascript' >
-			bb = new breadViewer({container: '#first',schema:[
+			bt = new berryTable({container: '#first',
+				edit:true,
+				delete:true,
+				entries :[1,2,5],
+				schema:[
 				{type:"text", name:"title", label:"Title"},
 				{type:"select", name:"status", label: "Status", options:[{label:'Started', value:'Started'}, {label:'Created', value:'Created'}]}
 

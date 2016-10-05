@@ -1,18 +1,26 @@
 <div>
-	<nav class="pull-right">
+	{{#multiPage}}
+	<nav class="pull-right" style="margin-left: 10px;">
 	{{#size}}
 		<ul class="pagination" style="margin:0">
-			<li class="pagination-first"><a data-page="1" href="javascript:void(0);" aria-label="First"><span aria-hidden="true">&laquo;</span></a></li>
+			{{^isFirst}}
+			{{^showFirst}}<li class="pagination-first"><a data-page="1" href="javascript:void(0);" aria-label="First"><span aria-hidden="true">&laquo;</span></a></li>{{/showFirst}}
 			<li><a data-page="dec" href="javascript:void(0);" aria-label="Previous"><span aria-hidden="true">&lsaquo;</span></a></li>
+			{{/isFirst}}
 			{{#pages}}
 				<li class="{{active}}"><a data-page="{{name}}" href="javascript:void(0);">{{name}}</a></li>
 			{{/pages}}
+			{{^isLast}}
 			<li><a data-page="inc" href="javascript:void(0);" aria-label="Next"><span aria-hidden="true">&rsaquo;</span></a></li>
-			<li class="pagination-last"><a data-page="" href="javascript:void(0);" aria-label="Last"><span aria-hidden="true">&raquo;</span></a></li>
+			{{^showLast}}<li class="pagination-last"><a data-page="" href="javascript:void(0);" aria-label="Last"><span aria-hidden="true">&raquo;</span></a></li>{{/showLast}}
+			{{/isLast}}
 
 		</ul>
 	{{/size}}
 	</nav>
-	<h5 class="range">{{#size}}Showing {{first}} to {{last}} of {{size}} results{{/size}}{{^size}}No matching entries{{/size}}</h5>
+
+	{{/multiPage}}	{{#checked_count}}<h5 class="range checked_count pull-right" style="display:inline-block">{{checked_count}} items are selected</h5>{{/checked_count}}
+
+	<h5 class="range" style="display:inline-block">{{#size}}Showing {{first}} to {{last}} of {{size}} results{{/size}}{{^size}}No matching entries{{/size}}</h5>
 
 </div>

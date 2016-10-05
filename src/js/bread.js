@@ -1,8 +1,8 @@
-function breadViewer(options) {
+function berryTable(options) {
 	this.draw = function() {
 		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
-
+		var pagebuffer = options.pagebuffer || 2;
 		this.search(options);
 
 		var renderObj = {};
@@ -19,9 +19,9 @@ function breadViewer(options) {
 			new viewitem({ 'model': model, container: newContainer, summary:summary});
 		});
 		var container = this.$el.find('.list-group').empty().replaceWith(newContainer);
-		var startpage = options.page - 2;
+		var startpage = options.page - pagebuffer;
 		if(startpage < 1){startpage = 1}
-		var endpage = options.page + 2;
+		var endpage = options.page + pagebuffer;
 		if(endpage >options.pagecount){endpage = options.pagecount}
 
 		for(var i = startpage; i <= endpage; i++){
@@ -34,7 +34,16 @@ function breadViewer(options) {
 		renderObj.size = this.lastGrabbed;
 		renderObj.last = showing;
 		renderObj.first = ( (options.count * (options.page-1) ) + 1);
-		this.$el.find('.paginate-footer').html(templates['table_footer'].render(renderObj,templates));
+
+		renderObj.multiPage = (endpage > startpage);
+		renderObj.isFirst = (options.page == 1);
+		renderObj.isLast = (options.page == options.pagecount);
+		renderObj.showLast = (options.pagecount == endpage);
+		renderObj.showFirst = (startpage == 1);
+		renderObj.checked_count = _.where(this.models, {checked: true}).length;
+
+		this.renderObj = renderObj;
+		this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
 	}
 
 	var changePage = function(e) {
@@ -142,6 +151,13 @@ function breadViewer(options) {
 		}
 		return { 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
 	})};
+	options.hasActions = !!(options.edit || options.delete);
+	options.hasEdit = !!(options.edit);
+	options.hasDelete = !!(options.delete);
+	// options.hasActions = !!(options.edit || options.delete);
+	summary.options = options;
+
+
 	var template = Hogan.compile(templates['table'].render(summary, templates));
 
 	this.defaults = {};
@@ -174,25 +190,64 @@ function breadViewer(options) {
 
 
 		this.$el.on('click', '[data-event="delete"]', function(e){
-										var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
-
-				if(confirm("Are you sure you want to delete? \nThis operation can not be undone.\n\n"+ _.values(this.models[index].attributes).join('\n') )){
+				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
+				var model = _.findWhere(this.models, {id:e.currentTarget.dataset.id});
+				if(confirm("Are you sure you want to delete? \nThis operation can not be undone.\n\n"+ _.values(model.attributes).join('\n') )){
 		
 					if(typeof this.options.delete == 'function'){
-						this.options.delete(this.models[index]);
+						this.options.delete(model);
 					}
-								this.models.splice(index,1);
+								// this.models.splice(index,1);
+								model.delete();
 								this.draw();
 				}
 		}.bind(this));
 
+		this.$el.on('click', '[data-event="delete_all"]', function(e){
+			  var checked_models = _.where(this.models, {checked: true})
+				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
+				if (checked_models.length) {
+					if(confirm("Are you sure you want to delete "+checked_models.length+" records? \nThis operation can not be undone.\n\n" )){
+						_.each(checked_models, function(item){
+							if(typeof this.options.delete == 'function'){
+								this.options.delete(item);
+							}
+								item.delete();
+						}.bind(this))
 
+						this.draw();
+					}	
+				}
 
+		}.bind(this));
+
+		this.$el.on('click', '[data-event="select_all"]', function(e){
+			  var checked_models = _.where(this.models, {checked: true})
+				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
+				if (checked_models.length) {
+					// if(confirm("Are you sure you want to delete "+checked_models.length+" records? \nThis operation can not be undone.\n\n" )){
+					// 	_.each(checked_models, function(item){
+					// 		if(typeof this.options.delete == 'function'){
+					// 			this.options.delete(item);
+					// 		}
+					// 			item.delete();
+					// 	}.bind(this))
+
+					// 	this.draw();
+					// }	
+					_.each(checked_models, function(item){item.checked = false;})					
+					this.draw();
+				}else{
+					_.each(this.filtered, function(item){item.checked = true;})					
+					this.draw();
+				}
+
+		}.bind(this));
 		if($el.find('.form').length){
 			this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [
 					{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [25, 50 ,100] , columns: 2},
-					// {label:false,name:"reset",type:'raw',value:'<button name="reset-search" class="btn btn-warning btn-sm" style="margin-top: 30px;">Reset Filter</button>',columns: 2},
-					{label:false,name:"reset",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:8},
+					{label:false,name:"reset",type:'raw',value:'<button name="reset-search" class="btn btn-default btn-sm" style="margin-top: 30px;"><i class="fa fa-filter"></i>  Reset Filter</button>',columns: 2},
+					{label:false,name:"reset",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:8,show:!!(options.add)},
 					// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-filter"></i>'}
 				]}).on('change:count', function(){
 				$.extend(options, this.berry.toJSON());
@@ -213,7 +268,11 @@ function breadViewer(options) {
 
 		if(options.data) {
 			for(var i in options.data) {
-				this.models.push(new tableModel(this, options.data[i]));
+				this.models.push(new tableModel(this, options.data[i]).on('check', function(){
+						this.renderObj.checked_count = _.where(this.models, {checked: true}).length;
+						this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
+					}.bind(this))
+				);
 			}
 		}
 		// this.collection.on('add', $.proxy(function(record) {

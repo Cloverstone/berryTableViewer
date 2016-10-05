@@ -2,7 +2,8 @@
 	{{#items}}
 	{{#visible}}<td>{{{name}}}</td>{{/visible}}
 	{{/items}}
-	<td style="min-width:100px">
+	<td style="min-width:120px">
+		{{#options.hasActions}}
 		<div class="btn-group">
 		  <button type="button" class="btn btn-xs btn-info go">Actions</button>
 		  <button type="button" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -10,9 +11,10 @@
 		    <span class="sr-only">Toggle Dropdown</span>
 		  </button>
 		  <ul class="dropdown-menu dropdown-menu-right">
-		    <li><a href="javascript:void(0);" data-event="edit" data-id="{{start}}id{{end}}"><i class="fa fa-pencil"></i> Edit</a></li>
-		    <li><a href="javascript:void(0);" data-event="delete" data-id="{{start}}id{{end}}"><i class="fa fa-times"></i> Delete</a></li>
+		    {{#options.hasEdit}}<li><a href="javascript:void(0);" data-event="edit" data-id="{{start}}id{{end}}"><i class="fa fa-pencil"></i> Edit</a></li>{{/options.hasEdit}}
+		    {{#options.hasDelete}}<li><a href="javascript:void(0);" data-event="delete" data-id="{{start}}id{{end}}"><i class="fa fa-times"></i> Delete</a></li>{{/options.hasDelete}}
 		  </ul>
-		</div>
+		</div><input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 0px 0 12px;">
+		{{/options.hasActions}}
 	</td>
 </tr>
