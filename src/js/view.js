@@ -5,12 +5,18 @@ function viewitem(options){
 		if(typeof this.berry !== 'undefined'){this.berry.destroy();}
 
 		this.$el.find('[data-event]').off();
+		this.$el.off();
 		this.$el.replaceWith(this.setElement(this.view.render(this.model , templates)).$el);
 
 		if(this.$el.find('[data-popins]').length > 0){
 			this.berry = this.$el.berry({ popins: {container: '#first', viewport:{ selector: 'body', padding: 20 }}, renderer: 'popins', model: this.model});
 		}
 
+		if(typeof this.model.owner.options.click == 'function'){
+			this.$el.on('click',function(){
+				this.model.owner.options.click(this.model);
+			}.bind(this))
+		}
 		var temp = [];
 		this.$el.find('[data-event]').each(function(){
 			temp.push($(this).data('event'));

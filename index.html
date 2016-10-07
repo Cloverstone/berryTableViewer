@@ -77,6 +77,9 @@
 		<script type='text/javascript' >
 			bt = new berryTable({container: '#first',
 				edit:true,
+				click: function(model){
+					console.log(model.attributes);
+				},
 				delete:true,
 				entries :[1,2,5],
 				schema:[
