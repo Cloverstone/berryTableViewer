@@ -187,8 +187,6 @@ function berryTable(options) {
 	function onload($el){
 		this.$el = $el;
 
-
-
 		this.$el.on('click', '[data-event="delete"]', function(e){
 				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
 				var model = _.findWhere(this.models, {id:e.currentTarget.dataset.id});
@@ -235,11 +233,20 @@ function berryTable(options) {
 
 					// 	this.draw();
 					// }	
-					_.each(checked_models, function(item){item.checked = false;})					
-					this.draw();
+
+						
+					_.each(checked_models, function(item){item.checked = false;})	
+
+					this.draw();							
+					this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-lg fa-square-o');
+
 				}else{
 					_.each(this.filtered, function(item){item.checked = true;})					
 					this.draw();
+
+					this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-lg fa-check-square-o');
+
+
 				}
 
 		}.bind(this));
@@ -247,8 +254,8 @@ function berryTable(options) {
 			this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [
 					{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [25, 50 ,100] , columns: 2},
 					{label:false,name:"reset",type:'raw',value:'<button name="reset-search" class="btn btn-default btn-sm" style="margin-top: 30px;"><i class="fa fa-filter"></i>  Reset Filter</button>',columns: 2},
-					{label:false,name:"reset",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:8,show:!!(options.add)},
-					// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-filter"></i>'}
+					{label:false,name:"reset",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,show:!!(options.add)},
+					// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-search"></i>'}
 				]}).on('change:count', function(){
 				$.extend(options, this.berry.toJSON());
 				options.count = parseInt(options.count,10);
@@ -271,6 +278,15 @@ function berryTable(options) {
 				this.models.push(new tableModel(this, options.data[i]).on('check', function(){
 						this.renderObj.checked_count = _.where(this.models, {checked: true}).length;
 						this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
+						var checkbox = this.$el.find('[data-event="select_all"] .fa');
+						if(this.renderObj.checked_count == this.models.length){
+							checkbox.attr('class', 'fa fa-lg fa-check-square-o');
+						}else if(this.renderObj.checked_count == 0){
+							checkbox.attr('class', 'fa fa-lg fa-square-o');
+						}else{
+							checkbox.attr('class', 'fa fa-lg fa-minus-square-o');
+						}
+
 					}.bind(this))
 				);
 			}
