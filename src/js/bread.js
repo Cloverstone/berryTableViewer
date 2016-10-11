@@ -67,8 +67,8 @@ function berryTable(options) {
 		$(e.currentTarget).siblings('[data-sort]').removeClass('text-primary');
 		$(e.currentTarget).siblings('[data-sort]').find('i').attr('class', 'fa fa-sort');
 		$(e.currentTarget).addClass('text-primary');
-
-		if(options.sort == $(e.currentTarget).data('sort')) {
+		var sort = _.findWhere(this.options.filterFields, {name: $(e.currentTarget).data('sort')}).search;
+		if(options.sort == sort) {
 			options.reverse = !options.reverse;
 		}else{
 			options.reverse = false;
@@ -78,8 +78,7 @@ function berryTable(options) {
 		}else{
 			$(e.currentTarget).find('i').attr('class', 'fa fa-sort-desc');
 		}
-
-		options.sort = $(e.currentTarget).data('sort');
+		options.sort = sort;
 		this.draw();
 	}
 
