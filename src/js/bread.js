@@ -243,10 +243,27 @@ function berryTable(options) {
 					_.each(this.filtered, function(item){item.checked = true;})					
 					this.draw();
 
-					this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-fw fa-lg fa-check-square-o');
+					if(this.renderObj.checked_count == this.models.length){
+						this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-fw fa-lg fa-check-square-o');
+					}else{
+						this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-fw fa-lg fa-minus-square-o');
+					}
 
 
+
+					// this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-fw fa-lg fa-check-square-o');
 				}
+
+
+						// if(this.renderObj.checked_count == this.models.length){
+						// 	checkbox.attr('class', 'fa fa-lg fa-fw fa-check-square-o');
+						// }else if(this.renderObj.checked_count == 0){
+						// 	checkbox.attr('class', 'fa fa-lg fa-fw fa-square-o');
+						// }else{
+						// 	checkbox.attr('class', 'fa fa-lg fa-fw fa-minus-square-o');
+						// }
+
+
 
 		}.bind(this));
 		if($el.find('.form').length){
@@ -278,6 +295,7 @@ function berryTable(options) {
 						this.renderObj.checked_count = _.where(this.models, {checked: true}).length;
 						this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
 						var checkbox = this.$el.find('[data-event="select_all"] .fa');
+						debugger;
 						if(this.renderObj.checked_count == this.models.length){
 							checkbox.attr('class', 'fa fa-lg fa-fw fa-check-square-o');
 						}else if(this.renderObj.checked_count == 0){

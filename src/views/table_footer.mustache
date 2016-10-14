@@ -19,8 +19,8 @@
 	{{/size}}
 	</nav>
 
-	{{/multiPage}}	{{#checked_count}}<h5 class="range badge alert-info checked_count pull-right" style="display:inline-block">{{checked_count}} item(s) selected</h5>{{/checked_count}}
+	{{/multiPage}}	
 
-	<h5 class="range badge {{^size}}alert-danger{{/size}}" style="display:inline-block">{{#size}}Showing {{first}} to {{last}} of {{size}} results{{/size}}{{^size}}No matching results{{/size}}</h5>
-
+	<h5 class="range badge {{^size}}alert-danger{{/size}} pull-left" style="margin-right:15px;">{{#size}}Showing {{first}} to {{last}} of {{size}} results{{/size}}{{^size}}No matching results{{/size}}</h5>
+	{{#checked_count}}<h5 class="range badge alert-info checked_count pull-left">{{checked_count}} item(s) selected</h5>{{/checked_count}}
 </div>
