@@ -120,7 +120,8 @@ function berryTable(options) {
 		val.search = val.name;
 		val.name = val.id;
 		val.show = {};
-				val.isEnabled = true;
+		val.isEnabled = true;
+		val.enabled = true;
 		return val;
 	});
 	if(typeof options.columns == 'object'){

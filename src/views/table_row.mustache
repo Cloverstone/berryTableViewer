@@ -12,9 +12,7 @@
 		    {{#options.hasDelete}}<li><a href="javascript:void(0);" data-event="delete" data-id="{{start}}id{{end}}"><i class="fa fa-times"></i> Delete</a></li>{{/options.hasDelete}}
 		  </ul>
 		</div> -->
-		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 12px 0 8px;">
-
-<div class="btn-group">
+		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 8px 0 4px;">&nbsp;<div class="btn-group">
     <button type="button" data-toggle="dropdown" class="btn btn-xs btn-info dropdown-toggle">Actions <span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>
 		  <ul class="dropdown-menu">
 		    {{#options.hasEdit}}<li><a href="javascript:void(0);" data-event="edit" data-id="{{start}}id{{end}}"><i class="fa fa-pencil"></i> Edit</a></li>{{/options.hasEdit}}

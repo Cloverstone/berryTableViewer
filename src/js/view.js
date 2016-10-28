@@ -22,6 +22,11 @@ function viewitem(options){
 			temp.push($(this).data('event'));
 		})
 
+		this.$el.find(".btn-group > .dropdown-toggle, .dropdown-menu li a").on('click',function(e) {
+		    e.stopPropagation();
+		    $(this).next('.dropdown-menu').toggle();
+		})
+
 		// this.$el.find('[data-event="delete"]')
 		this.$el.find('[data-event="edit"]').on('click', $.proxy(function(){
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model:this.model}, this.model.owner.options.berry || {} ) ).on('saved', function() {
