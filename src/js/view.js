@@ -13,23 +13,38 @@ function viewitem(options){
 		}
 
 		if(typeof this.model.owner.options.click == 'function'){
-			this.$el.on('click',function(){
-				this.model.owner.options.click(this.model);
+			this.$el.on('click',function(e){
+				if(typeof e.target.dataset.event ==  'undefined'){
+					this.model.owner.options.click(this.model);
+				}
 			}.bind(this))
 		}
-		var temp = [];
-		this.$el.find('[data-event]').each(function(){
-			temp.push($(this).data('event'));
-		})
+		// var temp = [];
+		// this.$el.find('[data-event]').each(function(){
+		// 	temp.push($(this).data('event'));
+		// })
+		this.$el.find('[data-event].custom-event').on('click', $.proxy(function(e){
+			e.stopPropagation();
+			$(e.target).closest('.dropdown-menu').toggle()
+			var event = _.findWhere(this.model.owner.options.events, {name:e.target.dataset.event})
+			if(typeof event !== 'undefined' && typeof event.callback == 'function'){
+				// this.model.owner.options.edit(this.model);
+				event.callback(this.model);
+			}
+		},this));
 
-		this.$el.find(".btn-group > .dropdown-toggle, .dropdown-menu li a").on('click',function(e) {
+
+
+		this.$el.find(".btn-group > .dropdown-toggle").on('click',function(e) {
 		    e.stopPropagation();
 		    $(this).next('.dropdown-menu').toggle();
 		})
 
 		// this.$el.find('[data-event="delete"]')
-		this.$el.find('[data-event="edit"]').on('click', $.proxy(function(){
-			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model:this.model}, this.model.owner.options.berry || {} ) ).on('saved', function() {
+		this.$el.find('[data-event="edit"]').on('click', $.proxy(function(e){
+			e.stopPropagation();
+			$(e.target).closest('.dropdown-menu').toggle()
+			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model: this.model}, this.model.owner.options.berry || {} ) ).on('saved', function() {
 				if(typeof this.model.owner.options.edit == 'function'){
 					this.model.owner.options.edit(this.model);
 				}
@@ -40,7 +55,7 @@ function viewitem(options){
 			}, this)
 		},this));
 		this.$el.find('[data-event="mark"]').on('click', $.proxy(function(e){
-			// debugger;
+			e.stopPropagation();
 			this.model.checked = e.currentTarget.checked;
 			this.model.trigger('check');
 		},this));
@@ -53,7 +68,6 @@ function viewitem(options){
 			$(this).peity($(this).data('type'), {radius: $(this).data('radius')});
 		});
 	}
-
 	this.view = Hogan.compile(templates['table_row'].render(options.summary, templates));
 
 	this.setElement = function(html){

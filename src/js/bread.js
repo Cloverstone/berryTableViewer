@@ -65,7 +65,7 @@ function berryTable(options) {
 		e.stopPropagation();
 		e.preventDefault();
 		$(e.currentTarget).siblings('[data-sort]').removeClass('text-primary');
-		$(e.currentTarget).siblings('[data-sort]').find('i').attr('class', 'fa fa-sort');
+		$(e.currentTarget).siblings('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
 		$(e.currentTarget).addClass('text-primary');
 		var sort = _.findWhere(this.options.filterFields, {name: $(e.currentTarget).data('sort')}).search;
 		if(options.sort == sort) {
@@ -89,7 +89,9 @@ function berryTable(options) {
 		delete item.default;
 		return item;
 	});
-
+	if(typeof options.filters !== 'undefined'){
+		options.filters = _.map(options.filters, Berry.processOpts)
+	}
 	options.filterFields = _.map($.extend(true, {}, options.filters || options.schema), function(val){
 		val = Berry.normalizeItem(val);
 		name = val.name;
@@ -151,7 +153,7 @@ function berryTable(options) {
 		}
 		return { 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
 	})};
-	options.hasActions = !!(options.edit || options.delete);
+	options.hasActions = !!(options.edit || options.delete || options.events);
 	options.hasEdit = !!(options.edit);
 	options.hasDelete = !!(options.delete);
 	// options.hasActions = !!(options.edit || options.delete);
@@ -188,6 +190,7 @@ function berryTable(options) {
 		this.$el = $el;
 
 		this.$el.on('click', '[data-event="delete"]', function(e){
+				$(e.target).closest('.dropdown-menu').toggle()
 				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
 				var model = _.findWhere(this.models, {id:e.currentTarget.dataset.id});
 				if(confirm("Are you sure you want to delete? \nThis operation can not be undone.\n\n"+ _.values(model.attributes).join('\n') )){
@@ -337,6 +340,15 @@ function berryTable(options) {
 		},this));
 		this.draw();
 
+	}
+	this.add = function(item){
+		var newModel = new tableModel(this, item);
+		this.models.push(newModel);
+		this.draw();
+		
+		if(typeof this.options.add == 'function'){
+			this.options.add(newModel);
+		}
 	}
 	this.search = function(options) {
 		var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });

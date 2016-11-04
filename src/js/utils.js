@@ -65,15 +65,15 @@ _.mixin({
 
 
 csvify = function(data, labels){
+this.labels = labels;
 
-  var csv = '"'+labels.join('", "')+'"\n';
-
-
-  csv += data.map(function(d){
-      return JSON.stringify(values(d));
-  })
+  var csv = '"'+labels.join('","')+'"\n';
+  csv += _.map(data,function(d){
+      return JSON.stringify(_.values(_.pick(d,labels)))
+  },this)
   .join('\n') 
   .replace(/(^\[)|(\]$)/mg, '')
+
 
 
   // var encodedUri = encodeURI(csv);

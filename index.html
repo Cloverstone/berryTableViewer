@@ -84,6 +84,12 @@
 				delete:true,
 				entries :[1,2,5],
 				count:5,
+				events:[
+					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(){
+
+						alert('Manage');
+					}}
+				],
 				schema:[
 				{type:"text", name:"title", label:"Title"},
 				{type:"select", name:"status", label: "Status", options:[{label:'Started', value:'Started'}, {label:'Created', value:'Created'}]}
