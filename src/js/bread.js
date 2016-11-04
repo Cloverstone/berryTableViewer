@@ -1,5 +1,6 @@
 function berryTable(options) {
 	this.draw = function() {
+		// summary = this.summary;
 		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
 		var pagebuffer = options.pagebuffer || 2;
@@ -41,7 +42,6 @@ function berryTable(options) {
 		renderObj.showLast = (options.pagecount == endpage);
 		renderObj.showFirst = (startpage == 1);
 		renderObj.checked_count = _.where(this.models, {checked: true}).length;
-
 		this.renderObj = renderObj;
 		this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
 	}
@@ -151,7 +151,7 @@ function berryTable(options) {
 			default:
 				name = '{{attributes.'+ name + '}}'
 		}
-		return { 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
+		return {'isEnabled':true, 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
 	})};
 	options.hasActions = !!(options.edit || options.delete || options.events);
 	options.hasEdit = !!(options.edit);
@@ -160,9 +160,9 @@ function berryTable(options) {
 	summary.options = options;
 
 
-	var template = Hogan.compile(templates['table'].render(summary, templates));
 
 	this.defaults = {};
+	// summary.enabled = [];
 	_.map(options.filterFields, function(val){
 		switch(val.type){
 			case 'text':
@@ -177,8 +177,15 @@ function berryTable(options) {
 				break;
 			default:
 		}
+		// summary.enabled.push({
+		// 	name:val.name,
+		// 	label:val.label,
+		// 	isEnabled:true
+		// })
 		this.defaults[val.name] = val.value;
 	}.bind(this));
+	this.summary = summary;
+	var template = Hogan.compile(templates['table'].render(summary, templates));
 
 
 	function render(){
@@ -188,6 +195,14 @@ function berryTable(options) {
 
 	function onload($el){
 		this.$el = $el;
+
+		this.$el.on('click', '#columnEnables input', function(e){
+			e.stopPropagation();
+			debugger;
+
+			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.checked
+			this.draw();
+		}.bind(this));
 
 		this.$el.on('click', '[data-event="delete"]', function(e){
 				$(e.target).closest('.dropdown-menu').toggle()
@@ -313,9 +328,9 @@ function berryTable(options) {
 			}
 		}
 		// this.collection.on('add', $.proxy(function(record) {
-	// 		new viewitem({ 'model': record , container: this.$el.find('.list-group'),summary: summary});
-	// 		this.draw();
-		// }, this));
+		// 		new viewitem({ 'model': record , container: this.$el.find('.list-group'),summary: summary});
+		// 		this.draw();
+			// }, this));
 		
 
 		this.$el.on('click','[data-page]', changePage.bind(this));

@@ -27,6 +27,6 @@
 		{{/options.hasActions}}
 	</td>
 	{{#items}}
-	{{#visible}}<td>{{{name}}}</td>{{/visible}}
+	{{#visible}}{{#isEnabled}}<td>{{{name}}}</td>{{/isEnabled}}{{/visible}}
 	{{/items}}
 </tr>
