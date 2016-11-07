@@ -200,7 +200,8 @@ function berryTable(options) {
 			e.stopPropagation();
 			debugger;
 
-			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.checked
+			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.checked;
+$('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.dataset.field+']').toggle(e.currentTarget.checked);
 			this.draw();
 		}.bind(this));
 
