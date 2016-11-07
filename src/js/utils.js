@@ -64,7 +64,7 @@ _.mixin({
 })(jQuery);
 
 
-csvify = function(data, labels){
+csvify = function(data, labels, title){
 this.labels = labels;
 
   var csv = '"'+labels.join('","')+'"\n';
@@ -80,7 +80,7 @@ this.labels = labels;
   // var encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   var link = document.createElement("a");
   link.setAttribute("href", 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
-  link.setAttribute("download", "customers.csv");
+  link.setAttribute("download", (title||"berryTable")+".csv");
   document.body.appendChild(link); // Required for FF
   link.click();
   document.body.removeChild(link); 

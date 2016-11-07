@@ -156,8 +156,10 @@ function berryTable(options) {
 	options.hasActions = !!(options.edit || options.delete || options.events);
 	options.hasEdit = !!(options.edit);
 	options.hasDelete = !!(options.delete);
+	options.entries = options.entries || [25, 50 ,100];
 	// options.hasActions = !!(options.edit || options.delete);
 	summary.options = options;
+	summary.showAdd = !!(options.add);
 
 
 
@@ -196,12 +198,10 @@ function berryTable(options) {
 	function onload($el){
 		this.$el = $el;
 
-		this.$el.on('click', '#columnEnables input', function(e){
+		this.$el.on('click', '#columnEnables label', function(e){
 			e.stopPropagation();
-			debugger;
-
-			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.checked;
-$('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.dataset.field+']').toggle(e.currentTarget.checked);
+			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.childNodes[0].checked;
+			$('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.dataset.field+']').toggle(e.currentTarget.childNodes[0].checked);
 			this.draw();
 		}.bind(this));
 
@@ -289,9 +289,9 @@ $('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.datas
 		if($el.find('.form').length){
 			this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [
 					{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [25, 50 ,100] , columns: 2},
-					{label:false,name:"reset",type:'raw',value:'<button name="reset-search" class="btn btn-default btn-sm" style="margin-top: 30px;"><i class="fa fa-filter"></i>  Reset Filter</button>',columns: 2},
+					// {label:false,name:"reset",type:'raw',value:'',columns: 2},
 					// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-search"></i>'}
-					{label:false,name:"reset",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:6,show:!!(options.add)},
+					// {label:false,name:"create",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:6,show:!!(options.add)},
 				]}).on('change:count', function(){
 				$.extend(options, this.berry.toJSON());
 				options.count = parseInt(options.count,10);
@@ -315,7 +315,6 @@ $('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.datas
 						this.renderObj.checked_count = _.where(this.models, {checked: true}).length;
 						this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
 						var checkbox = this.$el.find('[data-event="select_all"] .fa');
-						debugger;
 						if(this.renderObj.checked_count == this.models.length){
 							checkbox.attr('class', 'fa fa-lg fa-fw fa-check-square-o');
 						}else if(this.renderObj.checked_count == 0){
@@ -337,8 +336,14 @@ $('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.datas
 		this.$el.on('click','[data-page]', changePage.bind(this));
 		this.$el.on('click','[data-sort]', changeSort.bind(this));
 		this.$el.on('click','[name="reset-search"]', function(){
-					silentPopulate.call(this.filter,this.defaults)
+			options.sort = null;
+			this.$el.find('[data-sort]').removeClass('text-primary');
+			this.$el.find('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
+			silentPopulate.call(this.filter, this.defaults)
 			this.draw();
+		}.bind(this));
+		this.$el.on('click','[name="bt-download"]', function(){
+			this.getCSV();
 		}.bind(this));
 		this.$el.find('[data-event="add"]').on('click', $.proxy(function(){
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
@@ -382,7 +387,6 @@ $('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.datas
 					}else{
 						temp = (anyModel.attributes[this.filterMap[filter]]+'' == options.search[filter]+'')
 					}
-			 //   keep = keep|| temp;
 					keep = temp;
 					if(!keep){break;}
 			}
@@ -409,7 +413,7 @@ $('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.datas
 	}
 	$(options.container).html(render.call(this));
 	onload.call(this, $(options.container));
-	this.getCSV = function(){
-		csvify(_.map(this.filtered, function(item){return item.attributes}),_.pluck(this.options.schema, 'name'))
+	this.getCSV = function(title){
+		csvify(_.map(this.filtered, function(item){return item.attributes}),_.pluck(this.options.schema, 'name'), title || this.options.title )
 	}
 }

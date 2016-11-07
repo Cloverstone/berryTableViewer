@@ -68,7 +68,7 @@
 		<script type='text/javascript' src='assets/js/bin/bootstrap.full.berry.js'></script>
 		<!--script type='text/javascript' src='assets/js/backbone.min.js'></script-->
 		<script type='text/javascript' src='src/js/data.js'></script>
-		<script type='text/javascript' src='src/js/bread.js'></script>
+		<script type='text/javascript' src='src/js/berryTables.js'></script>
 		<script type='text/javascript' src='src/js/view.js'></script>
 		<script type='text/javascript' src='src/js/collection.js'></script>
 		<script type='text/javascript' src='src/js/utils.js'></script>
@@ -76,16 +76,19 @@
 
 		<script type='text/javascript' >
 			bt = new berryTable({container: '#first',
+				title:'Demo Content',
 				edit:true,
-				add: true,
+				add: function(e){console.log(e)},
 				click: function(model){
-					console.log(model.attributes);
+					model.checked  = !model.checked;
+					model.owner.draw();
 				},
 				delete:true,
-				entries :[1,2,5],
+				entries :[2,5,10],
 				count:5,
 				events:[
-					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(){
+					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
+					console.log(model.attributes);
 
 						alert('Manage');
 					}}
