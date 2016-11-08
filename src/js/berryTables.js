@@ -42,6 +42,12 @@ function berryTable(options) {
 		renderObj.showLast = (options.pagecount == endpage);
 		renderObj.showFirst = (startpage == 1);
 		renderObj.checked_count = _.where(this.models, {checked: true}).length;
+
+// debugger;
+		renderObj.entries = _.map(options.entries,function(item){
+			return {value:item, selected: (item==options.count)}
+		},options)
+
 		this.renderObj = renderObj;
 		this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
 	}
@@ -237,7 +243,12 @@ function berryTable(options) {
 				}
 
 		}.bind(this));
+this.$el.on('change', '[name="count"]', function(e){
+	// 		$.extend(options, this.berry.toJSON());
+				options.count = parseInt($(e.currentTarget).val(),10);
+				this.draw();
 
+}.bind(this))
 		this.$el.on('click', '[data-event="select_all"]', function(e){
 			  var checked_models = _.where(this.models, {checked: true})
 				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
@@ -286,18 +297,18 @@ function berryTable(options) {
 
 
 		}.bind(this));
-		if($el.find('.form').length){
-			this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [
-					{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [25, 50 ,100] , columns: 2},
-					// {label:false,name:"reset",type:'raw',value:'',columns: 2},
-					// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-search"></i>'}
-					// {label:false,name:"create",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:6,show:!!(options.add)},
-				]}).on('change:count', function(){
-				$.extend(options, this.berry.toJSON());
-				options.count = parseInt(options.count,10);
-				this.draw();
-			}, this);
-		}
+		// if($el.find('.form').length){
+		// 	this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [
+		// 			{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [25, 50 ,100] , columns: 2},
+		// 			// {label:false,name:"reset",type:'raw',value:'',columns: 2},
+		// 			// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-search"></i>'}
+		// 			// {label:false,name:"create",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:6,show:!!(options.add)},
+		// 		]}).on('change:count', function(){
+		// 		$.extend(options, this.berry.toJSON());
+		// 		options.count = parseInt(options.count,10);
+		// 		this.draw();
+		// 	}, this);
+		// }
 
 
 		if($el.find('.filter').length){

@@ -1,16 +1,7 @@
 	<div class="well" style="background:#fff">
 	<div class="form"></div>
 	<div style="height:40px">
-		<span>
-			<select class="form-control" style="display:inline-block;width:auto;min-width:50px" name="count">
-			<option value="10000">All</option>
-			{{#options.entries}}
-			<option value="{{.}}">{{.}}</option>
-			{{/options.entries}}
 
-			</select>
-			results per page
-		</span>
 <!-- <input type="text" > -->
 		<div class="btn-group pull-right" style="margin-bottom:5px" role="group" aria-label="...">
 			{{#showAdd}}
@@ -42,7 +33,7 @@
 
 
 	</div>	
-	<!-- <div class="paginate-footer" style="overflow:hidden"></div> -->
+	<div class="paginate-footer" style="overflow:hidden"></div>
 	<div class="table-responsive">
 	<table class="table table-bordered table-striped table-hover dataTable">
 		<thead>
