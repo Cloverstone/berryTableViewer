@@ -4,7 +4,13 @@ function berryTable(options) {
 		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
 		var pagebuffer = options.pagebuffer || 2;
-		this.search(options);
+
+		if(this.$el.find('[name="search"]').val().length){
+			this.searchAll(this.$el.find('[name="search"]').val());
+		}else{
+			this.search(options);
+		}
+
 
 		var renderObj = {};
 		options.pagecount = Math.ceil(this.lastGrabbed / options.count);
@@ -43,7 +49,6 @@ function berryTable(options) {
 		renderObj.showFirst = (startpage == 1);
 		renderObj.checked_count = _.where(this.models, {checked: true}).length;
 
-// debugger;
 		renderObj.entries = _.map(options.entries,function(item){
 			return {value:item, selected: (item==options.count)}
 		},options)
@@ -243,12 +248,16 @@ function berryTable(options) {
 				}
 
 		}.bind(this));
-this.$el.on('change', '[name="count"]', function(e){
-	// 		$.extend(options, this.berry.toJSON());
-				options.count = parseInt($(e.currentTarget).val(),10);
-				this.draw();
+		this.$el.on('change', '[name="count"]', function(e){
+			// 		$.extend(options, this.berry.toJSON());
+						options.count = parseInt($(e.currentTarget).val(),10);
+						this.draw();
 
-}.bind(this))
+		}.bind(this))
+
+		this.$el.on('input', '[name="search"]', _.debounce(function(e){
+			this.draw();
+		}.bind(this), 300));
 		this.$el.on('click', '[data-event="select_all"]', function(e){
 			  var checked_models = _.where(this.models, {checked: true})
 				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
@@ -314,6 +323,7 @@ this.$el.on('change', '[name="count"]', function(e){
 		if($el.find('.filter').length){
 
 			this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
+				this.$el.find('[name="search"]').val('');
 				this.draw();
 			}, this);
 		}
@@ -347,6 +357,7 @@ this.$el.on('change', '[name="count"]', function(e){
 		this.$el.on('click','[data-page]', changePage.bind(this));
 		this.$el.on('click','[data-sort]', changeSort.bind(this));
 		this.$el.on('click','[name="reset-search"]', function(){
+			this.$el.find('[name="search"]').val('');
 			options.sort = null;
 			this.$el.find('[data-sort]').removeClass('text-primary');
 			this.$el.find('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
@@ -407,6 +418,35 @@ this.$el.on('change', '[name="count"]', function(e){
 		this.lastGrabbed = ordered.length;
 		this.filtered = ordered;
 	}
+
+	this.searchAll = function(search) {
+
+		//reset sorts and filters
+		options.sort = null;
+		this.$el.find('[data-sort]').removeClass('text-primary');
+		this.$el.find('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
+		silentPopulate.call(this.filter, this.defaults)
+
+
+		search = search.toLowerCase()
+		//score each model searching each field and finding a total 
+		_.map(this.models, function(model){
+			model.score = 0;
+			for(var filter in options.filterFields) {
+				model.score += $.score((model.attributes[options.filterFields[filter].search]+'').replace(/\s+/g, " ").toLowerCase(), search);
+			}
+		})
+
+		//sort by score (highet first) and remove models with no score
+		this.filtered = _.filter(_.sortBy(this.models, 'score'), function(model) {
+				return (model.score > 0);
+		}).reverse();
+
+		this.lastGrabbed = this.filtered.length;
+	}
+
+
+
 	this.grab = function(options) {
 		return this.filtered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
 	};
@@ -427,4 +467,6 @@ this.$el.on('change', '[name="count"]', function(e){
 	this.getCSV = function(title){
 		csvify(_.map(this.filtered, function(item){return item.attributes}),_.pluck(this.options.schema, 'name'), title || this.options.title )
 	}
+
+	this.$el.find('[name="search"]').focus();
 }
