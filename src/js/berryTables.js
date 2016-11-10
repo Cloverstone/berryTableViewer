@@ -55,6 +55,12 @@ function berryTable(options) {
 
 		this.renderObj = renderObj;
 		this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
+
+
+
+		_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
+				this.$el.find('.table-responsive > table tr th:visible')[index].style.width = item.offsetWidth+'px';
+		}.bind(this))
 	}
 
 	var changePage = function(e) {
@@ -214,6 +220,7 @@ function berryTable(options) {
 			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.childNodes[0].checked;
 			$('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.dataset.field+']').toggle(e.currentTarget.childNodes[0].checked);
 			this.draw();
+
 		}.bind(this));
 
 		this.$el.on('click', '[data-event="delete"]', function(e){
@@ -469,4 +476,28 @@ function berryTable(options) {
 	}
 
 	this.$el.find('[name="search"]').focus();
+
+		this.$el.find('.table-responsive > div').css('overflow', 'auto');
+		this.$el.find('.table-responsive > div').css('height', $(window).height() - $('.table-responsive > div').position().top - 169+'px');
+
+
+_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
+		this.$el.find('.table-responsive > table tr th:visible')[index].style.width = item.offsetWidth+'px';
+}.bind(this))
+	// $('.table-responsive > table tbody tr th')[1].style.width = $('.list-group tr:first td')[1].offsetWidth+'px'
+
+
+// this.$el.find('.table-responsive > table tr th').resizable() 
+
+
+$(window).on('resize orientationChange', function(event) {
+		this.$el.find('.table-responsive > div').css('height', $(window).height() - $('.table-responsive > div').position().top - 169+'px');
+
+
+		_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
+				this.$el.find('.table-responsive > table tr th:visible')[index].style.width = item.offsetWidth+'px';
+		}.bind(this))
+}.bind(this));
+
+
 }

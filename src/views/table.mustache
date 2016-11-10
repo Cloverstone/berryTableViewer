@@ -1,7 +1,7 @@
 	<div class="well" style="background:#fff">
 	<div style="height:40px">
 
-		<div class="btn-group pull-right" style="margin-bottom:5px" role="group" aria-label="...">
+		<div class="btn-group pull-right" style="margin-bottom:10px" role="group" aria-label="...">
 			{{#showAdd}}
 			<div data-event="add" class="btn btn-success"><i class="fa fa-pencil-square-o"></i> New</div>
 			{{/showAdd}}
@@ -36,10 +36,11 @@
 
 
 	</div>	
-	<div class="paginate-footer" style="overflow:hidden"></div>
+	<!-- <div class="paginate-footer" style="overflow:hidden"></div> -->
 	<div class="table-responsive">
 
 		<table class="table table-bordered" style="margin-bottom:0px">
+			<thead>
 			<tr style="background:#fff;cursor:pointer" class="noselect">
 				<th style="width: 115px;">Actions</th>
 
@@ -60,9 +61,11 @@
 		{{#items}}{{#visible}}{{#isEnabled}}<td data-inline="{{cname}}" id="{{id}}"></td>{{/isEnabled}}{{/visible}}{{/items}}
 
 			</tr>
+		</thead>
 		</table>
-<div style="">
-	<table class="table table-bordered table-striped table-hover dataTable">
+
+<div style="min-height:100px">
+	<table class="table table-bordered table-striped table-hover dataTable" style="margin-bottom:0px">
 		<tbody class="list-group">
 			<tr><td>
 				<div class="alert alert-info" role="alert">You have no items.</div>
@@ -74,5 +77,5 @@
 
 
 </div>
-	<div class="paginate-footer" style="overflow:hidden"></div>
+	<div class="paginate-footer" style="overflow:hidden;margin-top:10px"></div>
 <div>
