@@ -58,9 +58,14 @@ function berryTable(options) {
 
 
 
-		_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
-				this.$el.find('.table-responsive > table tr th:visible')[index].style.width = item.offsetWidth+'px';
-		}.bind(this))
+		// _.each(	this.$el.find('.list-group tr:first td'), function(item, index){
+		// 		this.$el.find('.table-container > table tr th:visible')[index].style.width = item.offsetWidth+'px';
+		// 		this.$el.find('.table-container > table tr th:visible')[index].style.minWidth = item.offsetWidth+'px';
+
+		// }.bind(this))
+		// 		this.$el.find('.table-container > div').css('width', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
+		this.fixStyle();
+
 	}
 
 	var changePage = function(e) {
@@ -452,7 +457,23 @@ function berryTable(options) {
 		this.lastGrabbed = this.filtered.length;
 	}
 
+	this.fixStyle = function(){
+		if(this.options.autoSize){
+		try{
+		this.$el.find('.table-container > div').css('width', 'auto') 
+		this.$el.find('.table-container > div').css('minWidth', 'auto') 
+		this.$el.find('.table-container > div').css('height', $(window).height() - $('.table-container > div').offset().top - 89+'px');
+		_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
+			this.$el.find('.table-container > table tr th:visible')[index].style.width = item.offsetWidth+'px';
+			this.$el.find('.table-container > table tr th:visible')[index].style.minWidth = item.offsetWidth+'px';
 
+		}.bind(this))
+
+		this.$el.find('.table-container > div').css('width', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
+		this.$el.find('.table-container > div').css('minWidth', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
+				}catch(e){}
+	}	
+	}
 
 	this.grab = function(options) {
 		return this.filtered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
@@ -477,27 +498,15 @@ function berryTable(options) {
 
 	this.$el.find('[name="search"]').focus();
 
-		this.$el.find('.table-responsive > div').css('overflow', 'auto');
-		this.$el.find('.table-responsive > div').css('height', $(window).height() - $('.table-responsive > div').position().top - 169+'px');
+		this.$el.find('.table-container > div').css('overflow', 'auto');
+
+		// $('.table-container > table tbody tr th')[1].style.width = $('.list-group tr:first td')[1].offsetWidth+'px'
 
 
-_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
-		this.$el.find('.table-responsive > table tr th:visible')[index].style.width = item.offsetWidth+'px';
-}.bind(this))
-	// $('.table-responsive > table tbody tr th')[1].style.width = $('.list-group tr:first td')[1].offsetWidth+'px'
+// this.$el.find('.table-container > table tr th').resizable() 
 
 
-// this.$el.find('.table-responsive > table tr th').resizable() 
-
-
-$(window).on('resize orientationChange', function(event) {
-		this.$el.find('.table-responsive > div').css('height', $(window).height() - $('.table-responsive > div').position().top - 169+'px');
-
-
-		_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
-				this.$el.find('.table-responsive > table tr th:visible')[index].style.width = item.offsetWidth+'px';
-		}.bind(this))
-}.bind(this));
+		$(window).on('resize orientationChange', this.fixStyle.bind(this));
 
 
 }

@@ -1,5 +1,5 @@
 <tr class="filterable">
-	<td style="width: 115px;">
+	<td style="width: 120px;min-width:120px;">
 		{{#options.hasActions}}
 <!-- 		<div class="btn-group">
 		  <button type="button" class="btn btn-xs btn-info go">Actions</button>
@@ -27,6 +27,6 @@
 		{{/options.hasActions}}
 	</td>
 	{{#items}}
-	{{#visible}}{{#isEnabled}}<td>{{{name}}}</td>{{/isEnabled}}{{/visible}}
+	{{#visible}}{{#isEnabled}}<td style="min-width:85px">{{{name}}}</td>{{/isEnabled}}{{/visible}}
 	{{/items}}
 </tr>

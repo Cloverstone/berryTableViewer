@@ -37,12 +37,14 @@
 
 	</div>	
 	<!-- <div class="paginate-footer" style="overflow:hidden"></div> -->
-	<div class="table-responsive">
+	<div class="table-container" style="width:100%;overflow:auto">
+		{{#options.autoSize}}
 
 		<table class="table table-bordered" style="margin-bottom:0px">
+
 			<thead>
 			<tr style="background:#fff;cursor:pointer" class="noselect">
-				<th style="width: 115px;">Actions</th>
+				<th style="width: 120px;min-width:120px">Actions</th>
 
 				{{#items}}{{#visible}}{{#isEnabled}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort text-muted"></i> {{label}}</h6></th>{{/isEnabled}}{{/visible}}{{/items}}
 
@@ -58,14 +60,41 @@
 		    {{#options.hasDelete}}<li><a href="javascript:void(0);" data-event="delete_all"><i class="fa fa-times"></i> Delete</a></li>{{/options.hasDelete}}
 		  </ul>
 		</div></th>				
-		{{#items}}{{#visible}}{{#isEnabled}}<td data-inline="{{cname}}" id="{{id}}"></td>{{/isEnabled}}{{/visible}}{{/items}}
+		{{#items}}{{#visible}}{{#isEnabled}}<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>{{/isEnabled}}{{/visible}}{{/items}}
 
 			</tr>
 		</thead>
 		</table>
+				{{/options.autoSize}}
+
 
 <div style="min-height:100px">
 	<table class="table table-bordered table-striped table-hover dataTable" style="margin-bottom:0px">
+		{{^options.autoSize}}
+					<thead>
+			<tr style="background:#fff;cursor:pointer" class="noselect">
+				<th style="width: 120px;min-width:120px">Actions</th>
+
+				{{#items}}{{#visible}}{{#isEnabled}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort text-muted"></i> {{label}}</h6></th>{{/isEnabled}}{{/visible}}{{/items}}
+
+			</tr>				
+			<tr style="background:#fff;" class="filter">
+				<th><div class="btn-group">
+		  <button type="button" class="btn btn-sm btn-default go" data-event="select_all"> <i class="fa fa-lg fa-fw fa-square-o"></i></button>
+		  <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		    <span class="caret"></span>
+		    <span class="sr-only">Toggle Dropdown</span>
+		  </button>
+		  <ul class="dropdown-menu">
+		    {{#options.hasDelete}}<li><a href="javascript:void(0);" data-event="delete_all"><i class="fa fa-times"></i> Delete</a></li>{{/options.hasDelete}}
+		  </ul>
+		</div></th>				
+		{{#items}}{{#visible}}{{#isEnabled}}<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>{{/isEnabled}}{{/visible}}{{/items}}
+
+			</tr>
+		</thead>
+				{{/options.autoSize}}
+
 		<tbody class="list-group">
 			<tr><td>
 				<div class="alert alert-info" role="alert">You have no items.</div>
