@@ -156,22 +156,28 @@ function berryTable(options) {
 
 	var summary = {'start':'{{', 'end':'}}','items': _.map(options.filterFields, function(val){
 		var name = (val.search|| val.label.split(' ').join('_').toLowerCase());
-		switch(val.type){
-			case 'date':
-				name = '<span data-moment="{{attributes.'+name+'}}" data-format="L"></span>'
-				break;
-			case 'select':
-					if(options.inlineEdit){
-						name = '<span data-popins="'+name+'"></span>';
-					}else{
-						name = '{{attributes.'+ name + '}}'
-					}
-				break;
-			case 'color':
-				name = '<div class="btn btn-default" style="background-color:{{attributes.'+name+'}}">{{attributes.'+name+'}}</div> {{attributes.'+name+'}}'
-				break;
-			default:
-				name = '{{attributes.'+ name + '}}'
+
+		if(val.template){
+			name = val.template.replace(/{{value}}/gi, '{{attributes.'+ name + '}}');
+
+		}else{
+			switch(val.type){
+				case 'date':
+					name = '<span data-moment="{{attributes.'+name+'}}" data-format="L"></span>'
+					break;
+				case 'select':
+						if(options.inlineEdit){
+							name = '<span data-popins="'+name+'"></span>';
+						}else{
+							name = '{{attributes.'+ name + '}}'
+						}
+					break;
+				case 'color':
+					name = '<div class="btn btn-default" style="background-color:{{attributes.'+name+'}}">{{attributes.'+name+'}}</div> {{attributes.'+name+'}}'
+					break;
+				default:
+					name = '{{attributes.'+ name + '}}'
+			}
 		}
 		return {'isEnabled':true, 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
 	})};
