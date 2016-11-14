@@ -499,7 +499,18 @@ function berryTable(options) {
 	$(options.container).html(render.call(this));
 	onload.call(this, $(options.container));
 	this.getCSV = function(title){
-		csvify(_.map(this.filtered, function(item){return item.attributes}),_.pluck(this.options.schema, 'name'), title || this.options.title )
+
+		this.filterMap
+csvify(
+		_.map(this.filtered, function(item){return item.attributes}),
+		_.map(
+		_.filter(this.summary.items,function(item){return item.isEnabled}) ,function(item){
+		return {label:item.label,name:this.filterMap[item.cname]} 
+
+	}),
+		title || this.options.title 
+)
+//		csvify(_.map(this.filtered, function(item){return item.attributes}),_.pluck(this.options.schema, 'name'), title || this.options.title )
 	}
 
 	this.$el.find('[name="search"]').focus();

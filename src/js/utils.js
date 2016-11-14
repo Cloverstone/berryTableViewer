@@ -64,20 +64,16 @@ _.mixin({
 })(jQuery);
 
 
-csvify = function(data, labels, title){
-this.labels = labels;
+csvify = function(data, columns, title){
 
-  var csv = '"'+labels.join('","')+'"\n';
+  var csv = '"'+_.pluck(columns,'label').join('","')+'"\n';
+  this.labels = _.pluck(columns,'name')
   csv += _.map(data,function(d){
-      return JSON.stringify(_.values(_.pick(d,labels)))
+      return JSON.stringify(_.values(_.pick(d,this.labels)))
   },this)
   .join('\n') 
   .replace(/(^\[)|(\]$)/mg, '')
 
-
-
-  // var encodedUri = encodeURI(csv);
-  // var encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
   var link = document.createElement("a");
   link.setAttribute("href", 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
   link.setAttribute("download", (title||"berryTable")+".csv");
