@@ -1,5 +1,8 @@
 function berryTable(options) {
 	this.draw = function() {
+		_.each(this.summary.items, function(item){
+			$('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
+		})
 		// summary = this.summary;
 		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
@@ -55,15 +58,12 @@ function berryTable(options) {
 
 		this.renderObj = renderObj;
 		this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
+		this.summary.checked_count = _.where(this.models, {checked: true}).length;
+		this.summary.multi_checked = (this.summary.checked_count>1);
+
+		this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
 
 
-
-		// _.each(	this.$el.find('.list-group tr:first td'), function(item, index){
-		// 		this.$el.find('.table-container > table tr th:visible')[index].style.width = item.offsetWidth+'px';
-		// 		this.$el.find('.table-container > table tr th:visible')[index].style.minWidth = item.offsetWidth+'px';
-
-		// }.bind(this))
-		// 		this.$el.find('.table-container > div').css('width', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
 		this.fixStyle();
 
 	}
@@ -144,7 +144,7 @@ function berryTable(options) {
 		val.search = val.name;
 		val.name = val.id;
 		val.show = {};
-		val.isEnabled = true;
+		// val.isEnabled = true;
 		val.enabled = true;
 		return val;
 	});
@@ -154,7 +154,7 @@ function berryTable(options) {
 			})
 	}
 
-	var summary = {'start':'{{', 'end':'}}','items': _.map(options.filterFields, function(val){
+	var summary = {'start':'{{', 'end':'}}',checked_count:0,multi_checked:false,'items': _.map(options.filterFields, function(val){
 		var name = (val.search|| val.label.split(' ').join('_').toLowerCase());
 
 		if(val.template){
@@ -179,7 +179,7 @@ function berryTable(options) {
 					name = '{{attributes.'+ name + '}}'
 			}
 		}
-		return {'isEnabled':true, 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
+		return {'isEnabled': (typeof val.showColumn =='undefined' || val.showColumn), 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
 	})};
 	options.hasActions = !!(options.edit || options.delete || options.events);
 	options.hasEdit = !!(options.edit);
@@ -229,7 +229,7 @@ function berryTable(options) {
 		this.$el.on('click', '#columnEnables label', function(e){
 			e.stopPropagation();
 			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.childNodes[0].checked;
-			$('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.dataset.field+']').toggle(e.currentTarget.childNodes[0].checked);
+			// $('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.dataset.field+']').toggle(e.currentTarget.childNodes[0].checked);
 			this.draw();
 
 		}.bind(this));
@@ -266,6 +266,31 @@ function berryTable(options) {
 				}
 
 		}.bind(this));
+
+		this.$el.on('click','[data-event].custom-event-all', $.proxy(function(e){
+			e.stopPropagation();
+			var event = _.findWhere(this.options.events, {name:e.target.dataset.event})
+			if(typeof event !== 'undefined' && typeof event.callback == 'function'){
+				event.callback(_.where(this.models, {checked: true})[0]);
+			}
+		},this));
+
+		this.$el.on('click','[data-event="edit_all"]', $.proxy(function(e){
+			e.stopPropagation();
+
+			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model: _.where(this.models, {checked: true})[0]}, this.options.berry || {} ) ).on('saved', function() {
+				if(typeof this.options.edit == 'function'){
+					this.options.edit(_.where(this.models, {checked: true})[0]);
+				}
+				this.draw();
+				//else if(typeof this.model.owner.options.edit == 'string' && typeof  == 'function' ){
+				    
+				//}
+				// this.update();
+			}, this)
+		},this));
+
+
 		this.$el.on('change', '[name="count"]', function(e){
 			// 		$.extend(options, this.berry.toJSON());
 						options.count = parseInt($(e.currentTarget).val(),10);
@@ -295,30 +320,30 @@ function berryTable(options) {
 					_.each(checked_models, function(item){item.checked = false;})	
 
 					this.draw();							
-					this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-fw fa-lg fa-square-o');
+					this.$el.find('[data-event="select_all"].fa').attr('class', 'fa fa-fw fa-2x fa-square-o');
 
 				}else{
 					_.each(this.filtered, function(item){item.checked = true;})					
 					this.draw();
 
-					if(this.renderObj.checked_count == this.models.length){
-						this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-fw fa-lg fa-check-square-o');
+					if(this.summary.checked_count == this.models.length){
+						this.$el.find('[data-event="select_all"].fa').attr('class', 'fa fa-fw fa-2x fa-check-square-o');
 					}else{
-						this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-fw fa-lg fa-minus-square-o');
+						this.$el.find('[data-event="select_all"].fa').attr('class', 'fa fa-fw fa-2x fa-minus-square-o');
 					}
 
 
 
-					// this.$el.find('[data-event="select_all"] .fa').attr('class', 'fa fa-fw fa-lg fa-check-square-o');
+					// this.$el.find('[data-event="select_all"].fa').attr('class', 'fa fa-fw fa-2x fa-check-square-o');
 				}
 
 
-						// if(this.renderObj.checked_count == this.models.length){
-						// 	checkbox.attr('class', 'fa fa-lg fa-fw fa-check-square-o');
-						// }else if(this.renderObj.checked_count == 0){
-						// 	checkbox.attr('class', 'fa fa-lg fa-fw fa-square-o');
+						// if(this.summary.checked_count == this.models.length){
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
+						// }else if(this.summary.checked_count == 0){
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
 						// }else{
-						// 	checkbox.attr('class', 'fa fa-lg fa-fw fa-minus-square-o');
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
 						// }
 
 
@@ -351,15 +376,20 @@ function berryTable(options) {
 		if(options.data) {
 			for(var i in options.data) {
 				this.models.push(new tableModel(this, options.data[i]).on('check', function(){
-						this.renderObj.checked_count = _.where(this.models, {checked: true}).length;
-						this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
-						var checkbox = this.$el.find('[data-event="select_all"] .fa');
-						if(this.renderObj.checked_count == this.models.length){
-							checkbox.attr('class', 'fa fa-lg fa-fw fa-check-square-o');
-						}else if(this.renderObj.checked_count == 0){
-							checkbox.attr('class', 'fa fa-lg fa-fw fa-square-o');
+						this.summary.checked_count = _.where(this.models, {checked: true}).length;
+						this.summary.multi_checked = (this.summary.checked_count>1);
+
+						//this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
+						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
+
+
+						var checkbox = this.$el.find('[data-event="select_all"].fa');
+						if(this.summary.checked_count == this.models.length){
+							checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
+						}else if(this.summary.checked_count == 0){
+							checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
 						}else{
-							checkbox.attr('class', 'fa fa-lg fa-fw fa-minus-square-o');
+							checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
 						}
 
 					}.bind(this))
@@ -468,7 +498,7 @@ function berryTable(options) {
 		try{
 		this.$el.find('.table-container > div').css('width', 'auto') 
 		this.$el.find('.table-container > div').css('minWidth', 'auto') 
-		this.$el.find('.table-container > div').css('height', $(window).height() - $('.table-container > div').offset().top - 89+'px');
+		this.$el.find('.table-container > div').css('height', $(window).height() - $('.table-container > div').offset().top - (88+ this.options.autoSize) +'px');
 		_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
 			this.$el.find('.table-container > table tr th:visible')[index].style.width = item.offsetWidth+'px';
 			this.$el.find('.table-container > table tr th:visible')[index].style.minWidth = item.offsetWidth+'px';

@@ -23,6 +23,8 @@ function viewitem(options){
 		// this.$el.find('[data-event]').each(function(){
 		// 	temp.push($(this).data('event'));
 		// })
+
+
 		this.$el.find('[data-event].custom-event').on('click', $.proxy(function(e){
 			e.stopPropagation();
 			$(e.target).closest('.dropdown-menu').toggle()

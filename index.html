@@ -77,13 +77,16 @@
 		<script type='text/javascript' >
 			bt = new berryTable({container: '#first',
 				// inlineEdit:true,
-				autoSize:true,
+				autoSize: 10,
 
 				title:'Demo Content',
 				edit:true,
 				add: function(e){console.log(e)},
 				click: function(model){
-					model.checked  = !model.checked;
+					model.checked  = !model.checked
+					model.owner.summary.checked_count = _.where(model.owner.models, {checked: true}).length;
+					model.owner.summary.multi_checked = (this.summary.checked_count>1);
+
 					model.owner.draw();
 				},
 				delete:true,
@@ -98,7 +101,7 @@
 				],
 				schema:[
 				{type:"text", name:"title", label:"Title",template:"<b>{{value}}</b>"},
-				{type:"select", name:"status", label: "Status", options:[{label:'Started', value:'Started'}, {label:'Created', value:'Created'}]}
+				{type:"select", name:"status", label: "Status", showColumn: false, options:[{label:'Started', value:'Started'}, {label:'Created', value:'Created'}]}
 
 			], data: data})
 			
