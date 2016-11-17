@@ -46,17 +46,21 @@
 
 			<thead>
 			<tr style="background:#fff;cursor:pointer" class="noselect">
+				{{#options.hasActions}}
 				<th style="width: 60px;min-width:60px;"></th>
+				{{/options.hasActions}}
 
 				{{#items}}{{#visible}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort text-muted"></i> {{label}}</h6></th>{{/visible}}{{/items}}
 
 			</tr>				
 			<tr style="background:#fff;" class="filter">
+						{{#options.hasActions}}
 
 				<th>
 											 <i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i>
 
-				</th>				
+				</th>										{{/options.hasActions}}
+
 		{{#items}}{{#visible}}<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>{{/visible}}{{/items}}
 
 			</tr>
@@ -70,7 +74,11 @@
 		{{^options.autoSize}}
 					<thead>
 			<tr style="background:#fff;cursor:pointer" class="noselect">
+						{{#options.hasActions}}
+
 				<th style="width: 60px;min-width:60px;"></th>
+						{{/options.hasActions}}
+
 
 				{{#items}}{{#visible}}{{#isEnabled}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort text-muted"></i> {{label}}</h6></th>{{/isEnabled}}{{/visible}}{{/items}}
 

@@ -1,6 +1,7 @@
-<tr class="filterable">
+<tr class="filterable">		
+	{{#options.hasActions}}
+
 	<td style="width: 60px;min-width:60px;">
-		{{#options.hasActions}}
 <!-- 		<div class="btn-group">
 		  <button type="button" class="btn btn-xs btn-info go">Actions</button>
 		  <button type="button" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -13,9 +14,9 @@
 		  </ul>
 		</div> -->
 		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 8px 0 4px;">&nbsp;<div class="btn-group">
-   
+   	</td>
+
 		{{/options.hasActions}}
-	</td>
 	{{#items}}
 	{{#visible}}{{#isEnabled}}<td style="min-width:85px">{{{name}}}</td>{{/isEnabled}}{{/visible}}
 	{{/items}}
