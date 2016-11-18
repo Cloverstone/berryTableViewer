@@ -84,16 +84,12 @@
 
 			</tr>				
 			<tr style="background:#fff;" class="filter">
-				<th><div class="btn-group">
-		  <button type="button" class="btn btn-sm btn-default go" data-event="select_all"> <i class="fa fa-lg fa-fw fa-square-o"></i></button>
-		  <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-		    <span class="caret"></span>
-		    <span class="sr-only">Toggle Dropdown</span>
-		  </button>
-		  <ul class="dropdown-menu">
-		    {{#options.hasDelete}}<li><a href="javascript:void(0);" data-event="delete_all"><i class="fa fa-times"></i> Delete</a></li>{{/options.hasDelete}}
-		  </ul>
-		</div></th>				
+						{{#options.hasActions}}
+
+				<th>
+											 <i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i>
+
+				</th>										{{/options.hasActions}}			
 		{{#items}}{{#visible}}{{#isEnabled}}<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>{{/isEnabled}}{{/visible}}{{/items}}
 
 			</tr>
