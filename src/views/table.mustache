@@ -38,16 +38,21 @@
 
 		<!-- </div> -->
 	</div>	
-	<!-- <div class="paginate-footer" style="overflow:hidden"></div> -->
+
+			{{^options.autoSize}}
+	<div class="paginate-footer" style="overflow:hidden;margin-top:10px;clear:both"></div>
+		{{/options.autoSize}}
+
 	<div class="table-container" style="width:100%;overflow:auto">
 		{{#options.autoSize}}
 
-		<table class="table table-bordered" style="margin-bottom:0px">
+		<table class="table {{^options.noborder}}table-bordered{{/options.noborder}}" style="margin-bottom:0px">
 
 			<thead>
 			<tr style="background:#fff;cursor:pointer" class="noselect">
 				{{#options.hasActions}}
-				<th style="width: 60px;min-width:60px;"></th>
+				<th style="width: 60px;min-width:60px;">											 <i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i>
+</th>
 				{{/options.hasActions}}
 
 				{{#items}}{{#visible}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort text-muted"></i> {{label}}</h6></th>{{/visible}}{{/items}}
@@ -56,10 +61,9 @@
 			<tr style="background:#fff;" class="filter">
 						{{#options.hasActions}}
 
-				<th>
-											 <i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i>
+				<td>
 
-				</th>										{{/options.hasActions}}
+				</td>										{{/options.hasActions}}
 
 		{{#items}}{{#visible}}<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>{{/visible}}{{/items}}
 
@@ -70,13 +74,14 @@
 
 
 <div style="min-height:100px">
-	<table class="table table-bordered table-striped table-hover dataTable" style="margin-bottom:0px">
+	<table class="table {{^options.noborder}}table-bordered{{/options.noborder}} table-striped table-hover dataTable" style="margin-bottom:0px">
 		{{^options.autoSize}}
 					<thead>
 			<tr style="background:#fff;cursor:pointer" class="noselect">
 						{{#options.hasActions}}
 
-				<th style="width: 60px;min-width:60px;"></th>
+				<th style="width: 60px;min-width:60px;">											 <i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i>
+</th>
 						{{/options.hasActions}}
 
 
@@ -86,10 +91,9 @@
 			<tr style="background:#fff;" class="filter">
 						{{#options.hasActions}}
 
-				<th>
-											 <i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i>
+				<td>
 
-				</th>										{{/options.hasActions}}			
+				</td>										{{/options.hasActions}}			
 		{{#items}}{{#visible}}{{#isEnabled}}<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>{{/isEnabled}}{{/visible}}{{/items}}
 
 			</tr>
