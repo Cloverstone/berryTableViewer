@@ -123,6 +123,8 @@ function berryTable(options) {
 			case 'ace':
 			case 'color':
 			case 'date':
+			case 'number':
+			case 'email':
 				val.type = 'text';
 				break;
 			case 'checkbox':
@@ -418,7 +420,24 @@ function berryTable(options) {
 		this.$el.find('[data-event="add"]').on('click', $.proxy(function(){
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
 				if(Berries.modal.validate()){
-						var newModel = new tableModel(this, Berries.modal.toJSON());
+						var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function(){
+						this.summary.checked_count = _.where(this.models, {checked: true}).length;
+						this.summary.multi_checked = (this.summary.checked_count>1);
+
+						//this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
+						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
+
+
+						var checkbox = this.$el.find('[data-event="select_all"].fa');
+						if(this.summary.checked_count == this.models.length){
+							checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
+						}else if(this.summary.checked_count == 0){
+							checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
+						}else{
+							checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
+						}
+
+					}.bind(this));
 						this.models.push(newModel);
 						Berries.modal.trigger('saved');
 						this.draw();
