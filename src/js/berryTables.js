@@ -1,4 +1,7 @@
 function berryTable(options) {
+
+
+
 	this.draw = function() {
 		_.each(this.summary.items, function(item){
 			$('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
@@ -225,6 +228,75 @@ function berryTable(options) {
 	}
 	var silentPopulate = function(attributes,fields) {this.each(function(attributes) {if(!this.isContainer) {this.setValue(Berry.search(attributes, this.getPath()));}}, [attributes], this.fields);}
 
+
+	function handleFiles(table, e) {
+		var files = this.files
+    // Check for the various File API support.
+    if (window.FileReader) {
+        // FileReader are supported.
+      (function (fileToRead) {
+	      var reader = new FileReader();
+	      // Read file into memory as UTF-8      
+	      reader.readAsText(fileToRead);
+	      reader.onload = function (event) {
+		      var csv = event.target.result;
+		      var temp = CSVToArray(csv);
+		      var valid = true;
+
+					$('#myModal').remove();
+					var ref = $(templates['modal'].render({title: "Importing CSV ",footer:'<div class="btn btn-danger" data-dismiss="modal">Cancel</div>', body:'<div class="progress"><div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 0%"><span class="sr-only">50% Complete</span></div></div><div class="status">Validating Items...</div>'}));
+					ref.modal();
+					ref.on('hidden.bs.modal', function () {
+		      	this.importing = false;
+					}.bind(this));
+
+					var itemCount = temp.length-1;
+					var totalProgress = itemCount*2;
+					var items = [];
+					this.importing = true;
+		      for(var i = 1; i<temp.length; i++){
+		      	if(!this.importing) return false;
+			      var newtemp = {}
+			      for(var j in temp[0]){
+			      	newtemp[temp[0][j]] = temp[i][j]
+			      }
+			      var status = table.validate(newtemp);
+			      if(!table.validate(newtemp)){valid =false; break;}
+			      items.push(status);
+						ref.find('.progress-bar').width((i/totalProgress)*100 +'%')
+			    }
+debugger;
+			    if(valid){
+			    	ref.find('.status').html('Adding Items...');
+			      for(var i = 0; i<items.length; i++){
+			      	if(!this.importing) return false;
+				      table.add(items[i]);
+							ref.find('.progress-bar').width(((i+itemCount)/totalProgress)*100 +'%')
+				    }
+			    }else{
+			    	ref.find('.btn').html('Done');
+			    	ref.find('.status').html('<div class="alert alert-danger">Error in row '+i+ ', failed to validate!</div>')
+			    	return;
+			    }
+			    	ref.find('.status').html('<div class="alert alert-success">Successfully added '+itemCount+ ', rows!</div>')
+			    	ref.find('.btn').toggleClass('btn-danger btn-success').html('Done');
+			    	ref.find('.progress').hide();
+		    }
+	      reader.onerror = function (evt) {
+		      if(evt.target.error.name == "NotReadableError") {
+		          alert("Canno't read file !");
+		      }
+		    }
+	    })(files[0]);
+	    e.currentTarget.value = '';
+
+    } else {
+        alert('FileReader are not supported in this browser.');
+    }
+  }
+
+
+
 	function onload($el){
 		this.$el = $el;
 
@@ -236,6 +308,15 @@ function berryTable(options) {
 
 		}.bind(this));
 
+
+
+
+
+		this.$el.on('change', '.csvFileInput', _.partial(handleFiles, this));
+		this.$el.on('click','[name="bt-upload"]', function(){
+			this.$el.find('.csvFileInput').click();
+		}.bind(this));
+
 		this.$el.on('click', '[data-event="delete"]', function(e){
 				$(e.target).closest('.dropdown-menu').toggle()
 				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
@@ -245,9 +326,9 @@ function berryTable(options) {
 					if(typeof this.options.delete == 'function'){
 						this.options.delete(model);
 					}
-								// this.models.splice(index,1);
-								model.delete();
-								this.draw();
+					// this.models.splice(index,1);
+					model.delete();
+					this.draw();
 				}
 		}.bind(this));
 
@@ -451,14 +532,33 @@ function berryTable(options) {
 		this.draw();
 
 	}
+	this.validate = function(item){
+		// var newModel = new tableModel(this, item);
+		var status = false;
+		var tempForm = this.$el.find('.hiddenForm').berry({fields: options.schema,attributes:item});
+		if(tempForm.validate()){
+			status = tempForm.toJSON(); 
+		}else{
+			console.log('Model not valid');
+		}
+		tempForm.destroy();
+		return status
+	}
 	this.add = function(item){
 		var newModel = new tableModel(this, item);
-		this.models.push(newModel);
-		this.draw();
-		
-		if(typeof this.options.add == 'function'){
-			this.options.add(newModel);
+		var tempForm = this.$el.find('.hiddenForm').berry({fields: options.schema,model:newModel});
+		if(tempForm.validate()){
+
+			this.models.push(newModel);
+			this.draw();
+			
+			if(typeof this.options.add == 'function'){
+				this.options.add(newModel);
+			}
+		}else{
+			console.log('Model not valid');
 		}
+		tempForm.destroy();
 	}
 	this.search = function(options) {
 		var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });

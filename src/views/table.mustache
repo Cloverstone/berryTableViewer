@@ -1,13 +1,15 @@
 	<div class="well" style="background:#fff">
 	<div style="height:40px">
+		<input type="file" class="csvFileInput" accept=".csv" style="display:none">
 
-
+		<div class="hiddenForm" style="display:none"></div>
 		<div class="btn-group pull-right" style="margin-bottom:10px" role="group" aria-label="...">
 			{{#showAdd}}
 			<div data-event="add" class="btn btn-success"><i class="fa fa-pencil-square-o"></i> New</div>
 			{{/showAdd}}
 
 			<div class="btn btn-default" name="bt-download" data-toggle="tooltip" data-placement="left" title="Download"><i class="fa fa-download"></i></div>
+			<div class="btn btn-default" name="bt-upload" data-toggle="tooltip" data-placement="left" title="Upload"><i class="fa fa-upload"></i></div>
 
 			<div name="reset-search" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="Clear Filters">
 				<i class="fa fa-filter"></i>
