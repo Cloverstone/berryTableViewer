@@ -228,6 +228,7 @@ function berryTable(options) {
 	}
 	var silentPopulate = function(attributes,fields) {this.each(function(attributes) {if(!this.isContainer) {this.setValue(Berry.search(attributes, this.getPath()));}}, [attributes], this.fields);}
 
+
 	function handleFiles(table, e) {
 		var files = this.files
     // Check for the various File API support.
@@ -240,14 +241,45 @@ function berryTable(options) {
 	      reader.onload = function (event) {
 		      var csv = event.target.result;
 		      var temp = CSVToArray(csv);
+		      var valid = true;
+
+					$('#myModal').remove();
+					var ref = $(templates['modal'].render({title: "Importing CSV ",footer:'<div class="btn btn-danger" data-dismiss="modal">Cancel</div>', body:'<div class="progress"><div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 0%"><span class="sr-only">50% Complete</span></div></div><div class="status">Validating Items...</div>'}));
+					ref.modal();
+					ref.on('hidden.bs.modal', function () {
+		      	this.importing = false;
+					}.bind(this));
+
+					var itemCount = temp.length-1;
+					var totalProgress = itemCount*2;
+					var items = [];
+					this.importing = true;
 		      for(var i = 1; i<temp.length; i++){
+		      	if(!this.importing) return false;
 			      var newtemp = {}
 			      for(var j in temp[0]){
 			      	newtemp[temp[0][j]] = temp[i][j]
-
 			      }
-			      table.add(newtemp)
+			      var status = table.validate(newtemp);
+			      if(!table.validate(newtemp)){valid =false; break;}
+			      items.push(status);
+						ref.find('.progress-bar').width((i/totalProgress)*100 +'%')
 			    }
+			    if(valid){
+			    	ref.find('.status').html('Adding Items...');
+			      for(var i = 0; i<items.length; i++){
+			      	if(!this.importing) return false;
+				      table.add(items[i]);
+							ref.find('.progress-bar').width(((i+itemCount)/totalProgress)*100 +'%')
+				    }
+			    }else{
+			    	ref.find('.btn').html('Done');
+			    	ref.find('.status').html('<div class="alert alert-danger">Error in row '+i+ ', failed to validate!</div>')
+			    	return;
+			    }
+			    	ref.find('.status').html('<div class="alert alert-success">Successfully added '+itemCount+ ', rows!</div>')
+			    	ref.find('.btn').toggleClass('btn-danger btn-success').html('Done');
+			    	ref.find('.progress').hide();
 		    }
 	      reader.onerror = function (evt) {
 		      if(evt.target.error.name == "NotReadableError") {
@@ -499,10 +531,22 @@ function berryTable(options) {
 		this.draw();
 
 	}
+	this.validate = function(item){
+		// var newModel = new tableModel(this, item);
+		var status = false;
+		var tempForm = this.$el.find('.hiddenForm').berry({fields: options.schema,attributes:item});
+		if(tempForm.validate()){
+			status = tempForm.toJSON(); 
+		}else{
+			console.log('Model not valid');
+		}
+		tempForm.destroy();
+		return status
+	}
 	this.add = function(item){
 		var newModel = new tableModel(this, item);
 		var tempForm = this.$el.find('.hiddenForm').berry({fields: options.schema,model:newModel});
-		if(tempform.validate()){
+		if(tempForm.validate()){
 
 			this.models.push(newModel);
 			this.draw();
@@ -513,7 +557,7 @@ function berryTable(options) {
 		}else{
 			console.log('Model not valid');
 		}
-		tempform.destroy();
+		tempForm.destroy();
 	}
 	this.search = function(options) {
 		var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });

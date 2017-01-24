@@ -265,7 +265,6 @@ function berryTable(options) {
 			      items.push(status);
 						ref.find('.progress-bar').width((i/totalProgress)*100 +'%')
 			    }
-debugger;
 			    if(valid){
 			    	ref.find('.status').html('Adding Items...');
 			      for(var i = 0; i<items.length; i++){
