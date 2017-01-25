@@ -570,7 +570,7 @@ function berryTable(options) {
 			var keep = $.isEmptyObject(options.search);
 			for(var filter in options.search) {
 					var temp;
-					if(typeof _.where(options.filterFields, {id:filter})[0].options == 'undefined') {
+					if(_.where(options.filterFields, {id:filter})[0] && typeof _.where(options.filterFields, {id:filter})[0].options == 'undefined') {
 						temp = ($.score((anyModel.attributes[this.filterMap[filter]]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
 					}else{
 						temp = (anyModel.attributes[this.filterMap[filter]]+'' == options.search[filter]+'')
@@ -649,13 +649,13 @@ function berryTable(options) {
 	this.getCSV = function(title){
 
 		this.filterMap
-csvify(
-		_.map(this.filtered, function(item){return item.attributes}),
-		_.map(
-		_.filter(this.summary.items,function(item){return item.isEnabled}) ,function(item){
-		return {label:item.label,name:this.filterMap[item.cname]} 
+	csvify(
+			_.map(this.filtered, function(item){return item.attributes}),
+			_.map(
+			_.filter(this.summary.items,function(item){return item.isEnabled}) ,function(item){
+			return {label:item.label,name:this.filterMap[item.cname]} 
 
-	}),
+		}),
 		title || this.options.title 
 )
 //		csvify(_.map(this.filtered, function(item){return item.attributes}),_.pluck(this.options.schema, 'name'), title || this.options.title )
