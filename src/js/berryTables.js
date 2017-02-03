@@ -632,6 +632,29 @@ function berryTable(options) {
 	this.grab = function(options) {
 		return this.filtered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
 	};
+
+	this.editCommon = function (){
+		if(typeof this.options.multiEdit == 'undefined' || this.options.multiEdit.length == 0){return;}
+
+		// var fields = ['berry_id', 'title'];
+		var selectedModels = _.where(this.models, {checked: true});
+		if(selectedModels.length == 0){return;}
+		//get the attributes from each model
+		var temp = _.map(selectedModels,function(item){return item.attributes;})//_.pick(item.attributes;})
+		//get the fields that are common between them
+		var common_fields = _.filter(this.options.multiEdit, function(item){return _.unique(_.pluck(temp, item)).length == 1});
+		//get the schema fields matching from abobg
+		var newSchema = _.filter(this.options.schema, function(item){return common_fields.indexOf(item.name) >= 0})
+
+		$().berry({legend:'Common Field Editor', fields:newSchema, attributes: $.extend(true,{},_.pick(selectedModels[0].attributes, common_fields))}).on('save', function(){
+			var newValues = this.toJSON();
+			_.map(selectedModels,function(model){
+				model.set($.extend(true,{}, model.attributes, newValues));
+			})
+			this.trigger('close');
+		}).on('close',bt.draw, this )
+	}
+
 	this.models = [];
 
 	this.options = options;
@@ -675,3 +698,6 @@ function berryTable(options) {
 
 
 }
+
+
+
