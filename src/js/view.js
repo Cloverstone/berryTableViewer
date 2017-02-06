@@ -58,8 +58,9 @@ function viewitem(options){
 		},this));
 		this.$el.find('[data-event="mark"]').on('click', $.proxy(function(e){
 			e.stopPropagation();
-			this.model.checked = e.currentTarget.checked;
-			this.model.trigger('check');
+			this.model.toggle();
+			// this.model.checked = e.currentTarget.checked;
+			// this.model.trigger('check');
 		},this));
 
 		// this.$el.find("abbr.timeago").timeago();

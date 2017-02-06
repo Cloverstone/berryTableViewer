@@ -10,6 +10,18 @@ function tableModel (owner, initial) {
 		this.attributes = newAtts;
 	}
 	this.checked = false;
+	this.toggle = function(statem, silent){
+		if(typeof state === 'bool') {
+			this.checked = state;
+		}else{
+			this.checked = !this.checked;
+		}
+		if(!silent){
+			this.trigger('check');
+		}
+
+		// this.owner.updateState();
+	}
 	$.extend(true, this.attributes, initial);
 	this.toJSON = function() {return this.attributes}
 	this.undo = function(){

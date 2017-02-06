@@ -83,11 +83,12 @@
 				// menu:['download' ],
 				add: function(e){console.log(e)},
 				click: function(model){
-					model.checked  = !model.checked
-					model.owner.summary.checked_count = _.where(model.owner.models, {checked: true}).length;
-					model.owner.summary.multi_checked = (this.summary.checked_count>1);
+					model.toggle();
+					// model.checked  = !model.checked
+					// model.owner.summary.checked_count = _.where(model.owner.models, {checked: true}).length;
+					// model.owner.summary.multi_checked = (model.owner.summary.checked_count>1);
 
-					model.owner.draw();
+					// model.owner.draw();
 				},
 				delete:true,
 				entries :[2,5,10],

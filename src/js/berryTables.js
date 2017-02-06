@@ -159,7 +159,7 @@ function berryTable(options) {
 			})
 	}
 
-	var summary = {'start':'{{', 'end':'}}',checked_count:0,multi_checked:false,'items': _.map(options.filterFields, function(val){
+	var summary = {'start':'{{', 'end':'}}',checked_count:0,multi_checked:false,multiEdit:!!options.multiEdit ,'items': _.map(options.filterFields, function(val){
 		var name = (val.search|| val.label.split(' ').join('_').toLowerCase());
 
 		if(val.template){
@@ -349,28 +349,33 @@ function berryTable(options) {
 
 		}.bind(this));
 
-		this.$el.on('click','[data-event].custom-event-all', $.proxy(function(e){
+		this.$el.on('click','[data-event].custom-event-all', function(e){
 			e.stopPropagation();
 			var event = _.findWhere(this.options.events, {name:e.target.dataset.event})
 			if(typeof event !== 'undefined' && typeof event.callback == 'function'){
 				event.callback(_.where(this.models, {checked: true})[0]);
 			}
-		},this));
+		}.bind(this));
 
-		this.$el.on('click','[data-event="edit_all"]', $.proxy(function(e){
+		this.$el.on('click','[data-event="edit_all"]', function(e){
 			e.stopPropagation();
-
-			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model: _.where(this.models, {checked: true})[0]}, this.options.berry || {} ) ).on('saved', function() {
-				if(typeof this.options.edit == 'function'){
-					this.options.edit(_.where(this.models, {checked: true})[0]);
-				}
-				this.draw();
-				//else if(typeof this.model.owner.options.edit == 'string' && typeof  == 'function' ){
-				    
-				//}
-				// this.update();
-			}, this)
-		},this));
+			if(	typeof this.options.multiEdit !== 'undefined' && 
+					this.options.multiEdit.length !== 0 &&
+					_.where(this.models, {checked: true}).length >1){
+					this.editCommon()
+			}else{
+				$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model: _.where(this.models, {checked: true})[0]}, this.options.berry || {} ) ).on('saved', function() {
+					if(typeof this.options.edit == 'function'){
+						this.options.edit(_.where(this.models, {checked: true})[0]);
+					}
+					this.draw();
+					//else if(typeof this.model.owner.options.edit == 'string' && typeof  == 'function' ){
+					    
+					//}
+					// this.update();
+				}, this)
+			}
+		}.bind(this));
 
 
 		this.$el.on('change', '[name="count"]', function(e){
@@ -383,67 +388,6 @@ function berryTable(options) {
 		this.$el.on('input', '[name="search"]', _.debounce(function(e){
 			this.draw();
 		}.bind(this), 300));
-		this.$el.on('click', '[data-event="select_all"]', function(e){
-			  var checked_models = _.where(this.models, {checked: true})
-				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
-				if (checked_models.length) {
-					// if(confirm("Are you sure you want to delete "+checked_models.length+" records? \nThis operation can not be undone.\n\n" )){
-					// 	_.each(checked_models, function(item){
-					// 		if(typeof this.options.delete == 'function'){
-					// 			this.options.delete(item);
-					// 		}
-					// 			item.delete();
-					// 	}.bind(this))
-
-					// 	this.draw();
-					// }	
-
-						
-					_.each(checked_models, function(item){item.checked = false;})	
-
-					this.draw();							
-					this.$el.find('[data-event="select_all"].fa').attr('class', 'fa fa-fw fa-2x fa-square-o');
-
-				}else{
-					_.each(this.filtered, function(item){item.checked = true;})					
-					this.draw();
-
-					if(this.summary.checked_count == this.models.length){
-						this.$el.find('[data-event="select_all"].fa').attr('class', 'fa fa-fw fa-2x fa-check-square-o');
-					}else{
-						this.$el.find('[data-event="select_all"].fa').attr('class', 'fa fa-fw fa-2x fa-minus-square-o');
-					}
-
-
-
-					// this.$el.find('[data-event="select_all"].fa').attr('class', 'fa fa-fw fa-2x fa-check-square-o');
-				}
-
-
-						// if(this.summary.checked_count == this.models.length){
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
-						// }else if(this.summary.checked_count == 0){
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
-						// }else{
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
-						// }
-
-
-
-		}.bind(this));
-		// if($el.find('.form').length){
-		// 	this.berry = $el.find('.form').berry({attributes: options,inline:true, actions: false, fields: [
-		// 			{label:'Entries per page', name:'count', type: 'select',default:{label: 'All', value: 10000}, options: options.entries || [25, 50 ,100] , columns: 2},
-		// 			// {label:false,name:"reset",type:'raw',value:'',columns: 2},
-		// 			// {label: 'Search', name:'filter', columns: 5, offset: 1, pre: '<i class="fa fa-search"></i>'}
-		// 			// {label:false,name:"create",type:'raw',value:'<button data-event="add" class="btn btn-success pull-right btn-sm" style="margin-top: 30px;"><i class="fa fa-pencil-square-o"></i> Create New</button>',columns: 2,offset:6,show:!!(options.add)},
-		// 		]}).on('change:count', function(){
-		// 		$.extend(options, this.berry.toJSON());
-		// 		options.count = parseInt(options.count,10);
-		// 		this.draw();
-		// 	}, this);
-		// }
-
 
 		if($el.find('.filter').length){
 
@@ -453,26 +397,66 @@ function berryTable(options) {
 			}, this);
 		}
 
+		this.updateCount =function(count){
+			// this.summary.checked_count = count;
+			// this.summary.multi_checked = (count>1);
+			this.draw();
+
+			var checkbox = this.$el.find('[data-event="select_all"].fa');
+
+			if(count == this.models.length){
+				checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
+			}else if(count == 0){
+				checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
+			}else{
+				checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
+			}
+
+		}
+
+		this.$el.on('click', '[data-event="select_all"]', function(e){
+			  var checked_models = _.where(this.models, {checked: true})
+			  // var checkbox = this.$el.find('[data-event="select_all"].fa');
+
+				if (checked_models.length || this.models.length == 0) {						
+					// _.each(checked_models, function(item){item.checked = false;})	
+					_.each(checked_models, function(item){item.toggle(false, true)})			
+
+					// checkbox.attr('class', 'fa fa-fw fa-2x fa-square-o');
+
+				}else{
+					_.each(this.filtered, function(item){item.toggle(true, true)})			
+
+					// if(this.summary.checked_count == this.models.length){
+					// 	checkbox.attr('class', 'fa fa-fw fa-2x fa-check-square-o');
+					// }else{
+					// 	checkbox.attr('class', 'fa fa-fw fa-2x fa-minus-square-o');
+					// }
+				}		
+			  checked_models = _.where(this.models, {checked: true})
+
+				this.updateCount(checked_models.length);
+
+		}.bind(this));
 
 
 		if(options.data) {
 			for(var i in options.data) {
 				this.models.push(new tableModel(this, options.data[i]).on('check', function(){
-						this.summary.checked_count = _.where(this.models, {checked: true}).length;
-						this.summary.multi_checked = (this.summary.checked_count>1);
+						// var count = _.where(this.models, {checked: true}).length;
 
 						//this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
 						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
+						this.updateCount(_.where(this.models, {checked: true}).length);
 
-
-						var checkbox = this.$el.find('[data-event="select_all"].fa');
-						if(this.summary.checked_count == this.models.length){
-							checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
-						}else if(this.summary.checked_count == 0){
-							checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
-						}else{
-							checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
-						}
+						// var checkbox = this.$el.find('[data-event="select_all"].fa');
+						// if(this.summary.checked_count == this.models.length){
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
+						// }else if(this.summary.checked_count == 0){
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
+						// }else{
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
+						// }
 
 					}.bind(this))
 				);
@@ -497,25 +481,25 @@ function berryTable(options) {
 		this.$el.on('click','[name="bt-download"]', function(){
 			this.getCSV();
 		}.bind(this));
-		this.$el.find('[data-event="add"]').on('click', $.proxy(function(){
+		this.$el.find('[data-event="add"]').on('click', function(){
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
 				if(Berries.modal.validate()){
 						var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function(){
-						this.summary.checked_count = _.where(this.models, {checked: true}).length;
-						this.summary.multi_checked = (this.summary.checked_count>1);
+						// this.summary.checked_count = _.where(this.models, {checked: true}).length;
+						// this.summary.multi_checked = (this.summary.checked_count>1);
 
 						//this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
 						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
 
-
-						var checkbox = this.$el.find('[data-event="select_all"].fa');
-						if(this.summary.checked_count == this.models.length){
-							checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
-						}else if(this.summary.checked_count == 0){
-							checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
-						}else{
-							checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
-						}
+						this.updateCount(this.summary.checked_count);
+						// var checkbox = this.$el.find('[data-event="select_all"].fa');
+						// if(this.summary.checked_count == this.models.length){
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
+						// }else if(this.summary.checked_count == 0){
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
+						// }else{
+						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
+						// }
 
 					}.bind(this));
 						this.models.push(newModel);
@@ -527,7 +511,7 @@ function berryTable(options) {
 							}
 				}
 			}, this)
-		},this));
+		}.bind(this));
 		this.draw();
 
 	}
