@@ -10,15 +10,13 @@ function tableModel (owner, initial) {
 		this.attributes = newAtts;
 	}
 	this.checked = false;
-	this.toggle = function(statem, silent){
+	this.toggle = function(statem){
 		if(typeof state === 'bool') {
 			this.checked = state;
 		}else{
 			this.checked = !this.checked;
 		}
-		if(!silent){
-			this.trigger('check');
-		}
+		this.trigger('check');
 
 		// this.owner.updateState();
 	}

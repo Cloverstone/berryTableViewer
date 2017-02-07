@@ -58,7 +58,7 @@ function viewitem(options){
 		},this));
 		this.$el.find('[data-event="mark"]').on('click', $.proxy(function(e){
 			e.stopPropagation();
-			this.model.toggle();
+			this.model.toggle(e.currentTarget.checked);
 			// this.model.checked = e.currentTarget.checked;
 			// this.model.trigger('check');
 		},this));
@@ -80,6 +80,8 @@ function viewitem(options){
 
 
 	this.model = options.model;
+	this.model.on('check', this.update.bind(this))
+
 	this.$el  = $('<tr>');
 	if(options.container){
 		options.container.append(this.$el);

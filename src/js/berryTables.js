@@ -1,13 +1,8 @@
 function berryTable(options) {
-
-
-
 	this.draw = function() {
 		_.each(this.summary.items, function(item){
 			$('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
 		})
-		// summary = this.summary;
-		// this.search(_.compactObject(this.filter.toJSON()));
 		options.search = _.compactObject(this.filter.toJSON());
 		var pagebuffer = options.pagebuffer || 2;
 
@@ -16,7 +11,6 @@ function berryTable(options) {
 		}else{
 			this.search(options);
 		}
-
 
 		var renderObj = {};
 		options.pagecount = Math.ceil(this.lastGrabbed / options.count);
@@ -65,7 +59,6 @@ function berryTable(options) {
 		this.summary.multi_checked = (this.summary.checked_count>1);
 
 		this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
-
 
 		this.fixStyle();
 
@@ -190,14 +183,12 @@ function berryTable(options) {
 	options.hasEdit = !!(options.edit);
 	options.hasDelete = !!(options.delete);
 	options.entries = options.entries || [25, 50 ,100];
-	// options.hasActions = !!(options.edit || options.delete);
 	summary.options = options;
 	summary.showAdd = !!(options.add);
 
 
 
 	this.defaults = {};
-	// summary.enabled = [];
 	_.map(options.filterFields, function(val){
 		switch(val.type){
 			case 'text':
@@ -212,22 +203,15 @@ function berryTable(options) {
 				break;
 			default:
 		}
-		// summary.enabled.push({
-		// 	name:val.name,
-		// 	label:val.label,
-		// 	isEnabled:true
-		// })
 		this.defaults[val.name] = val.value;
 	}.bind(this));
 	this.summary = summary;
 	var template = Hogan.compile(templates['table'].render(summary, templates));
 
-
 	function render(){
 		return template.render();
 	}
 	var silentPopulate = function(attributes,fields) {this.each(function(attributes) {if(!this.isContainer) {this.setValue(Berry.search(attributes, this.getPath()));}}, [attributes], this.fields);}
-
 
 	function handleFiles(table, e) {
 		var files = this.files
@@ -294,22 +278,15 @@ function berryTable(options) {
     }
   }
 
-
-
 	function onload($el){
 		this.$el = $el;
 
 		this.$el.on('click', '#columnEnables label', function(e){
 			e.stopPropagation();
 			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.childNodes[0].checked;
-			// $('.filter #'+e.currentTarget.dataset.field+',[data-sort='+e.currentTarget.dataset.field+']').toggle(e.currentTarget.childNodes[0].checked);
 			this.draw();
 
 		}.bind(this));
-
-
-
-
 
 		this.$el.on('change', '.csvFileInput', _.partial(handleFiles, this));
 		this.$el.on('click','[name="bt-upload"]', function(){
@@ -318,22 +295,20 @@ function berryTable(options) {
 
 		this.$el.on('click', '[data-event="delete"]', function(e){
 				$(e.target).closest('.dropdown-menu').toggle()
-				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
 				var model = _.findWhere(this.models, {id:e.currentTarget.dataset.id});
 				if(confirm("Are you sure you want to delete? \nThis operation can not be undone.\n\n"+ _.values(model.attributes).join('\n') )){
 		
 					if(typeof this.options.delete == 'function'){
 						this.options.delete(model);
 					}
-					// this.models.splice(index,1);
 					model.delete();
 					this.draw();
+					this.updateCount(_.where(this.models, {checked: true}).length)
 				}
 		}.bind(this));
 
 		this.$el.on('click', '[data-event="delete_all"]', function(e){
 			  var checked_models = _.where(this.models, {checked: true})
-				// var index =_.indexOf(_.pluck(this.models, 'id'), e.currentTarget.dataset.id);
 				if (checked_models.length) {
 					if(confirm("Are you sure you want to delete "+checked_models.length+" records? \nThis operation can not be undone.\n\n" )){
 						_.each(checked_models, function(item){
@@ -342,8 +317,8 @@ function berryTable(options) {
 							}
 								item.delete();
 						}.bind(this))
-
 						this.draw();
+						this.updateCount(_.where(this.models, {checked: true}).length)
 					}	
 				}
 
@@ -369,20 +344,14 @@ function berryTable(options) {
 						this.options.edit(_.where(this.models, {checked: true})[0]);
 					}
 					this.draw();
-					//else if(typeof this.model.owner.options.edit == 'string' && typeof  == 'function' ){
-					    
-					//}
-					// this.update();
 				}, this)
 			}
 		}.bind(this));
 
 
 		this.$el.on('change', '[name="count"]', function(e){
-			// 		$.extend(options, this.berry.toJSON());
-						options.count = parseInt($(e.currentTarget).val(),10);
-						this.draw();
-
+			options.count = parseInt($(e.currentTarget).val(),10);
+			this.draw();
 		}.bind(this))
 
 		this.$el.on('input', '[name="search"]', _.debounce(function(e){
@@ -398,13 +367,12 @@ function berryTable(options) {
 		}
 
 		this.updateCount =function(count){
-			// this.summary.checked_count = count;
-			// this.summary.multi_checked = (count>1);
-			this.draw();
+			this.summary.checked_count = count;
+			this.summary.multi_checked = (count>1);
 
 			var checkbox = this.$el.find('[data-event="select_all"].fa');
 
-			if(count == this.models.length){
+			if(count>0 && count == this.models.length){
 				checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
 			}else if(count == 0){
 				checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
@@ -420,12 +388,12 @@ function berryTable(options) {
 
 				if (checked_models.length || this.models.length == 0) {						
 					// _.each(checked_models, function(item){item.checked = false;})	
-					_.each(checked_models, function(item){item.toggle(false, true)})			
+					_.each(checked_models, function(item){item.toggle(false)})			
 
 					// checkbox.attr('class', 'fa fa-fw fa-2x fa-square-o');
 
 				}else{
-					_.each(this.filtered, function(item){item.toggle(true, true)})			
+					_.each(this.filtered, function(item){item.toggle(true)})			
 
 					// if(this.summary.checked_count == this.models.length){
 					// 	checkbox.attr('class', 'fa fa-fw fa-2x fa-check-square-o');
@@ -434,7 +402,7 @@ function berryTable(options) {
 					// }
 				}		
 			  checked_models = _.where(this.models, {checked: true})
-
+			  // this.draw();
 				this.updateCount(checked_models.length);
 
 		}.bind(this));
@@ -443,30 +411,12 @@ function berryTable(options) {
 		if(options.data) {
 			for(var i in options.data) {
 				this.models.push(new tableModel(this, options.data[i]).on('check', function(){
-						// var count = _.where(this.models, {checked: true}).length;
-
-						//this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
-						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
-						this.updateCount(_.where(this.models, {checked: true}).length);
-
-						// var checkbox = this.$el.find('[data-event="select_all"].fa');
-						// if(this.summary.checked_count == this.models.length){
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
-						// }else if(this.summary.checked_count == 0){
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
-						// }else{
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
-						// }
-
-					}.bind(this))
+						this.owner.updateCount(_.where(this.owner.models, {checked: true}).length);
+						this.owner.$el.find('[name="events"]').html(templates['events'].render(this.owner.summary, templates));
+					})
 				);
 			}
 		}
-		// this.collection.on('add', $.proxy(function(record) {
-		// 		new viewitem({ 'model': record , container: this.$el.find('.list-group'),summary: summary});
-		// 		this.draw();
-			// }, this));
-		
 
 		this.$el.on('click','[data-page]', changePage.bind(this));
 		this.$el.on('click','[data-sort]', changeSort.bind(this));
@@ -485,30 +435,17 @@ function berryTable(options) {
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
 				if(Berries.modal.validate()){
 						var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function(){
-						// this.summary.checked_count = _.where(this.models, {checked: true}).length;
-						// this.summary.multi_checked = (this.summary.checked_count>1);
-
-						//this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
+						this.updateCount(_.where(this.models, {checked: true}).length);
 						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
-
-						this.updateCount(this.summary.checked_count);
-						// var checkbox = this.$el.find('[data-event="select_all"].fa');
-						// if(this.summary.checked_count == this.models.length){
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
-						// }else if(this.summary.checked_count == 0){
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
-						// }else{
-						// 	checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
-						// }
-
 					}.bind(this));
 						this.models.push(newModel);
 						Berries.modal.trigger('saved');
 						this.draw();
+						this.updateCount(this.summary.checked_count);
 						
-						if(typeof this.options.add == 'function'){
-								this.options.add(newModel);
-							}
+						if(typeof this.options.add == 'function') {
+							this.options.add(newModel);
+						}
 				}
 			}, this)
 		}.bind(this));
@@ -516,7 +453,6 @@ function berryTable(options) {
 
 	}
 	this.validate = function(item){
-		// var newModel = new tableModel(this, item);
 		var status = false;
 		var tempForm = this.$el.find('.hiddenForm').berry({fields: options.schema,attributes:item});
 		if(tempForm.validate()){
@@ -570,7 +506,6 @@ function berryTable(options) {
 	}
 
 	this.searchAll = function(search) {
-
 		//reset sorts and filters
 		options.sort = null;
 		this.$el.find('[data-sort]').removeClass('text-primary');
@@ -619,24 +554,26 @@ function berryTable(options) {
 
 	this.editCommon = function (){
 		if(typeof this.options.multiEdit == 'undefined' || this.options.multiEdit.length == 0){return;}
-
-		// var fields = ['berry_id', 'title'];
 		var selectedModels = _.where(this.models, {checked: true});
-		if(selectedModels.length == 0){return;}
+		if(selectedModels.length == 0){ return; }
 		//get the attributes from each model
 		var temp = _.map(selectedModels,function(item){return item.attributes;})//_.pick(item.attributes;})
 		//get the fields that are common between them
 		var common_fields = _.filter(this.options.multiEdit, function(item){return _.unique(_.pluck(temp, item)).length == 1});
-		//get the schema fields matching from abobg
-		var newSchema = _.filter(this.options.schema, function(item){return common_fields.indexOf(item.name) >= 0})
+		//get the schema fields matching from above
+		if(common_fields.length == 0) {
+					$(templates['modal'].render({title: "Common Field Editor ",footer:'<div class="btn btn-danger" data-dismiss="modal">Done</div>', body:'<div class="alert alert-warning">No eligible fields have been found for editing.</div>'})).modal();
+		} else {
+			var newSchema = _.filter(this.options.schema, function(item){return common_fields.indexOf(item.name) >= 0})
 
-		$().berry({legend:'Common Field Editor', fields:newSchema, attributes: $.extend(true,{},_.pick(selectedModels[0].attributes, common_fields))}).on('save', function(){
-			var newValues = this.toJSON();
-			_.map(selectedModels,function(model){
-				model.set($.extend(true,{}, model.attributes, newValues));
-			})
-			this.trigger('close');
-		}).on('close',bt.draw, this )
+			$().berry({legend:'Common Field Editor', fields:newSchema, attributes: $.extend(true,{},_.pick(selectedModels[0].attributes, common_fields))}).on('save', function(){
+				var newValues = this.toJSON();
+				_.map(selectedModels,function(model){
+					model.set($.extend(true,{}, model.attributes, newValues));
+				})
+				this.trigger('close');
+			}).on('close', bt.draw, this )
+		}
 	}
 
 	this.models = [];
