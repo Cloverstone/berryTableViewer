@@ -3,11 +3,24 @@ function tableModel (owner, initial) {
 	this.owner = owner;
 	this.id = Berry.getUID();
 	this.attributes = {};
+	this.display = {};
 	this.attribute_history = [];
 	this.schema = owner.options.schema;
+	var processAtts = function(){
+		// debugger;
+		// var atts = atts;
+		_.each(this.schema, function(item){
+			if(typeof item.options !== 'undefined'){
+				this.display[item.name] = _.findWhere(item.options,{value:this.attributes[item.name]}).label
+			}else{
+				this.display[item.name] = this.attributes[item.name];
+			}
+		}.bind(this))
+	}
 	this.set = function(newAtts){
 		this.attribute_history.push($.extend(true,{}, this.attributes));
 		this.attributes = newAtts;
+		this.display = processAtts.call(this);
 	}
 	this.checked = false;
 	this.toggle = function(statem){
@@ -21,10 +34,12 @@ function tableModel (owner, initial) {
 		// this.owner.updateState();
 	}
 	$.extend(true, this.attributes, initial);
+	processAtts.call(this);
 	this.toJSON = function() {return this.attributes}
 	this.undo = function(){
 		if(this.attribute_history.length){
 			this.attributes = this.attribute_history.pop();
+			this.display = processAtts.call(this);
 			this.owner.draw();
 			//this.set(this.attribute_history.pop());
 		}

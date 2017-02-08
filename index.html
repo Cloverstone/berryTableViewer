@@ -84,19 +84,13 @@
 				add: function(e){console.log(e)},
 				click: function(model){
 					model.toggle();
-					// model.checked  = !model.checked
-					// model.owner.summary.checked_count = _.where(model.owner.models, {checked: true}).length;
-					// model.owner.summary.multi_checked = (model.owner.summary.checked_count>1);
-
-					// model.owner.draw();
 				},
 				delete:true,
 				entries :[2,5,10],
 				count:5,
 				events:[
 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
-					console.log(model.attributes);
-
+						console.log(model.attributes);
 						alert('Manage');
 					}}
 				],
@@ -104,7 +98,7 @@
 
 				{type:"text", name:"berry_id", label:"berry_id", required:false},
 				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>"},
-				{type:"select", name:"status", label: "Status", showColumn: false, options:[{label:'Started', value:'Started'}, {label:'Created', value:'Created'}]}
+				{type:"select", name:"status", label: "Status", showColumn: false, options:[{label:'StartedString', value:'Started'}, {label:'CreatedString', value:'Created'}]}
 
 			], data: data})
 			

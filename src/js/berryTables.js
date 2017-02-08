@@ -167,7 +167,7 @@ function berryTable(options) {
 						if(options.inlineEdit){
 							name = '<span data-popins="'+name+'"></span>';
 						}else{
-							name = '{{attributes.'+ name + '}}'
+							name = '{{display.'+ name + '}}'
 						}
 					break;
 				case 'color':
