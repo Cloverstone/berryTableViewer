@@ -11,7 +11,12 @@ function tableModel (owner, initial) {
 		// var atts = atts;
 		_.each(this.schema, function(item){
 			if(typeof item.options !== 'undefined'){
-				this.display[item.name] = _.findWhere(item.options,{value:this.attributes[item.name]}).label
+				var option =  _.findWhere(item.options,{value:this.attributes[item.name]});
+				if(typeof option !== 'undefined' && option.length >0) {
+					this.display[item.name] = options[0].label
+				}else{
+					this.display[item.name] = this.attributes[item.name];
+				}
 			}else{
 				this.display[item.name] = this.attributes[item.name];
 			}
