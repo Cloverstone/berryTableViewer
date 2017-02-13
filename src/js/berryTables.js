@@ -121,6 +121,7 @@ function berryTable(options) {
 			case 'date':
 			case 'number':
 			case 'email':
+			case 'base64':
 				val.type = 'text';
 				break;
 			case 'checkbox':

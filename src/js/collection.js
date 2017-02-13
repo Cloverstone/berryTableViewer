@@ -7,7 +7,6 @@ function tableModel (owner, initial) {
 	this.attribute_history = [];
 	this.schema = owner.options.schema;
 	var processAtts = function() {
-		debugger;
 		_.each(this.schema, function(item){
 			if(typeof item.options !== 'undefined'){
 				var option =  _.findWhere(item.options,{value:this.attributes[item.name]});

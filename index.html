@@ -56,6 +56,7 @@
 		<script type='text/javascript' src="//cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
 
 		<script type="text/javascript" src="assets/js/bin/full.berry.min.js"></script>
+		<script type="text/javascript" src="assets/js/bin/base64.berry.js"></script>
 		
 		<!-- // <script type='text/javascript' src='assets/js/form.cob.js'></script>		 -->
 		<script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js'></script>		
@@ -97,6 +98,7 @@
 				schema:[
 
 				{type:"text", name:"berry_id", label:"berry_id", required:false},
+				{type:"base64", name:"other", label:"Other", required:false, template:'<img style="max-width:100px" src="{{value}}""></b>'},
 				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>"},
 				{type:"select", name:"status", label: "Status", showColumn: false, options:[{label:'StartedString', value:'Started'}, {label:'CreatedString', value:'Created'}]}
 
