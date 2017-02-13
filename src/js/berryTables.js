@@ -261,9 +261,13 @@ function berryTable(options) {
 			    	ref.find('.status').html('<div class="alert alert-danger">Error in row '+i+ ', failed to validate!</div>')
 			    	return;
 			    }
-			    	ref.find('.status').html('<div class="alert alert-success">Successfully added '+itemCount+ ', rows!</div>')
-			    	ref.find('.btn').toggleClass('btn-danger btn-success').html('Done');
-			    	ref.find('.progress').hide();
+		    	ref.find('.status').html('<div class="alert alert-success">Successfully added '+itemCount+ ', rows!</div>')
+		    	ref.find('.btn').toggleClass('btn-danger btn-success').html('Done');
+		    	ref.find('.progress').hide();
+		    	if(typeof table.options.onBulkLoad == 'function'){
+						table.options.onBulkLoad();
+					}
+
 		    }
 	      reader.onerror = function (evt) {
 		      if(evt.target.error.name == "NotReadableError") {
@@ -274,7 +278,7 @@ function berryTable(options) {
 	    e.currentTarget.value = '';
 
     } else {
-        alert('FileReader are not supported in this browser.');
+        alert('FileReader is not supported in this browser.');
     }
   }
 

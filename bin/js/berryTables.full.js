@@ -261,9 +261,13 @@ function berryTable(options) {
 			    	ref.find('.status').html('<div class="alert alert-danger">Error in row '+i+ ', failed to validate!</div>')
 			    	return;
 			    }
-			    	ref.find('.status').html('<div class="alert alert-success">Successfully added '+itemCount+ ', rows!</div>')
-			    	ref.find('.btn').toggleClass('btn-danger btn-success').html('Done');
-			    	ref.find('.progress').hide();
+		    	ref.find('.status').html('<div class="alert alert-success">Successfully added '+itemCount+ ', rows!</div>')
+		    	ref.find('.btn').toggleClass('btn-danger btn-success').html('Done');
+		    	ref.find('.progress').hide();
+		    	if(typeof table.options.onBulkLoad == 'function'){
+						table.options.onBulkLoad();
+					}
+
 		    }
 	      reader.onerror = function (evt) {
 		      if(evt.target.error.name == "NotReadableError") {
@@ -274,7 +278,7 @@ function berryTable(options) {
 	    e.currentTarget.value = '';
 
     } else {
-        alert('FileReader are not supported in this browser.');
+        alert('FileReader is not supported in this browser.');
     }
   }
 
@@ -804,14 +808,13 @@ function tableModel (owner, initial) {
 	this.display = {};
 	this.attribute_history = [];
 	this.schema = owner.options.schema;
-	var processAtts = function(){
-		// debugger;
-		// var atts = atts;
+	var processAtts = function() {
+		debugger;
 		_.each(this.schema, function(item){
 			if(typeof item.options !== 'undefined'){
 				var option =  _.findWhere(item.options,{value:this.attributes[item.name]});
-				if(typeof option !== 'undefined' && option.length >0) {
-					this.display[item.name] = options[0].label
+				if(typeof option !== 'undefined') {
+					this.display[item.name] = option.label || option.name;
 				}else{
 					this.display[item.name] = this.attributes[item.name];
 				}
@@ -823,7 +826,7 @@ function tableModel (owner, initial) {
 	this.set = function(newAtts){
 		this.attribute_history.push($.extend(true,{}, this.attributes));
 		this.attributes = newAtts;
-		this.display = processAtts.call(this);
+		processAtts.call(this);
 	}
 	this.checked = false;
 	this.toggle = function(statem){
@@ -842,7 +845,7 @@ function tableModel (owner, initial) {
 	this.undo = function(){
 		if(this.attribute_history.length){
 			this.attributes = this.attribute_history.pop();
-			this.display = processAtts.call(this);
+			processAtts.call(this);
 			this.owner.draw();
 			//this.set(this.attribute_history.pop());
 		}
