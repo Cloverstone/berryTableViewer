@@ -21,8 +21,11 @@ function tableModel (owner, initial) {
 		}.bind(this))
 	}
 	this.set = function(newAtts){
-		this.attribute_history.push($.extend(true,{}, this.attributes));
+		this.attribute_history.push($.extend(true, {}, this.attributes));
 		this.attributes = newAtts;
+		processAtts.call(this);
+	}
+	this.pat =function(){
 		processAtts.call(this);
 	}
 	this.checked = false;
@@ -39,7 +42,7 @@ function tableModel (owner, initial) {
 	$.extend(true, this.attributes, initial);
 	processAtts.call(this);
 	this.toJSON = function() {return this.attributes}
-	this.undo = function(){
+	this.undo = function() {
 		if(this.attribute_history.length){
 			this.attributes = this.attribute_history.pop();
 			processAtts.call(this);

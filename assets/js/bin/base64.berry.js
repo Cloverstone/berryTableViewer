@@ -20,9 +20,8 @@
 			      reader.readAsDataURL(fileToRead);
 			      reader.onload = function (event) {
 			      	// event.target.result;
-			      	debugger;
 				    	this.set(event.target.result);//.split(',').pop());
-
+		      		
 				    }.bind(field)
 			      reader.onerror = function (evt) {
 				      if(evt.target.error.name == "NotReadableError") {

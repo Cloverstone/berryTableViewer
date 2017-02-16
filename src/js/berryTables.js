@@ -101,12 +101,23 @@ function berryTable(options) {
 	}
 
 	var options = $.extend({count: options.count || 25, page: 1, sort: 'createdAt', reverse: false}, options);
+	// var popts = _.partial(Berry.processOpts,_ ,{update:function(){debugger;}})
+	// debugger;
+	self = this
+	options.schema = _.map(_.map(options.schema, function(item){
+		return Berry.processOpts(item,{update:function(options){this.item.options = options.choices; 
+			debugger;
+			_.each(this.self.models,function(model){
+				model.pat();
+			})
 
-	options.schema = _.map(_.map(options.schema, Berry.processOpts), function(item){
+		}.bind({item:item,self:self}) });
+	} ), function(item){
 		item.value = item.value || item.default;
 		delete item.default;
 		return item;
 	});
+
 	if(typeof options.filters !== 'undefined'){
 		options.filters = _.map(options.filters, Berry.processOpts)
 	}
@@ -364,7 +375,6 @@ function berryTable(options) {
 		}.bind(this), 300));
 
 		if($el.find('.filter').length){
-
 			this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 				this.$el.find('[name="search"]').val('');
 				this.draw();

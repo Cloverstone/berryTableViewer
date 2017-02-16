@@ -47,7 +47,7 @@ function viewitem(options){
 			e.stopPropagation();
 			$(e.target).closest('.dropdown-menu').toggle()
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model: this.model}, this.model.owner.options.berry || {} ) ).on('saved', function() {
-				if(typeof this.model.owner.options.edit == 'function'){
+				if(typeof this.model.owner.options.edit == 'function') {
 					this.model.owner.options.edit(this.model);
 				}
 				//else if(typeof this.model.owner.options.edit == 'string' && typeof  == 'function' ){
