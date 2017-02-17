@@ -103,13 +103,18 @@ function berryTable(options) {
 	var options = $.extend({count: options.count || 25, page: 1, sort: 'createdAt', reverse: false}, options);
 	// var popts = _.partial(Berry.processOpts,_ ,{update:function(){debugger;}})
 	// debugger;
-	self = this
+	self = this;
 	options.schema = _.map(_.map(options.schema, function(item){
-		return Berry.processOpts(item,{update:function(options){this.item.options = options.choices; 
-			debugger;
+		return Berry.processOpts(item,{update:function(options){
+			this.item.choices = options.choices; 
+			this.item.options = options.choices; 
+			var schema = this.self.options.schema;
+			// debugger;
 			_.each(this.self.models,function(model){
+				model.schema = schema;
 				model.pat();
 			})
+			this.self.draw();
 
 		}.bind({item:item,self:self}) });
 	} ), function(item){
@@ -365,23 +370,23 @@ function berryTable(options) {
 		}.bind(this));
 
 
-		this.$el.on('change', '[name="count"]', function(e){
+		this.$el.on('change', '[name="count"]', function(e) {
 			options.count = parseInt($(e.currentTarget).val(),10);
 			this.draw();
 		}.bind(this))
 
-		this.$el.on('input', '[name="search"]', _.debounce(function(e){
+		this.$el.on('input', '[name="search"]', _.debounce(function(e) {
 			this.draw();
 		}.bind(this), 300));
 
-		if($el.find('.filter').length){
+		if($el.find('.filter').length) {
 			this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 				this.$el.find('[name="search"]').val('');
 				this.draw();
 			}, this);
 		}
 
-		this.updateCount =function(count){
+		this.updateCount =function(count) {
 			this.summary.checked_count = count;
 			this.summary.multi_checked = (count>1);
 
