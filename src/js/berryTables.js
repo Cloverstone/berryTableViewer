@@ -347,21 +347,38 @@ function berryTable(options) {
 		this.$el.on('click','[data-event].custom-event-all', function(e){
 			e.stopPropagation();
 			var event = _.findWhere(this.options.events, {name:e.target.dataset.event})
+
 			if(typeof event !== 'undefined' && typeof event.callback == 'function'){
-				event.callback(_.where(this.models, {checked: true})[0]);
+				if(event.multiEdit	&& _.where(this.models, {checked: true}).length >1) {
+					_.each(_.where(this.models, {checked: true}), function(model){
+						event.callback(model);
+					})
+				}else{
+					event.callback(_.where(this.models, {checked: true})[0]);
+				}
+				if(typeof event.complete == 'function'){
+					event.complete(_.where(this.models, {checked: true}),this);
+				}
+
 			}
+
 		}.bind(this));
 
 		this.$el.on('click','[data-event="edit_all"]', function(e){
 			e.stopPropagation();
 			if(	typeof this.options.multiEdit !== 'undefined' && 
-					this.options.multiEdit.length !== 0 &&
-					_.where(this.models, {checked: true}).length >1){
-					this.editCommon()
+				this.options.multiEdit.length !== 0 &&
+				_.where(this.models, {checked: true}).length >1) {
+
+				this.editCommon();
+
 			}else{
 				$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model: _.where(this.models, {checked: true})[0]}, this.options.berry || {} ) ).on('saved', function() {
 					if(typeof this.options.edit == 'function'){
 						this.options.edit(_.where(this.models, {checked: true})[0]);
+					}
+					if(typeof this.options.editComplete === 'function'){
+						this.options.editComplete(_.where(this.models, {checked: true}), this);
 					}
 					this.draw();
 				}, this)
@@ -590,8 +607,14 @@ function berryTable(options) {
 				_.map(selectedModels,function(model){
 					model.set($.extend(true,{}, model.attributes, newValues));
 				})
+
 				this.trigger('close');
-			}).on('close', bt.draw, this )
+			}).on('close', function(){
+				bt.draw();
+				if(typeof this.options.editComplete === 'function'){
+					this.options.editComplete(_.where(this.models, {checked: true}), this);
+				}
+			}, this )
 		}
 	}
 

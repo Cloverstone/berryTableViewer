@@ -81,6 +81,10 @@
 				multiEdit:['berry_id', 'status'],
 				title:'Demo Content',
 				edit:true,
+				editComplete:function(models){
+
+					console.log(models)
+				},
 				// menu:['download' ],
 				add: function(e){console.log(e)},
 				click: function(model){
@@ -92,8 +96,7 @@
 				events:[
 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
 						console.log(model.attributes);
-						alert('Manage');
-					}}
+					},multiEdit:true,complete:function(){						alert('Manage');}}
 				],
 				schema:[
 
