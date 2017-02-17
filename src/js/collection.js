@@ -9,9 +9,19 @@ function tableModel (owner, initial) {
 	var processAtts = function() {
 		_.each(this.schema, function(item){
 			if(typeof item.options !== 'undefined'){
-				var option =  _.findWhere(item.options,{value:this.attributes[item.name]});
-				if(typeof option !== 'undefined') {
-					this.display[item.name] = option.label || option.name;
+				var option;
+				if(typeof item.value_key !== 'undefined'){
+					var search = {};
+					search[item.value_key] = this.attributes[item.name];
+					option = _.findWhere(item.options, search);
+				}else{
+					option =  _.findWhere(item.options, {value:this.attributes[item.name]});
+					if(typeof option === 'undefined'){
+						option = _.findWhere(item.options, {id:this.attributes[item.name]});
+					}
+				}
+				if(typeof option === 'object') {
+					this.display[item.name] = option[item.label_key] || option.label || option.name;
 				}else{
 					this.display[item.name] = this.attributes[item.name];
 				}

@@ -109,7 +109,6 @@ function berryTable(options) {
 			this.item.choices = options.choices; 
 			this.item.options = options.choices; 
 			var schema = this.self.options.schema;
-			// debugger;
 			_.each(this.self.models,function(model){
 				model.schema = schema;
 				model.pat();
@@ -538,7 +537,7 @@ function berryTable(options) {
 		_.map(this.models, function(model){
 			model.score = 0;
 			for(var filter in options.filterFields) {
-				model.score += $.score((model.attributes[options.filterFields[filter].search]+'').replace(/\s+/g, " ").toLowerCase(), search);
+				model.score += $.score((model.display[options.filterFields[filter].search]+'').replace(/\s+/g, " ").toLowerCase(), search);
 			}
 		})
 
