@@ -1,12 +1,17 @@
 function berryTable(options) {
+	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true}, options);
 	this.draw = function() {
-		_.each(this.summary.items, function(item){
-			$('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
-		})
-		options.search = _.compactObject(this.filter.toJSON());
+			_.each(this.summary.items, function(item){
+				$('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
+			})
+		if(this.$el.find('.filter').length){
+			options.search = _.compactObject(this.filter.toJSON());
+		}else{
+			options.search = {};
+		}
 		var pagebuffer = options.pagebuffer || 2;
 
-		if(this.$el.find('[name="search"]').val().length){
+		if(this.$el.find('[name="search"]').length && this.$el.find('[name="search"]').val().length){
 			this.searchAll(this.$el.find('[name="search"]').val());
 		}else{
 			this.search(options);
@@ -301,12 +306,14 @@ function berryTable(options) {
 	function onload($el){
 		this.$el = $el;
 
-		this.$el.on('click', '#columnEnables label', function(e){
-			e.stopPropagation();
-			_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.childNodes[0].checked;
-			this.draw();
+		if(this.options.columns){
+			this.$el.on('click', '#columnEnables label', function(e){
+				e.stopPropagation();
+				_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.childNodes[0].checked;
+				this.draw();
 
-		}.bind(this));
+			}.bind(this));
+		}
 
 		this.$el.on('change', '.csvFileInput', _.partial(handleFiles, this));
 		this.$el.on('click','[name="bt-upload"]', function(){
@@ -395,6 +402,7 @@ function berryTable(options) {
 			this.draw();
 		}.bind(this), 300));
 
+
 		if($el.find('.filter').length) {
 			this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 				this.$el.find('[name="search"]').val('');
@@ -455,13 +463,17 @@ function berryTable(options) {
 		}
 
 		this.$el.on('click','[data-page]', changePage.bind(this));
-		this.$el.on('click','[data-sort]', changeSort.bind(this));
+		if(options.sort){
+			this.$el.on('click','[data-sort]', changeSort.bind(this));
+		}
 		this.$el.on('click','[name="reset-search"]', function(){
 			this.$el.find('[name="search"]').val('');
 			options.sort = null;
 			this.$el.find('[data-sort]').removeClass('text-primary');
 			this.$el.find('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
-			silentPopulate.call(this.filter, this.defaults)
+			if(this.filter){
+				silentPopulate.call(this.filter, this.defaults)
+			}
 			this.draw();
 		}.bind(this));
 		this.$el.on('click','[name="bt-download"]', function(){
@@ -546,8 +558,9 @@ function berryTable(options) {
 		options.sort = null;
 		this.$el.find('[data-sort]').removeClass('text-primary');
 		this.$el.find('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
-		silentPopulate.call(this.filter, this.defaults)
-
+		if(this.filter){
+			silentPopulate.call(this.filter, this.defaults)
+		}
 
 		search = search.toLowerCase()
 		//score each model searching each field and finding a total 
@@ -619,7 +632,6 @@ function berryTable(options) {
 	}
 
 	this.models = [];
-
 	this.options = options;
 	this.filterMap = {}
 	_.map(options.filterFields, function(item){

@@ -77,7 +77,13 @@
 		<script type='text/javascript'>
 			bt = new berryTable({container: '#first',
 				// inlineEdit:true,
-				autoSize: 10,
+				// filter: false,
+				// sort: false,
+				// search: false,
+				// columns: false,
+				// upload:false,
+				// download:false,
+				// autoSize: 10,
 				multiEdit:['berry_id', 'status'],
 				title:'Demo Content',
 				edit:true,
@@ -86,13 +92,13 @@
 					console.log(models)
 				},
 				// menu:['download' ],
-				add: function(e){console.log(e)},
-				click: function(model){
-					model.toggle();
-				},
+				add: true,//function(e){console.log(e)},
+				// click: function(model){
+				// 	model.toggle();
+				// },
 				delete:true,
-				entries :[2,5,10],
-				count:5,
+				entries:[2,5,10],
+				count:10000,
 				events:[
 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
 						console.log(model.attributes);

@@ -1,4 +1,4 @@
-	<div class="well" style="background:#fff">
+<div class="well" style="background:#fff">
 	<div style="height:40px">
 		<input type="file" class="csvFileInput" accept=".csv" style="display:none">
 
@@ -7,14 +7,20 @@
 			{{#showAdd}}
 			<div data-event="add" class="btn btn-success"><i class="fa fa-pencil-square-o"></i> New</div>
 			{{/showAdd}}
-
+			{{#options.download}}
 			<div class="btn btn-default" name="bt-download" data-toggle="tooltip" data-placement="left" title="Download"><i class="fa fa-download"></i></div>
+			{{/options.download}}
+			{{#options.upload}}
 			<div class="btn btn-default" name="bt-upload" data-toggle="tooltip" data-placement="left" title="Upload"><i class="fa fa-upload"></i></div>
+			{{/options.upload}}
 
+			{{#options.filter}}
 			<div name="reset-search" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="Clear Filters">
 				<i class="fa fa-filter"></i>
 				<i class="fa fa-times text-danger" style="position: absolute;right: 5px;"></i>
 			</div>
+			{{/options.filter}}
+			{{#options.columns}}
 			<div class="btn-group" id="columnEnables" data-toggle="tooltip" data-placement="left" title="Display Columns">
 			  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
 			    <i class="fa fa-list"></i>
@@ -28,90 +34,95 @@
 			    {{/items}}
 			  </ul>
 			</div>
-		</div>
-
-		<div name="events" class=" pull-left" style="margin-bottom:10px" >
+			{{/options.columns}}
 
 		</div>
 
-		<!-- <div class="input-group pull-right" style="max-width:300px; margin-right:15px"> -->
-				<input type="text" name="search" class="form-control pull-right" style="max-width:300px; margin-right:15px" placeholder="Search">
-				<!-- <span class="input-group-addon"><i class="fa fa-search"></i></span> -->
+		<div name="events" class=" pull-left" style="margin-bottom:10px" ></div>
+		{{#options.search}}<input type="text" name="search" class="form-control pull-right" style="max-width:300px; margin-right:15px" placeholder="Search">{{/options.search}}
 
-		<!-- </div> -->
 	</div>	
 
-			{{^options.autoSize}}
+	{{^options.autoSize}}
 	<div class="paginate-footer" style="overflow:hidden;margin-top:10px;clear:both"></div>
-		{{/options.autoSize}}
+	{{/options.autoSize}}
 
 	<div class="table-container" style="width:100%;overflow:auto">
-		{{#options.autoSize}}
+	{{#options.autoSize}}
+	<table class="table {{^options.noborder}}table-bordered{{/options.noborder}}" style="margin-bottom:0px">
 
-		<table class="table {{^options.noborder}}table-bordered{{/options.noborder}}" style="margin-bottom:0px">
+		<thead>
+		<tr style="background:#fff;cursor:pointer" class="noselect">
+			{{#options.hasActions}}
+			<th style="width: 60px;min-width:60px;padding: 0 0 0 10px;"><i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i></th>
+			{{/options.hasActions}}
 
-			<thead>
-			<tr style="background:#fff;cursor:pointer" class="noselect">
-				{{#options.hasActions}}
-				<th style="width: 60px;min-width:60px;padding: 0 0 0 10px;">											 <i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i>
-</th>
-				{{/options.hasActions}}
+			{{#items}}
+			{{#visible}}
+			<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap">{{#options.sort}}<i class="fa fa-sort text-muted"></i> {{/options.sort}}{{label}}</h6></th>{{/visible}}
+			{{/items}}
 
-				{{#items}}{{#visible}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort text-muted"></i> {{label}}</h6></th>{{/visible}}{{/items}}
+		</tr>		
 
-			</tr>				
-			<tr style="background:#fff;" class="filter">
-						{{#options.hasActions}}
+		{{#options.filter}}
+		<tr style="background:#fff;" class="filter">
+			{{#options.hasActions}}<td></td>{{/options.hasActions}}
 
-				<td>
+			{{#items}}
+			{{#visible}}
+			<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>
+			{{/visible}}
+			{{/items}}
+		</tr>
+		{{/options.filter}}
 
-				</td>										{{/options.hasActions}}
-
-		{{#items}}{{#visible}}<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>{{/visible}}{{/items}}
-
-			</tr>
-		</thead>
-		</table>
-				{{/options.autoSize}}
-
-
-<div style="min-height:100px">
-	<table class="table {{^options.noborder}}table-bordered{{/options.noborder}} table-striped table-hover dataTable" style="margin-bottom:0px">
-		{{^options.autoSize}}
-					<thead>
-			<tr style="background:#fff;cursor:pointer" class="noselect">
-						{{#options.hasActions}}
-
-				<th style="width: 60px;min-width:60px;padding: 0 0 0 10px;">											 <i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i>
-</th>
-						{{/options.hasActions}}
-
-
-				{{#items}}{{#visible}}{{#isEnabled}}<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap"><i class="fa fa-sort text-muted"></i> {{label}}</h6></th>{{/isEnabled}}{{/visible}}{{/items}}
-
-			</tr>				
-			<tr style="background:#fff;" class="filter">
-						{{#options.hasActions}}
-
-				<td>
-
-				</td>										{{/options.hasActions}}			
-		{{#items}}{{#visible}}{{#isEnabled}}<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>{{/isEnabled}}{{/visible}}{{/items}}
-
-			</tr>
-		</thead>
-				{{/options.autoSize}}
-
-		<tbody class="list-group">
-			<tr><td>
-				<div class="alert alert-info" role="alert">You have no items.</div>
-			</td></tr>
-		</tbody>
-
+	</thead>
 	</table>
-</div>
+	{{/options.autoSize}}
 
 
-</div>
+	<div style="min-height:100px">
+		<table class="table {{^options.noborder}}table-bordered{{/options.noborder}} table-striped table-hover dataTable" style="margin-bottom:0px">
+			{{^options.autoSize}}
+			<thead>
+				<tr style="background:#fff;cursor:pointer" class="noselect">
+					{{#options.hasActions}}
+					<th style="width: 60px;min-width:60px;padding: 0 0 0 10px;"><i data-event="select_all" class="fa fa-fw fa-2x fa-square-o"></i></th>
+					{{/options.hasActions}}
+
+					{{#items}}
+					{{#visible}}
+					{{#isEnabled}}
+					<th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap">{{#options.sort}}<i class="fa fa-sort text-muted"></i> {{/options.sort}}{{label}}</h6></th>{{/isEnabled}}
+					{{/visible}}
+					{{/items}}
+				</tr>
+				{{#options.filter}}
+				<tr style="background:#fff;" class="filter">
+					{{#options.hasActions}}<td></td>{{/options.hasActions}}
+
+					{{#items}}
+					{{#visible}}
+					{{#isEnabled}}
+					<td data-inline="{{cname}}" style="min-width:85px" id="{{id}}"></td>
+					{{/isEnabled}}
+					{{/visible}}
+					{{/items}}
+				</tr>
+				{{/options.filter}}
+
+			</thead>
+			{{/options.autoSize}}
+
+			<tbody class="list-group">
+				<tr><td>
+					<div class="alert alert-info" role="alert">You have no items.</div>
+				</td></tr>
+			</tbody>
+
+		</table>
+	</div>
+
+	</div>
 	<div class="paginate-footer" style="overflow:hidden;margin-top:10px"></div>
-<div>
+</div>
