@@ -93,9 +93,9 @@
 				},
 				// menu:['download' ],
 				add: true,//function(e){console.log(e)},
-				// click: function(model){
-				// 	model.toggle();
-				// },
+				click: function(model){
+					model.toggle();
+				},
 				delete:true,
 				entries:[2,5,10],
 				count:10000,
@@ -109,7 +109,7 @@
 				{type:"text", name:"berry_id", label:"berry_id", required:false},
 				{type:"base64", name:"other", label:"Other", required:false, template:'<img style="max-width:100px" src="{{value}}""></b>'},
 				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>"},
-								{type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
+								// {type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
 ,
 				{type:"select", name:"status", label: "Status", showColumn: true, choices:'./assets/js/options.json'}
 

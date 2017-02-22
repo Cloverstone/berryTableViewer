@@ -14,11 +14,28 @@ function tableModel (owner, initial) {
 					var search = {};
 					search[item.value_key] = this.attributes[item.name];
 					option = _.findWhere(item.options, search);
+          if($.isNumeric(this.attributes[item.name])){
+            search[item.value_key] = parseInt(this.attributes[item.name]);
+            if(typeof option === 'undefined'){
+              option = _.findWhere(item.options, search);
+            }
+            if(typeof option === 'undefined'){
+              option = _.findWhere(item.options, search);
+            }
+          }
 				}else{
 					option =  _.findWhere(item.options, {value:this.attributes[item.name]});
 					if(typeof option === 'undefined'){
 						option = _.findWhere(item.options, {id:this.attributes[item.name]});
 					}
+          if($.isNumeric(this.attributes[item.name])){
+            if(typeof option === 'undefined'){
+              option = _.findWhere(item.options, {value:parseInt(this.attributes[item.name], 10)});
+            }
+            if(typeof option === 'undefined'){
+              option = _.findWhere(item.options, {id:parseInt(this.attributes[item.name], 10)});
+            }
+          }
 				}
 				if(typeof option === 'object') {
 					this.display[item.name] = option[item.label_key] || option.label || option.name;
