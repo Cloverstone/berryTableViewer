@@ -553,6 +553,13 @@ function berryTable(options) {
 		this.filtered = ordered;
 	}
 
+	this.find = function(search) {
+		var keys = _.keys(search)
+		return _.filter(this.models, function(anyModel) {
+			return _.isEqual(search, _.pick(anyModel.attributes, keys));
+		})
+	}
+
 	this.searchAll = function(search) {
 		//reset sorts and filters
 		options.sort = null;
