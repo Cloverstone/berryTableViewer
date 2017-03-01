@@ -404,6 +404,7 @@ function berryTable(options) {
 
 
 		if($el.find('.filter').length) {
+			debugger;
 			this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 				this.$el.find('[name="search"]').val('');
 				this.draw();

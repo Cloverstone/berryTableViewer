@@ -18,7 +18,7 @@
 	<body>		
 
 		<div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
-			<div class="">
+			<div class="container">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
 						<span class="sr-only">Toggle navigation</span>
@@ -27,13 +27,21 @@
 						<span class="icon-bar"></span>
 					</button>
 					<a class="navbar-brand" href="./" style="line-height: 40px;font-size:10px;">
-						<span style="line-height: 40px;margin-left:10px;font-size: 20px;font-weight: 200;color: #cccccf;">Berry Tables</span>
+							<span style="line-height: 40px;font-size: 20px;font-weight: 200;color: #cccccf;">berryTables.js</span>
 					</a>
 				</div>
-
+				<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li><a href="./docs.html"><i class="fa fa-life-ring"></i> Docs</a></li>
+						<li class="active"><a href="./demo.html"><i class="fa fa-flask"></i> Demo</a></li>
+						<!-- <li><a href="./editor.html"><i class="fa fa-check-square-o"></i> Editor</a></li> -->
+						<!-- <li><a href="./api.html"><i class="fa fa-code"></i> Docs</a></li> -->
+					</ul>
+				</div><!-- /.nav-collapse -->
 			</div><!-- /.container -->
 		</div><!-- /.navbar -->
-		<div class="container col-md-6" style="width:100%">
+
+		<div class="container">
 			<div class="row">
  				<div class="col-md-12 col-xs-12" id="first">
 
@@ -75,44 +83,44 @@
 		<script type='text/javascript' src='src/js/views.js'></script>-->
 
 		<script type='text/javascript'>
-// 			bt = new berryTable({container: '#first',
-// 				// inlineEdit:true,
-// 				// filter: false,
-// 				// sort: false,
-// 				// search: false,
-// 				// columns: false,
-// 				// upload:false,
-// 				// download:false,
-// 				// autoSize: 10,
-// 				multiEdit:['berry_id', 'status'],
-// 				title:'Demo Content',
-// 				edit:true,
-// 				// editComplete:function(models){
+			bt = new berryTable({container: '#first',
+				// inlineEdit:true,
+				// filter: false,
+				// sort: false,
+				// search: false,
+				// columns: false,
+				// upload:false,
+				// download:false,
+				// autoSize: 10,
+				multiEdit:['berry_id', 'status'],
+				title:'Demo Content',
+				edit:true,
+				// editComplete:function(models){
 
-// 				// 	console.log(models)
-// 				// },
-// 				add: true,
-// 				click: function(model){
-// 					model.toggle();
-// 				},
-// 				delete:true,
-// 				entries:[2,5,10],
-// 				count:10000,
-// 				events:[
-// 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
-// 						console.log(model.attributes);
-// 					},multiEdit:true,complete:function(){						alert('Manage');}}
-// 				],
-// 				schema:[
+				// 	console.log(models)
+				// },
+				add: true,
+				click: function(model){
+					model.toggle();
+				},
+				delete:true,
+				entries:[2,5,10],
+				count:10000,
+				events:[
+					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
+						console.log(model.attributes);
+					},multiEdit:true,complete:function(){						alert('Manage');}}
+				],
+				schema:[
 
-// 				{type:"text", name:"berry_id", label:"berry_id", required:false},
-// 				// {type:"base64", name:"other", label:"Other", required:false, template:'<img style="max-width:100px" src="{{value}}""></b>'},
-// 				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>"},
-// 				// {type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
-// ,
-// 				{type:"select", name:"status", label: "Status", showColumn: true, choices:'./assets/js/options.json'}
+				{type:"text", name:"berry_id", label:"berry_id", required:false},
+				// {type:"base64", name:"other", label:"Other", required:false, template:'<img style="max-width:100px" src="{{value}}""></b>'},
+				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>"},
+				// {type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
+,
+				{type:"select", name:"status", label: "Status", showColumn: true, choices:'./assets/js/options.json'}
 
-// 			], data: data})
+			], data: data})
 			
 			// bt = new berryTable({
 			// 	container: '#first',
@@ -135,23 +143,23 @@
 			// 	{name:'second'},
 			// ]})
 			
-           bt = new berryTable({container:'#first',
-           search: false,columns: false,upload:false,download:false,title:'Demo Content',
-           edit:true,
-           add: true,
-           click: function(model){model.toggle();},
-           delete:true,
-           entries:[],
-           count:4,
-           schema:[
-               {type:"text", name:"name", label:"Name", required:true},
-           ], data: [
-               {name:'fifth'},
-               {name:'fourth'},
-               {name:'third'},
-               {name:'second'},
-               {name:'first'},
-           ]})
+           // bt = new berryTable({container:'#first',
+           // search: false,columns: false,upload:false,download:false,title:'Demo Content',
+           // edit:true,
+           // add: true,
+           // click: function(model){model.toggle();},
+           // delete:true,
+           // entries:[],
+           // count:4,
+           // schema:[
+           //     {type:"text", name:"name", label:"Name", required:true},
+           // ], data: [
+           //     {name:'fifth'},
+           //     {name:'fourth'},
+           //     {name:'third'},
+           //     {name:'second'},
+           //     {name:'first'},
+           // ]})
 		</script>
 
 </body></html>
