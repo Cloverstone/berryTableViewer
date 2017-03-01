@@ -1,5 +1,5 @@
 function berryTable(options) {
-	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true}, options);
+	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
 	this.draw = function() {
 			_.each(this.summary.items, function(item){
 				$('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
@@ -404,7 +404,7 @@ function berryTable(options) {
 
 
 		if($el.find('.filter').length) {
-			this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
+			this.filter = $el.find('.filter').berry({name:'filter'+this.options.id,renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 				this.$el.find('[name="search"]').val('');
 				this.draw();
 			}, this);
@@ -482,23 +482,22 @@ function berryTable(options) {
 		this.$el.find('[data-event="add"]').on('click', function(){
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
 				if(Berries.modal.validate()){
-						var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function(){
+					var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function() {
 						this.updateCount(_.where(this.models, {checked: true}).length);
 						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
 					}.bind(this));
-						this.models.push(newModel);
-						Berries.modal.trigger('saved');
-						this.draw();
-						this.updateCount(this.summary.checked_count);
-						
-						if(typeof this.options.add == 'function') {
-							this.options.add(newModel);
-						}
+					this.models.push(newModel);
+					Berries.modal.trigger('saved');
+					this.draw();
+					this.updateCount(this.summary.checked_count);
+					
+					if(typeof this.options.add == 'function') {
+						this.options.add(newModel);
+					}
 				}
 			}, this)
 		}.bind(this));
 		this.draw();
-
 	}
 	this.validate = function(item){
 		var status = false;

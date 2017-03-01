@@ -1,5 +1,5 @@
 function berryTable(options) {
-	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true}, options);
+	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
 	this.draw = function() {
 			_.each(this.summary.items, function(item){
 				$('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
@@ -404,8 +404,7 @@ function berryTable(options) {
 
 
 		if($el.find('.filter').length) {
-			debugger;
-			this.filter = $el.find('.filter').berry({name:'filter',renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
+			this.filter = $el.find('.filter').berry({name:'filter'+this.options.id,renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 				this.$el.find('[name="search"]').val('');
 				this.draw();
 			}, this);
