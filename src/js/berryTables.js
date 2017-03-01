@@ -482,23 +482,22 @@ function berryTable(options) {
 		this.$el.find('[data-event="add"]').on('click', function(){
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
 				if(Berries.modal.validate()){
-						var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function(){
+					var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function() {
 						this.updateCount(_.where(this.models, {checked: true}).length);
 						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
 					}.bind(this));
-						this.models.push(newModel);
-						Berries.modal.trigger('saved');
-						this.draw();
-						this.updateCount(this.summary.checked_count);
-						
-						if(typeof this.options.add == 'function') {
-							this.options.add(newModel);
-						}
+					this.models.push(newModel);
+					Berries.modal.trigger('saved');
+					this.draw();
+					this.updateCount(this.summary.checked_count);
+					
+					if(typeof this.options.add == 'function') {
+						this.options.add(newModel);
+					}
 				}
 			}, this)
 		}.bind(this));
 		this.draw();
-
 	}
 	this.validate = function(item){
 		var status = false;

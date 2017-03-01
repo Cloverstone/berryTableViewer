@@ -11,7 +11,7 @@
 		<link rel='stylesheet' type='text/css' href='//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css'>
 		<link rel='stylesheet' type='text/css' href='//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css'>
 		<link rel='stylesheet' type='text/css' href='assets/css/demo.css'>
-		<link rel='stylesheet' type='text/css' href='src/vendor/css/colorpicker.min.css'>
+		<link rel='stylesheet' type='text/css' href='assets/vendor/css/colorpicker.min.css'>
 
 	</head>
 
@@ -64,57 +64,94 @@
 
 
 
-		<script type='text/javascript' src='src/vendor/js/colorpicker.min.js'></script>
+		<script type='text/javascript' src='assets/vendor/js/colorpicker.min.js'></script>
 		<script type='text/javascript' src='assets/js/bin/bootstrap.full.berry.js'></script>
 		<!--script type='text/javascript' src='assets/js/backbone.min.js'></script-->
-		<script type='text/javascript' src='src/js/data.js'></script>
-		<script type='text/javascript' src='src/js/berryTables.js'></script>
-		<script type='text/javascript' src='src/js/view.js'></script>
+		<script type='text/javascript' src='data/data.js'></script>
+		<script type='text/javascript' src='assets/js/berryTables.full.js'></script>
+		<!--<script type='text/javascript' src='src/js/view.js'></script>
 		<script type='text/javascript' src='src/js/collection.js'></script>
 		<script type='text/javascript' src='src/js/utils.js'></script>
-		<script type='text/javascript' src='src/js/views.js'></script>
+		<script type='text/javascript' src='src/js/views.js'></script>-->
 
 		<script type='text/javascript'>
-			bt = new berryTable({container: '#first',
-				// inlineEdit:true,
-				// filter: false,
-				// sort: false,
-				// search: false,
-				// columns: false,
-				// upload:false,
-				// download:false,
-				// autoSize: 10,
-				multiEdit:['berry_id', 'status'],
-				title:'Demo Content',
-				edit:true,
-				editComplete:function(models){
+// 			bt = new berryTable({container: '#first',
+// 				// inlineEdit:true,
+// 				// filter: false,
+// 				// sort: false,
+// 				// search: false,
+// 				// columns: false,
+// 				// upload:false,
+// 				// download:false,
+// 				// autoSize: 10,
+// 				multiEdit:['berry_id', 'status'],
+// 				title:'Demo Content',
+// 				edit:true,
+// 				// editComplete:function(models){
 
-					console.log(models)
-				},
-				// menu:['download' ],
-				add: true,//function(e){console.log(e)},
-				click: function(model){
-					model.toggle();
-				},
-				delete:true,
-				entries:[2,5,10],
-				count:10000,
-				events:[
-					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
-						console.log(model.attributes);
-					},multiEdit:true,complete:function(){						alert('Manage');}}
-				],
-				schema:[
+// 				// 	console.log(models)
+// 				// },
+// 				add: true,
+// 				click: function(model){
+// 					model.toggle();
+// 				},
+// 				delete:true,
+// 				entries:[2,5,10],
+// 				count:10000,
+// 				events:[
+// 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
+// 						console.log(model.attributes);
+// 					},multiEdit:true,complete:function(){						alert('Manage');}}
+// 				],
+// 				schema:[
 
-				{type:"text", name:"berry_id", label:"berry_id", required:false},
-				{type:"base64", name:"other", label:"Other", required:false, template:'<img style="max-width:100px" src="{{value}}""></b>'},
-				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>"},
-								// {type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
-,
-				{type:"select", name:"status", label: "Status", showColumn: true, choices:'./assets/js/options.json'}
+// 				{type:"text", name:"berry_id", label:"berry_id", required:false},
+// 				// {type:"base64", name:"other", label:"Other", required:false, template:'<img style="max-width:100px" src="{{value}}""></b>'},
+// 				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>"},
+// 				// {type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
+// ,
+// 				{type:"select", name:"status", label: "Status", showColumn: true, choices:'./assets/js/options.json'}
 
-			], data: data})
+// 			], data: data})
 			
+			// bt = new berryTable({
+			// 	container: '#first',
+			// 	search: false,
+			// 	columns: false,
+			// 	upload:false,
+			// 	download:false,
+			// 	edit:false,
+			// 	add: true,
+			// 	click: function(model){
+			// 		model.toggle();
+			// 	},
+			// 	delete:true,
+			// 	entries:[],
+			// 	count:1,
+			// 	schema:[
+			// 		{type:"text", name:"name", label:"Name", required:true},
+			// 	], data: [
+			// 	{name:'first'},
+			// 	{name:'second'},
+			// ]})
+			
+           bt = new berryTable({container:'#first',
+           search: false,columns: false,upload:false,download:false,title:'Demo Content',
+           edit:true,
+           add: true,
+           click: function(model){model.toggle();},
+           delete:true,
+           entries:[],
+           count:4,
+           schema:[
+               {type:"text", name:"name", label:"Name", required:true},
+           ], data: [
+               {name:'fifth'},
+               {name:'fourth'},
+               {name:'third'},
+               {name:'second'},
+               {name:'first'},
+           ]})
 		</script>
 
 </body></html>
