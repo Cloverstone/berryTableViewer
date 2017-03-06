@@ -67,19 +67,20 @@
 						<li class="list-unstyled" ><a href="#schema"><i class="fa fa-chevron-right"></i> schema</a></li>
 						<li class="list-unstyled" ><a href="#filters"><i class="fa fa-chevron-right"></i> filters</a></li>
 						<li class="list-unstyled" ><a href="#data"><i class="fa fa-chevron-right"></i> data</a></li>
-						<li class="list-unstyled" ><a href="#events"><i class="fa fa-chevron-right"></i> actions</a></li>
+						<li class="list-unstyled" ><a href="#events"><i class="fa fa-chevron-right"></i> events</a></li>
 						<li class="list-unstyled" ><a href="#multiEdit"><i class="fa fa-chevron-right"></i> multiEdit</a></li>
 						<li class="list-unstyled" ><a href="#inlineEdit"><i class="fa fa-chevron-right"></i> inlineEdit</a></li>
 						<li class="list-unstyled" ><a href="#autoSize"><i class="fa fa-chevron-right"></i> autoSize</a></li>
 						<li class="list-unstyled" ><a href="#pagination"><i class="fa fa-chevron-right"></i> pagination</a></li>
 						<li class="list-unstyled" ><a href="#callbacks"><i class="fa fa-chevron-right"></i> callbacks</a></li>
-						<li class="list-unstyled" ><a href="#events"><i class="fa fa-chevron-right"></i> events</a></li>
-						<li class="list-unstyled" ><a href="#flags"><i class="fa fa-chevron-right"></i> flags</a></li>
+						<!-- <li class="list-unstyled" ><a href="#event_bus"><i class="fa fa-chevron-right"></i> Event Bus</a></li> -->
+						<li class="list-unstyled" ><a href="#flags"><i class="fa fa-chevron-right"></i> Display flags</a></li>
 	
 					</ul>				
 					<a href="#model"><h4>Model</h4></a>
 					<ul class>
 						<li class="list-unstyled" ><a href="#set"><i class="fa fa-chevron-right"></i> set</a></li>
+						<li class="list-unstyled" ><a href="#toggle"><i class="fa fa-chevron-right"></i> toggle</a></li>
 						<li class="list-unstyled" ><a href="#undo"><i class="fa fa-chevron-right"></i> undo</a></li>
 						<li class="list-unstyled" ><a href="#delete"><i class="fa fa-chevron-right"></i> delete</a></li>
 					</ul>
@@ -140,100 +141,185 @@
 					</p>
 					<hr>
 
+					<h5>models <code>myTable.models;</code></h5>
+					<p>
+						the models can be accessed directly via the <code>models</code> variable. Any attributes that are modified or checked state will be updated visuially the next time draw is called.
+					</p>
+					<hr>
+
 
 					<!--options -->
 					<a name="options" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h3>Options</h3>
 					<pre><code class="prettyprint">var options = {
-  name: 'My Form'
+  name: "My Form"
   schema: berryFields,
-  data: 'myForm',
-  delete: function(){}
+  data: "myForm"
 };</code></pre>
 					<!--legend -->
 					<a name="title" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>title</h4>					
 					<p>
+						This is the title of the table, used for downloads and labeling.
+						<pre><code class="prettyprint">options.title = "Table title";</code></pre>
 					</p>					
 					<a name="schema" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>schema</h4>					
 					<p>
+						The schema is defined using the <a href="https://cloverstone.github.io/Berry/docs.html#field_options">Berry.js</a> syntax for fields
+						<pre><code class="prettyprint">options.schema = [{"label": "Field 1" , "name": "field_1"}];</code></pre>
+
+						The fields defined here will be used fore creating new entries into the table, editing entries in the table and will derive the filter fields for the table if filters are enabled. Filters use a more limited set of field types and some may be translated into simpler types.
 					</p>					
 					<a name="filters" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>schema</h4>					
+					<h4>filters</h4>
 					<p>
+						If you would like to define a different set of fields for filtering then you can define them directly here using the same syntax.
+
+						<pre><code class="prettyprint">options.filters = [{"label": "Field 1" , "name": "field_1"}];</code></pre>
+
 					</p>
 					<a name="data" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>data</h4>					
+					<h4>data</h4>
 					<p>
+						This should be an array of objects where each object should be represened by one row in the table.
 					</p>
-					<a name="actions" style="display:block;position:relative;top:-40px"></a>
+					<a name="events" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>actions</h4>					
+					<h4>events</h4>
+
+					<h5>name</h5>
 					<p>
+						This is the name of the event and is used to keep track of the events, this must be a unique name within an instance.
+					</p><br>
+					<h5>label</h5>
+					<p>
+						Used to label the button as displayed.
+					</p><br>
+					<h5>callback</h5>
+					<p>
+						This is a function that is called once per selected model with the first parameter passed in being an instance of that model.
+					</p><br>			
+					<h5>multiEdit</h5>
+					<p>
+						This indicates whether this event should be allowed to be triggered if multiple models are selected
+					</p><br>
+					<h5>complete</h5>
+					<p>
+						This function is called after the callback function has been called with each selected model. 
 					</p>
 					<a name="multiEdit" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>multiEdit</h4>					
+					<h4>multiEdit</h4>
 					<p>
+						<code>'MultiEdit'</code> is an array of fields by name that are allowed to be edited when multiple rows are selected. This will allow any fields in the array that are currently the same value to be edited at the same time.
 					</p>
 					<a name="inlineEdit" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>inlineEdit</h4>					
 					<p>
+						If the <code>'inlineEdit'</code> flag is set to <code>true</code> then berryTables will attempt to add inline editing to the contents of each cell based on the form defined in the schema above.
 					</p>
 					<a name="autoSize" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>autoSize</h4>					
+					<h4>autoSize</h4>		
+					<code>'autosize'</code> can be set to true or an integer. This tells berryTables to set the table to fit inside of the current window and fill it. If an integer is given then it will be used as the offset on the bottom of the table.
 					<p>
 					</p>
 					<a name="pagination" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>pagination</h4>					
-					<p>
+					
+						<h5>entries <code>options.entries;</code></h5>
+						<p>
+						This is an array of options for items per page i.e.
+						</p>
+						<pre><code class="prettyprint">options.entries = [10, 25, 50, 100];</code></pre>
+						<h5>count <code>options.count;</code></h5>
+						<p>
+						This is the initial state of the items per page option
+						<br><br>
+						An option for all is always added to the list and if and empty array is passed for entries then all is selected by default and the option to change it is removed from the page.
+						<pre><code class="prettyprint">options.entries = [];</code></pre>
+
 					</p>
 					
 					<a name="callbacks" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>callbacks (add, edit, delete, click)</h4>				
+					<h4>callbacks</h4>	
+						<p>
+							All callbacks can accept a function whos first parameter will be either a model or in the case of editComplete and array of all models that where affected. Setting <code>add</code>, <code>edit</code> or <code>delete</code> to false or leaving them unset will hide the buttons associated with them and true will allow the actions to take place with no callback called.
+						</p>
+						<h5>add <code>options.add = false;</code></h5>
+						<h5>edit <code>options.edit = false;</code></h5>
+						<h5>delete <code>options.delete = false;</code></h5>
+
+						<h5>editComplete <code>options.editComplete = false;</code></h5>
+						<p>
+							The editComplete callback is called after all models in a multiEdit event have been handled.
+						</p>
+						<h5>click <code>options.click = function(){}</code></h5>
+						<p>A common use for the click callback is to have the model selected:</p>
+						<pre><code class="prettyprint">function(model){
+  model.toggle();
+}</code></pre>
 					<p>
 					</p>	
-					<a name="events" style="display:block;position:relative;top:-40px"></a>
+	<!-- 				<a name="event_bus" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>events</h4>				
+					<h4>Event Bus</h4>				
 					<p>
-					</p>					
+					</p>		 -->			
 					<a name="flags" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>flags (filter, sort, search, columns, upload, download)</h4>				
-					<p>
+					<h4>Display flags</h4>				
+					<p>			
+						The following flags can be used to modify the available display options a accociated functionality.		
 					</p>
+
+					<code>options.filter = true;</code><br>
+					<code>options.sort = true;</code><br>
+					<code>options.search = true;</code><br>
+					<code>options.columns = true;</code><br>
+					<code>options.upload = true;</code><br>
+					<code>options.download = true;</code><br>
 
 					<hr>
 					<a name="model" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h3>Model</h3>
-
+					<p>
+						Models can be accessed either directly via the <a href="#api">api</a> or via a callback method as all callbacks pass either a model or an array of models. 
+					</p>
 					<!--Model -->
 					<a name="set" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>set</h4>					
+					<h4>set <code>myModel.set(object attributes)</code></h4>					
 					<p>
+						This will overwrite the attributes of the model with the ones passed in, if you would like to update only changed attributes you should first get the attributes and update them before calling the set method.
+					</p>					
+					<a name="toggle" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>toggle <code>myModel.toggle(bool state)</code></h4>					
+					<p>
+						If no parameter is passed in then the models checked (selected) state is toggled, if one is passed in then that is set as the newe state.
 					</p>
 					<a name="undo" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>undo</h4>					
 					<p>
+						Anytime set is called on a model the previous state is tracked such that it can be undone by calling <code>myModel.undo()</code>
 					</p>				
 					<a name="delete" style="display:block;position:relative;top:-40px"></a>
 					<br>
-					<h4>delete</h4>					
+					<h4>delete</h4>
 					<p>
+						A model can be deleted by calling <code>myModel.delete()</code> this will not trigger the delete callback, it will just remove it from the collection of models maintained in the berryTable instance.
 					</p>			
 
 					<hr>
