@@ -63,9 +63,25 @@
 					</ul>
 					<a href="#options"><h4>Options</h4></a>
 					<ul class>
+						<li class="list-unstyled" ><a href="#title"><i class="fa fa-chevron-right"></i> title</a></li>
 						<li class="list-unstyled" ><a href="#schema"><i class="fa fa-chevron-right"></i> schema</a></li>
+						<li class="list-unstyled" ><a href="#filters"><i class="fa fa-chevron-right"></i> filters</a></li>
 						<li class="list-unstyled" ><a href="#data"><i class="fa fa-chevron-right"></i> data</a></li>
+						<li class="list-unstyled" ><a href="#events"><i class="fa fa-chevron-right"></i> actions</a></li>
+						<li class="list-unstyled" ><a href="#multiEdit"><i class="fa fa-chevron-right"></i> multiEdit</a></li>
+						<li class="list-unstyled" ><a href="#inlineEdit"><i class="fa fa-chevron-right"></i> inlineEdit</a></li>
+						<li class="list-unstyled" ><a href="#autoSize"><i class="fa fa-chevron-right"></i> autoSize</a></li>
+						<li class="list-unstyled" ><a href="#pagination"><i class="fa fa-chevron-right"></i> pagination</a></li>
+						<li class="list-unstyled" ><a href="#callbacks"><i class="fa fa-chevron-right"></i> callbacks</a></li>
+						<li class="list-unstyled" ><a href="#events"><i class="fa fa-chevron-right"></i> events</a></li>
+						<li class="list-unstyled" ><a href="#flags"><i class="fa fa-chevron-right"></i> flags</a></li>
 	
+					</ul>				
+					<a href="#model"><h4>Model</h4></a>
+					<ul class>
+						<li class="list-unstyled" ><a href="#set"><i class="fa fa-chevron-right"></i> set</a></li>
+						<li class="list-unstyled" ><a href="#undo"><i class="fa fa-chevron-right"></i> undo</a></li>
+						<li class="list-unstyled" ><a href="#delete"><i class="fa fa-chevron-right"></i> delete</a></li>
 					</ul>
 	<!-- 				<ul class>
 						<li class="list-unstyled" ><a href="#color"><i class="fa fa-chevron-right"></i> Tests</a></li>
@@ -76,12 +92,12 @@
 				</div><!--/span-->
 				<div class="col-xs-12 col-sm-9">
 					<!--Introduction -->
-					<a name="intro" style="display:block;position:relative;top:-80px"></a>
+					<a name="intro" style="display:block;position:relative;top:-40px"></a>
 					<h2>Berry Tables</h2>
 
 
 					<!--Getting Started -->
-					<a name="getting_started" style="display:block;position:relative;top:-80px"></a>
+					<a name="getting_started" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>Getting Started</h4>
 					<p><b>Dependencies</b> - berryTables is built on top of <a href="https://cloverstone.github.io/Berry/">Berry.js</a> and you will need to include that and any of its dependencies, aditionally underscore.js or lodash.js are required</p>
@@ -108,7 +124,7 @@
 					<pre><code class="prettyprint">var options = {"container":".myTable"};<br>var myForm = berryTable(options);</code></pre>
 
 					<!--Api -->
-					<a name="api" style="display:block;position:relative;top:-80px"></a>
+					<a name="api" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>API</h4>
 					<h5>find <code>myTable.find([search]);</code></h5>
@@ -126,7 +142,7 @@
 
 
 					<!--options -->
-					<a name="options" style="display:block;position:relative;top:-80px"></a>
+					<a name="options" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h3>Options</h3>
 					<pre><code class="prettyprint">var options = {
@@ -136,23 +152,89 @@
   delete: function(){}
 };</code></pre>
 					<!--legend -->
-					<a name="schema" style="display:block;position:relative;top:-80px"></a>
+					<a name="title" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>title</h4>					
+					<p>
+					</p>					
+					<a name="schema" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>schema</h4>					
+					<p>
+					</p>					
+					<a name="filters" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>schema</h4>					
 					<p>
 					</p>
-					<a name="data" style="display:block;position:relative;top:-80px"></a>
+					<a name="data" style="display:block;position:relative;top:-40px"></a>
 					<br>
 					<h4>data</h4>					
 					<p>
-
 					</p>
-					<blockquote></blockquote>
+					<a name="actions" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>actions</h4>					
+					<p>
+					</p>
+					<a name="multiEdit" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>multiEdit</h4>					
+					<p>
+					</p>
+					<a name="inlineEdit" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>inlineEdit</h4>					
+					<p>
+					</p>
+					<a name="autoSize" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>autoSize</h4>					
+					<p>
+					</p>
+					<a name="pagination" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>pagination</h4>					
+					<p>
+					</p>
+					
+					<a name="callbacks" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>callbacks (add, edit, delete, click)</h4>				
+					<p>
+					</p>	
+					<a name="events" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>events</h4>				
+					<p>
+					</p>					
+					<a name="flags" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>flags (filter, sort, search, columns, upload, download)</h4>				
+					<p>
+					</p>
 
 					<hr>
+					<a name="model" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h3>Model</h3>
 
-
-
+					<!--Model -->
+					<a name="set" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>set</h4>					
+					<p>
+					</p>
+					<a name="undo" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>undo</h4>					
+					<p>
+					</p>				
+					<a name="delete" style="display:block;position:relative;top:-40px"></a>
+					<br>
+					<h4>delete</h4>					
+					<p>
+					</p>			
 
 					<hr>
 					<footer>
