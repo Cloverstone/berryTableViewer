@@ -145,7 +145,11 @@ function berryTable(options) {
 				val.type = 'text';
 				break;
 			case 'checkbox':
-				val.choices = [{label: val.falsestate || 'False', value: val.falsestate || 'false'}, {label: val.truestate || 'True', value: val.truestate || 'True'}];
+				val.choices = [{label: 'False', value: 'false'}, {label: val.truestate || 'True', value: val.truestate || 'true'}];
+				if(typeof val.falsestate !== 'undefined'){
+					val.choices[0].label = val.falsestate;
+					val.choices[0].value = val.falsestate;
+				}
 			case 'radio':
 				val.type = 'select';
 			case 'select':
