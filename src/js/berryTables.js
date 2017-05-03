@@ -263,15 +263,28 @@ function berryTable(options) {
 					var totalProgress = itemCount*2;
 					var items = [];
 					this.importing = true;
+					temp[0] = _.map(temp[0], function(item){
+						var search = _.findWhere(options.schema, {label:item});
+						if(search == null){
+							search = item;
+						}else{
+							search = search.name;
+						}
+						return search;
+					})
 		      for(var i = 1; i<temp.length; i++){
 		      	if(!this.importing) return false;
-			      var newtemp = {}
-			      for(var j in temp[0]){
-			      	newtemp[temp[0][j]] = temp[i][j]
-			      }
-			      var status = table.validate(newtemp);
-			      if(!table.validate(newtemp)){valid =false; break;}
-			      items.push(status);
+		      	if(temp[0].length == temp[i].length){
+				      var newtemp = {}
+				      for(var j in temp[0]){
+				      	newtemp[temp[0][j]] = temp[i][j]
+				      }
+				      var status = table.validate(newtemp);
+				      if(!table.validate(newtemp)){valid =false; break;}
+				      items.push(status);
+			    	}else{
+			    		itemCount--;
+			    	}
 						ref.find('.progress-bar').width((i/totalProgress)*100 +'%')
 			    }
 			    if(valid){
@@ -286,7 +299,7 @@ function berryTable(options) {
 			    	ref.find('.status').html('<div class="alert alert-danger">Error in row '+i+ ', failed to validate!</div>')
 			    	return;
 			    }
-		    	ref.find('.status').html('<div class="alert alert-success">Successfully added '+itemCount+ ', rows!</div>')
+		    	ref.find('.status').html('<div class="alert alert-success">Successfully processed file, '+itemCount+ ' rows were added!</div>')
 		    	ref.find('.btn').toggleClass('btn-danger btn-success').html('Done');
 		    	ref.find('.progress').hide();
 		    	if(typeof table.options.onBulkLoad == 'function'){
