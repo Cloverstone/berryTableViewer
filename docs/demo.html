@@ -96,7 +96,7 @@
 				// columns: false,
 				// upload:false,
 				// download:false,
-				// autoSize: 10,
+				autoSize: 10,
 				multiEdit:['berry_id', 'status'],
 				title:'Demo Content',
 				edit:true,
@@ -120,7 +120,7 @@
 
 				{type:"text", name:"berry_id", label:"berry_id", required:false},
 				// {type:"base64", name:"other", label:"Other", required:false, template:'<img style="max-width:100px" src="{{value}}""></b>'},
-				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>"},
+				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>",showColumn: false},
 				// {type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
 ,
 				{type:"select", name:"status", label: "Status", showColumn: true, choices:'./assets/js/options.json'}

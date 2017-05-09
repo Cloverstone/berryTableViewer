@@ -1,20 +1,8 @@
 
-_.mixin({
-  compactObject: function(o) {
-    _.each(o, function(v, k) {
-      if(!v && (v !== 0)) {
-        delete o[k];
-      }
-    });
-    return o;
-  }
-});
-
-
 (function($) {
   $.score = function(base, abbr, offset) {
     
-    //offset = offset || 0 // TODO: I think this is unused... remove
+    offset = offset || 0; // TODO: I think this is unused... remove
     
     if(abbr.length === 0) return 0.9;
     if(abbr.length > base.length) return 0.0;
@@ -29,20 +17,18 @@ _.mixin({
       var next_string = base.substring(index+sub_abbr.length);
       var next_abbr = null;
       
-      if(i >= abbr.length)
+      if(i >= abbr.length) {
         next_abbr = '';
-      else
+      } else {
         next_abbr = abbr.substring(i);
-      
+      }
       // Changed to fit new (jQuery) format (JSK)
       var remaining_score   = $.score(next_string, next_abbr,offset+index);
       
       if (remaining_score > 0) {
         var score = base.length-next_string.length;
         
-        if(index !== 0) {
-          //var j = 0;
-          
+        if(index !== 0) {     
           var c = base.charCodeAt(index-1);
           if(c==32 || c == 9) {
             for(var j=(index-2); j >= 0; j--) {
@@ -83,93 +69,90 @@ csvify = function(data, columns, title){
 }
 
 
-    function CSVToArray( strData, strDelimiter ){
-        // Check to see if the delimiter is defined. If not,
-        // then default to comma.
-        strDelimiter = (strDelimiter || ",");
+function CSVToArray( strData, strDelimiter ){
+    // Check to see if the delimiter is defined. If not,
+    // then default to comma.
+    strDelimiter = (strDelimiter || ",");
 
-        // Create a regular expression to parse the CSV values.
-        var objPattern = new RegExp(
-            (
-                // Delimiters.
-                "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
+    // Create a regular expression to parse the CSV values.
+    var objPattern = new RegExp(
+        (
+            // Delimiters.
+            "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
 
-                // Quoted fields.
-                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+            // Quoted fields.
+            "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
 
-                // Standard fields.
-                "([^\"\\" + strDelimiter + "\\r\\n]*))"
-            ),
-            "gi"
-            );
-
-
-        // Create an array to hold our data. Give the array
-        // a default empty first row.
-        var arrData = [[]];
-
-        // Create an array to hold our individual pattern
-        // matching groups.
-        var arrMatches = null;
+            // Standard fields.
+            "([^\"\\" + strDelimiter + "\\r\\n]*))"
+        ),
+        "gi"
+        );
 
 
-        // Keep looping over the regular expression matches
-        // until we can no longer find a match.
-        while (arrMatches = objPattern.exec( strData )){
+    // Create an array to hold our data. Give the array
+    // a default empty first row.
+    var arrData = [[]];
 
-            // Get the delimiter that was found.
-            var strMatchedDelimiter = arrMatches[ 1 ];
-
-            // Check to see if the given delimiter has a length
-            // (is not the start of string) and if it matches
-            // field delimiter. If id does not, then we know
-            // that this delimiter is a row delimiter.
-            if (
-                strMatchedDelimiter.length &&
-                strMatchedDelimiter !== strDelimiter
-                ){
-                // Since we have reached a new row of data,
-                // add an empty row to our data array.
-                arrData.push( [] );
-
-            }
-
-            var strMatchedValue;
-
-            // Now that we have our delimiter out of the way,
-            // let's check to see which kind of value we
-            // captured (quoted or unquoted).
-            if (arrMatches[ 2 ]){
-
-                // We found a quoted value. When we capture
-                // this value, unescape any double quotes.
-                strMatchedValue = arrMatches[ 2 ].replace(
-                    new RegExp( "\"\"", "g" ),
-                    "\""
-                    );
-
-            } else {
-
-                // We found a non-quoted value.
-                strMatchedValue = arrMatches[ 3 ];
-
-            }
+    // Create an array to hold our individual pattern
+    // matching groups.
+    var arrMatches = null;
 
 
-            // Now that we have our value string, let's add
-            // it to the data array.
+    // Keep looping over the regular expression matches
+    // until we can no longer find a match.
+    while (arrMatches = objPattern.exec( strData )){
 
-            // if(arrData.length >1){
-            //  var temp = {};
-            //  temp[arrData[0][arrData[ arrData.length - 1 ].length]] = strMatchedValue;
-       //        arrData[ arrData.length - 1 ].push( temp );
-       //        strMatchedValue = temp;
+        // Get the delimiter that was found.
+        var strMatchedDelimiter = arrMatches[ 1 ];
 
-       //      }
-            arrData[ arrData.length - 1 ].push( strMatchedValue );
+        // Check to see if the given delimiter has a length
+        // (is not the start of string) and if it matches
+        // field delimiter. If id does not, then we know
+        // that this delimiter is a row delimiter.
+        if ( strMatchedDelimiter.length &&
+            strMatchedDelimiter !== strDelimiter ){
+            // Since we have reached a new row of data,
+            // add an empty row to our data array.
+            arrData.push( [] );
+        }
+
+        var strMatchedValue;
+
+        // Now that we have our delimiter out of the way,
+        // let's check to see which kind of value we
+        // captured (quoted or unquoted).
+        if (arrMatches[ 2 ]){
+
+            // We found a quoted value. When we capture
+            // this value, unescape any double quotes.
+            strMatchedValue = arrMatches[ 2 ].replace(
+                new RegExp( "\"\"", "g" ),
+                "\""
+                );
+
+        } else {
+
+            // We found a non-quoted value.
+            strMatchedValue = arrMatches[ 3 ];
 
         }
 
-        // Return the parsed data.
-        return( arrData );
+
+        // Now that we have our value string, let's add
+        // it to the data array.
+
+        // if(arrData.length >1){
+        //  var temp = {};
+        //  temp[arrData[0][arrData[ arrData.length - 1 ].length]] = strMatchedValue;
+    //        arrData[ arrData.length - 1 ].push( temp );
+    //        strMatchedValue = temp;
+
+    //      }
+        arrData[ arrData.length - 1 ].push( strMatchedValue );
+
     }
+
+    // Return the parsed data.
+    return( arrData );
+}

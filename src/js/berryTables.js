@@ -2,10 +2,17 @@ function berryTable(options) {
 	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
 	this.draw = function() {
 			_.each(this.summary.items, function(item){
-				$('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
-			})
+				this.$el.find('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
+			}.bind(this))
 		if(this.$el.find('.filter').length){
-			options.search = _.compactObject(this.filter.toJSON());
+			var o = this.filter.toJSON();
+			_.each(o, function(v, k) {
+				if(!v && (v !== 0)) {
+					delete o[k];
+				}
+			});
+
+			options.search = o;
 		}else{
 			options.search = {};
 		}
@@ -32,7 +39,7 @@ function berryTable(options) {
 		});
 		var container = this.$el.find('.list-group').empty().replaceWith(newContainer);
 		var startpage = options.page - pagebuffer;
-		if(startpage < 1){startpage = 1}
+		if(startpage < 1){startpage = 1;}
 		var endpage = options.page + pagebuffer;
 		if(endpage >options.pagecount){endpage = options.pagecount}
 
@@ -107,7 +114,6 @@ function berryTable(options) {
 
 	var options = $.extend({count: options.count || 25, page: 1, sort: 'createdAt', reverse: false}, options);
 	// var popts = _.partial(Berry.processOpts,_ ,{update:function(){debugger;}})
-	// debugger;
 	self = this;
 	options.schema = _.map(_.map(options.schema, function(item){
 		return Berry.processOpts(item,{update:function(options){
@@ -324,7 +330,7 @@ function berryTable(options) {
 		this.$el = $el;
 
 		if(this.options.columns){
-			this.$el.on('click', '#columnEnables label', function(e){
+			this.$el.on('click', '.columnEnables label', function(e){
 				e.stopPropagation();
 				_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.childNodes[0].checked;
 				this.draw();
@@ -604,20 +610,20 @@ function berryTable(options) {
 
 	this.fixStyle = function(){
 		if(this.options.autoSize){
-		try{
-		this.$el.find('.table-container > div').css('width', 'auto') 
-		this.$el.find('.table-container > div').css('minWidth', 'auto') 
-		this.$el.find('.table-container > div').css('height', $(window).height() - $('.table-container > div').offset().top - (88+ this.options.autoSize) +'px');
-		_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
-			this.$el.find('.table-container > table tr th:visible')[index].style.width = item.offsetWidth+'px';
-			this.$el.find('.table-container > table tr th:visible')[index].style.minWidth = item.offsetWidth+'px';
+			try{
+				this.$el.find('.table-container > div').css('width', 'auto') 
+				this.$el.find('.table-container > div').css('minWidth', 'auto') 
+				this.$el.find('.table-container > div').css('height', $(window).height() - $('.table-container > div').offset().top - (88+ this.options.autoSize) +'px');
+				_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
+					this.$el.find('.table-container > table tr th:visible')[index].style.width = item.offsetWidth+'px';
+					this.$el.find('.table-container > table tr th:visible')[index].style.minWidth = item.offsetWidth+'px';
 
-		}.bind(this))
+				}.bind(this))
 
-		this.$el.find('.table-container > div').css('width', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
-		this.$el.find('.table-container > div').css('minWidth', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
-				}catch(e){}
-	}	
+				this.$el.find('.table-container > div').css('width', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
+				this.$el.find('.table-container > div').css('minWidth', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
+			}catch(e){}
+		}	
 	}
 
 	this.grab = function(options) {
@@ -668,31 +674,20 @@ function berryTable(options) {
 	$(options.container).html(render.call(this));
 	onload.call(this, $(options.container));
 	this.getCSV = function(title){
-
-		this.filterMap
-	csvify(
+		// this.filterMap
+		csvify(
 			_.map(this.filtered, function(item){return item.attributes}),
-			_.map(
-			_.filter(this.summary.items,function(item){return item.isEnabled}) ,function(item){
-			return {label:item.label,name:this.filterMap[item.cname]} 
-
-		}),
-		title || this.options.title 
-)
-//		csvify(_.map(this.filtered, function(item){return item.attributes}),_.pluck(this.options.schema, 'name'), title || this.options.title )
+			_.map(_.filter(this.summary.items, function(item){return item.isEnabled}) ,function(item){
+				return {label:item.label,name:this.filterMap[item.cname]} 
+			}),
+			title || this.options.title 
+		)
 	}
 
 	this.$el.find('[name="search"]').focus();
 
-		this.$el.find('.table-container > div').css('overflow', 'auto');
-
-		// $('.table-container > table tbody tr th')[1].style.width = $('.list-group tr:first td')[1].offsetWidth+'px'
-
-
-// this.$el.find('.table-container > table tr th').resizable() 
-
-
-		$(window).on('resize orientationChange', this.fixStyle.bind(this));
+	this.$el.find('.table-container > div').css('overflow', 'auto');
+	$(window).on('resize orientationChange', this.fixStyle.bind(this));
 
 
 }
