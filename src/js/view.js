@@ -4,7 +4,7 @@ function viewitem(options){
 
 		this.$el.find('[data-event]').off();
 		this.$el.off();
-		this.$el.replaceWith(this.setElement(this.view.render(this.model , templates)).$el);
+		this.$el.replaceWith(this.setElement(options.view.render(this.model , templates)).$el);
 
 		if(this.$el.find('[data-popins]').length > 0){
 			this.berry = this.$el.berry({ popins: {container: '#first', viewport:{ selector: 'body', padding: 20 }}, renderer: 'popins', model: this.model});
@@ -55,8 +55,6 @@ function viewitem(options){
 		});
 	}
 
-	this.view = Hogan.compile(templates['table_row'].render(options.summary, templates));
-
 	this.setElement = function(html){
 		this.$el = $(html);
 		return this;
@@ -69,7 +67,6 @@ function viewitem(options){
 	if(options.container){
 		options.container.append(this.$el);
 	}
-
 	this.model.on('change', this.update, this);
 	this.model.on('destroy', $.proxy(function(){
 		this.$el.fadeOut('fast', $.proxy(function() {

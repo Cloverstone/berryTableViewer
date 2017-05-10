@@ -1,5 +1,7 @@
 function berryTable(options) {
 	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
+	if(options.item_template ){options.item_template= Hogan.compile(options.item_template)}else{options.item_template = templates['table_row'];}
+
 	this.draw = function() {
 			_.each(this.summary.items, function(item){
 				this.$el.find('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
@@ -34,8 +36,11 @@ function berryTable(options) {
 		var showing = (this.lastGrabbed>(options.count * options.page))? (options.count * options.page) : this.lastGrabbed;
 
 		var newContainer = $('<tbody class="list-group">');
-		_.each(this.grab(options), function(model){
-			new viewitem({ 'model': model, container: newContainer, summary:summary});
+		// debugger;
+		var view = Hogan.compile(options.item_template.render(summary, templates));
+
+		_.each(this.grab(options), function(model) {
+			new viewitem({ 'model': model, container: newContainer, view: view});
 		});
 		var container = this.$el.find('.list-group').empty().replaceWith(newContainer);
 		var startpage = options.page - pagebuffer;
@@ -652,14 +657,18 @@ function berryTable(options) {
 
 				this.trigger('close');
 			}).on('close', function(){
-				bt.draw();
+				this.draw();
 				if(typeof this.options.editComplete === 'function'){
 					this.options.editComplete(_.where(this.models, {checked: true}), this);
 				}
 			}, this )
 		}
 	}
-
+	this.destroy = function(){
+		this.$el.find('.list-group').empty();
+		this.$el.off();
+		this.$el.empty();
+	}
 	this.models = [];
 	this.options = options;
 	this.filterMap = {}
@@ -953,7 +962,7 @@ function viewitem(options){
 
 		this.$el.find('[data-event]').off();
 		this.$el.off();
-		this.$el.replaceWith(this.setElement(this.view.render(this.model , templates)).$el);
+		this.$el.replaceWith(this.setElement(options.view.render(this.model , templates)).$el);
 
 		if(this.$el.find('[data-popins]').length > 0){
 			this.berry = this.$el.berry({ popins: {container: '#first', viewport:{ selector: 'body', padding: 20 }}, renderer: 'popins', model: this.model});
@@ -1004,8 +1013,6 @@ function viewitem(options){
 		});
 	}
 
-	this.view = Hogan.compile(templates['table_row'].render(options.summary, templates));
-
 	this.setElement = function(html){
 		this.$el = $(html);
 		return this;
@@ -1018,7 +1025,6 @@ function viewitem(options){
 	if(options.container){
 		options.container.append(this.$el);
 	}
-
 	this.model.on('change', this.update, this);
 	this.model.on('destroy', $.proxy(function(){
 		this.$el.fadeOut('fast', $.proxy(function() {

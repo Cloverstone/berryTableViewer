@@ -43,10 +43,26 @@
 
 		<div class="container">
 			<div class="row">
- 				<div class="col-md-12 col-xs-12" id="first">
+ 				<div class="col-md-12 col-xs-12">
+<div>
 
+  <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class="active"><a href="#first" aria-controls="first" role="tab" data-toggle="tab">First</a></li>
+    <li role="presentation"><a href="#second" aria-controls="second" role="tab" data-toggle="tab">Second</a></li>
+    <li role="presentation"><a href="#third" aria-controls="third" role="tab" data-toggle="tab">Third</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="first">...</div>
+    <div role="tabpanel" class="tab-pane" id="second">...</div>
+    <div role="tabpanel" class="tab-pane" id="third">...</div>
+  </div>
+
+</div>
 					</div>
-			</div>
+			</div>			
+
 
 			<footer>
 				<p>&copy; Adam Smallcomb 2017</p>
@@ -88,7 +104,7 @@
 		<script type='text/javascript' src='src/js/views.js'></script>-->
 
 		<script type='text/javascript'>
-			bt = new berryTable({container: '#first',
+		var options = {container: '#first',
 				// inlineEdit:true,
 				// filter: false,
 				// sort: false,
@@ -96,7 +112,7 @@
 				// columns: false,
 				// upload:false,
 				// download:false,
-				autoSize: 10,
+				// autoSize: 10,
 				multiEdit:['berry_id', 'status'],
 				title:'Demo Content',
 				edit:true,
@@ -111,6 +127,19 @@
 				delete:true,
 				entries:[2,5,10],
 				count:10000,
+// 				item_template: `<div class="filterable">		
+// 	{{#options.hasActions}}
+
+// 	<span style="width: 60px;min-width:60px;">
+// 		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 8px 0 4px;">&nbsp;<div class="btn-group">
+//    	</span>
+// 		{{/options.hasActions}}
+// <div>
+// 	{{#items}}
+// 	{{#visible}}{{#isEnabled}}<span style="min-width:85px">{{{name}}}</span>{{/isEnabled}}{{/visible}}
+// 	{{/items}}
+// 	</div>
+// </div>`,
 				events:[
 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
 						console.log(model.attributes);
@@ -125,8 +154,11 @@
 ,
 				{type:"select", name:"status", label: "Status", showColumn: true, choices:'./assets/js/options.json'}
 
-			], data: data})
-			
+			], data: data}
+
+			new berryTable(options)
+			new berryTable($.extend({},options,{container: '#second'}))
+			new berryTable($.extend({},options,{container: '#third'}))
 			// bt = new berryTable({
 			// 	container: '#first',
 			// 	search: false,
