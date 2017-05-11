@@ -127,19 +127,19 @@
 				delete:true,
 				entries:[2,5,10],
 				count:10000,
-// 				item_template: `<div class="filterable">		
-// 	{{#options.hasActions}}
+				item_template: `<tr><td colspan="100%" class="filterable">		
+	{{#options.hasActions}}
 
-// 	<span style="width: 60px;min-width:60px;">
-// 		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 8px 0 4px;">&nbsp;<div class="btn-group">
-//    	</span>
-// 		{{/options.hasActions}}
-// <div>
-// 	{{#items}}
-// 	{{#visible}}{{#isEnabled}}<span style="min-width:85px">{{{name}}}</span>{{/isEnabled}}{{/visible}}
-// 	{{/items}}
-// 	</div>
-// </div>`,
+	<span style="">
+		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 8px 0 4px;">
+   	</span>
+		{{/options.hasActions}}
+<div>
+	{{#items}}
+	{{#visible}}{{#isEnabled}}<div class="row" style="min-width:85px"><span class="col-sm-3" style="text-align:right"><b>{{label}}:</b></span><span class="col-sm-9 col-xs-12">{{{name}}}</span></div>{{/isEnabled}}{{/visible}}
+	{{/items}}
+	</div>
+</td></tr>`,
 				events:[
 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
 						console.log(model.attributes);
@@ -156,7 +156,7 @@
 
 			], data: data}
 
-			new berryTable(options)
+			bt = new berryTable(options)
 			new berryTable($.extend({},options,{container: '#second'}))
 			new berryTable($.extend({},options,{container: '#third'}))
 			// bt = new berryTable({

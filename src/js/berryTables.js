@@ -1,13 +1,14 @@
 function berryTable(options) {
+
 	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
 	if(options.item_template ){options.item_template= Hogan.compile(options.item_template)}else{options.item_template = templates['table_row'];}
-
+	this.filterValues = {};
 	this.draw = function() {
 			_.each(this.summary.items, function(item){
 				this.$el.find('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
 			}.bind(this))
 		if(this.$el.find('.filter').length){
-			var o = this.filter.toJSON();
+			var o = this.filterValues;
 			_.each(o, function(v, k) {
 				if(!v && (v !== 0)) {
 					delete o[k];
@@ -434,6 +435,7 @@ function berryTable(options) {
 		if($el.find('.filter').length) {
 			this.filter = $el.find('.filter').berry({name:'filter'+this.options.id,renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 				this.$el.find('[name="search"]').val('');
+				this.filterValues = this.filter.toJSON();
 				this.draw();
 			}, this);
 		}
@@ -499,9 +501,10 @@ function berryTable(options) {
 			options.sort = null;
 			this.$el.find('[data-sort]').removeClass('text-primary');
 			this.$el.find('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
-			if(this.filter){
+			if(this.filter) {
 				silentPopulate.call(this.filter, this.defaults)
 			}
+			this.filterValues = {};
 			this.draw();
 		}.bind(this));
 		this.$el.on('click','[name="bt-download"]', function(){
@@ -669,6 +672,39 @@ function berryTable(options) {
 		this.$el.off();
 		this.$el.empty();
 	}
+
+		this.settings = {
+		get:function(){
+
+		},
+		set:function(settings){
+
+			// debugger;
+			this.summary.items = _.map(this.summary.items, function(item) {
+				// debugger;
+				item.isEnabled = _.contains(settings.columns,this.filterMap[item.cname])
+				return item;
+			})
+
+			this.filterValues = {};
+			_.each(settings.filters, function(item, index){
+				for(var i in this.filterMap){
+					if(this.filterMap[i] == index)break;
+				}				
+				this.filterValues[i] = item
+			}.bind(this))
+
+
+			// this.filterValues = settings.filters;
+			this.filter.populate(this.filterValues);
+			// settings.sort;
+			// settings.reverse;
+			if(typeof settings.search !== 'undefined' && settings.search !== ''){
+				this.$el.find('[name="search"]').val(settings.search)
+			}
+			this.draw();
+		}.bind(this)
+	}
 	this.models = [];
 	this.options = options;
 	this.filterMap = {}
@@ -683,11 +719,12 @@ function berryTable(options) {
 	$(options.container).html(render.call(this));
 	onload.call(this, $(options.container));
 	this.getCSV = function(title){
-		// this.filterMap
+		var lookup = this.filterMap
+		// debugger;
 		csvify(
 			_.map(this.filtered, function(item){return item.attributes}),
 			_.map(_.filter(this.summary.items, function(item){return item.isEnabled}) ,function(item){
-				return {label:item.label,name:this.filterMap[item.cname]} 
+				return {label:item.label,name:lookup[item.cname]} 
 			}),
 			title || this.options.title 
 		)

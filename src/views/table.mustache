@@ -8,18 +8,13 @@
 			<div data-event="add" class="btn btn-success"><i class="fa fa-pencil-square-o"></i> New</div>
 			{{/showAdd}}
 			{{#options.download}}
-			<div class="btn btn-default" name="bt-download" data-toggle="tooltip" data-placement="left" title="Download"><i class="fa fa-download"></i></div>
+			<div class="btn btn-default hidden-xs" name="bt-download" data-toggle="tooltip" data-placement="left" title="Download"><i class="fa fa-download"></i></div>
 			{{/options.download}}
 			{{#options.upload}}
-			<div class="btn btn-default" name="bt-upload" data-toggle="tooltip" data-placement="left" title="Upload"><i class="fa fa-upload"></i></div>
+			<div class="btn btn-default hidden-xs" name="bt-upload" data-toggle="tooltip" data-placement="left" title="Upload"><i class="fa fa-upload"></i></div>
 			{{/options.upload}}
 
-			{{#options.filter}}
-			<div name="reset-search" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="Clear Filters">
-				<i class="fa fa-filter"></i>
-				<i class="fa fa-times text-danger" style="position: absolute;right: 5px;"></i>
-			</div>
-			{{/options.filter}}
+
 			{{#options.columns}}
 			<div class="btn-group columnEnables" data-toggle="tooltip" data-placement="left" title="Display Columns">
 			  <button class="btn btn-default dropdown-toggle" type="button" id="enables_{{options.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -66,7 +61,12 @@
 
 		{{#options.filter}}
 		<tr style="background:#fff;" class="filter">
-			{{#options.hasActions}}<td></td>{{/options.hasActions}}
+			{{#options.hasActions}}<td>
+			<div name="reset-search" style="position:relative" class="btn" data-toggle="tooltip" data-placement="left" title="Clear Filters">
+				<i class="fa fa-filter"></i>
+				<i class="fa fa-times text-danger" style="position: absolute;right: 5px;"></i>
+			</div>
+			</td>{{/options.hasActions}}
 
 			{{#items}}
 			{{#visible}}
@@ -98,7 +98,12 @@
 				</tr>
 				{{#options.filter}}
 				<tr style="background:#fff;" class="filter">
-					{{#options.hasActions}}<td></td>{{/options.hasActions}}
+					{{#options.hasActions}}<td>
+					<div name="reset-search" style="position:relative" class="btn" data-toggle="tooltip" data-placement="left" title="Clear Filters">
+						<i class="fa fa-filter"></i>
+						<i class="fa fa-times text-danger" style="position: absolute;right: 5px;"></i>
+					</div>
+					</td>{{/options.hasActions}}
 
 					{{#items}}
 					{{#visible}}
