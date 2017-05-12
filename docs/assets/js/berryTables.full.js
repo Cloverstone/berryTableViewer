@@ -3,7 +3,9 @@ function berryTable(options) {
 	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
 	var loaded = false;
 	if (window.localStorage && options.name) {
+		try{
 		loaded = JSON.parse(localStorage.getItem('bt_'+options.name));
+		}catch(e){};
 	}
 	if(options.item_template ){options.item_template= Hogan.compile(options.item_template)}else{
 		if(window.outerWidth > 991){//767){
@@ -710,11 +712,11 @@ function berryTable(options) {
 				this.$el.find('.columnEnables [type="checkbox"]').each(function(e){
 					this.checked = false
 				})
-
-				_.each(settings.columns, function(item){
-					this.$el.find('.columnEnables [data-field="'+_.findWhere(this.options.filterFields, {search: item}).id+'"] [type="checkbox"]')[0].checked = true;
-					
-				}.bind(this))
+				if(options.columns) {
+					_.each(settings.columns, function(item){
+						this.$el.find('.columnEnables [data-field="'+_.findWhere(this.options.filterFields, {search: item}).id+'"] [type="checkbox"]')[0].checked = true;
+					}.bind(this))
+				}
 			}
 
 			this.filterValues = {};
