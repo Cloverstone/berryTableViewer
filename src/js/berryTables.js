@@ -1,12 +1,23 @@
 function berryTable(options) {
 
 	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
-	if(options.item_template ){options.item_template= Hogan.compile(options.item_template)}else{options.item_template = templates['table_row'];}
+	var loaded = false;
+	if (window.localStorage && options.name) {
+		loaded = JSON.parse(localStorage.getItem('bt_'+options.name));
+	}
+	if(options.item_template ){options.item_template= Hogan.compile(options.item_template)}else{
+		if(window.outerWidth > 991){//767){
+			options.item_template = templates['table_row'];
+		}else{
+			options.item_template = templates['mobile_row'];
+		}
+	}
+
 	this.filterValues = {};
 	this.draw = function() {
-			_.each(this.summary.items, function(item){
-				this.$el.find('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
-			}.bind(this))
+		_.each(this.summary.items, function(item){
+			this.$el.find('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
+		}.bind(this))
 		if(this.$el.find('.filter').length){
 			var o = this.filterValues;
 			_.each(o, function(v, k) {
@@ -37,7 +48,6 @@ function berryTable(options) {
 		var showing = (this.lastGrabbed>(options.count * options.page))? (options.count * options.page) : this.lastGrabbed;
 
 		var newContainer = $('<tbody class="list-group">');
-		// debugger;
 		var view = Hogan.compile(options.item_template.render(summary, templates));
 
 		_.each(this.grab(options), function(model) {
@@ -72,14 +82,15 @@ function berryTable(options) {
 		},options)
 
 		this.renderObj = renderObj;
-		this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj,templates));
+		this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj, templates));
 		this.summary.checked_count = _.where(this.models, {checked: true}).length;
 		this.summary.multi_checked = (this.summary.checked_count>1);
 
 		this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
-
 		this.fixStyle();
-
+		if (window.localStorage && options.name) {
+			localStorage.setItem('bt_'+options.name, JSON.stringify(this.state.get())) ;
+		}
 	}
 
 	var changePage = function(e) {
@@ -97,29 +108,33 @@ function berryTable(options) {
 		}
 		this.draw();
 	}
-	var changeSort = function(e) {
-		e.stopPropagation();
-		e.preventDefault();
-		$(e.currentTarget).siblings('[data-sort]').removeClass('text-primary');
-		$(e.currentTarget).siblings('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
-		$(e.currentTarget).addClass('text-primary');
-		var sort = _.findWhere(this.options.filterFields, {name: $(e.currentTarget).data('sort')}).search;
-		if(options.sort == sort) {
-			options.reverse = !options.reverse;
+
+	var processSort = function(sortField, reverse) {
+		if(typeof reverse == 'undefined') {
+			if(options.sort == sortField) {
+				options.reverse = !options.reverse;
+			}else{
+				options.reverse = false;
+			}
 		}else{
-			options.reverse = false;
+			options.reverse = reverse;
 		}
-		if(options.reverse) {
-			$(e.currentTarget).find('i').attr('class', 'fa fa-sort-asc');
-		}else{
-			$(e.currentTarget).find('i').attr('class', 'fa fa-sort-desc');
+		var current = this.$el.find('[data-sort=' + _.findWhere(this.options.filterFields,{search:sortField}).id + ']')
+		if(typeof current !== 'undefined'){
+			if(options.reverse) {
+				current.find('i').attr('class', 'fa fa-sort-asc');
+			}else{
+				current.find('i').attr('class', 'fa fa-sort-desc');
+			}
+			current.siblings('[data-sort]').removeClass('text-primary');
+			current.siblings('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
+			current.addClass('text-primary');
 		}
-		options.sort = sort;
+		options.sort = sortField;
 		this.draw();
 	}
 
 	var options = $.extend({count: options.count || 25, page: 1, sort: 'createdAt', reverse: false}, options);
-	// var popts = _.partial(Berry.processOpts,_ ,{update:function(){debugger;}})
 	self = this;
 	options.schema = _.map(_.map(options.schema, function(item){
 		return Berry.processOpts(item,{update:function(options){
@@ -211,7 +226,12 @@ function berryTable(options) {
 					name = '<div class="btn btn-default" style="background-color:{{attributes.'+name+'}}">{{attributes.'+name+'}}</div> {{attributes.'+name+'}}'
 					break;
 				default:
-					name = '{{attributes.'+ name + '}}'
+					// name = '{{attributes.'+ name + '}}'
+					if(options.inlineEdit){
+						name = '<span data-popins="'+name+'"></span>';
+					}else{
+						name = '{{attributes.'+ name + '}}'
+					}
 			}
 		}
 		return {'isEnabled': (typeof val.showColumn =='undefined' || val.showColumn), 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
@@ -222,8 +242,6 @@ function berryTable(options) {
 	options.entries = options.entries || [25, 50 ,100];
 	summary.options = options;
 	summary.showAdd = !!(options.add);
-
-
 
 	this.defaults = {};
 	_.map(options.filterFields, function(val){
@@ -421,7 +439,6 @@ function berryTable(options) {
 			}
 		}.bind(this));
 
-
 		this.$el.on('change', '[name="count"]', function(e) {
 			options.count = parseInt($(e.currentTarget).val(),10);
 			this.draw();
@@ -457,26 +474,14 @@ function berryTable(options) {
 		}
 
 		this.$el.on('click', '[data-event="select_all"]', function(e){
-			  var checked_models = _.where(this.models, {checked: true})
-			  // var checkbox = this.$el.find('[data-event="select_all"].fa');
+			  var checked_models = _.where(this.models, {checked: true});
 
 				if (checked_models.length || this.models.length == 0) {						
-					// _.each(checked_models, function(item){item.checked = false;})	
 					_.each(checked_models, function(item){item.toggle(false)})			
-
-					// checkbox.attr('class', 'fa fa-fw fa-2x fa-square-o');
-
-				}else{
+				} else {
 					_.each(this.filtered, function(item){item.toggle(true)})			
-
-					// if(this.summary.checked_count == this.models.length){
-					// 	checkbox.attr('class', 'fa fa-fw fa-2x fa-check-square-o');
-					// }else{
-					// 	checkbox.attr('class', 'fa fa-fw fa-2x fa-minus-square-o');
-					// }
 				}		
 			  checked_models = _.where(this.models, {checked: true})
-			  // this.draw();
 				this.updateCount(checked_models.length);
 
 		}.bind(this));
@@ -494,7 +499,11 @@ function berryTable(options) {
 
 		this.$el.on('click','[data-page]', changePage.bind(this));
 		if(options.sort){
-			this.$el.on('click','[data-sort]', changeSort.bind(this));
+			this.$el.on('click','[data-sort]', function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+				processSort.call(this, _.findWhere(this.options.filterFields, {name: $(e.currentTarget).data('sort')}).search)
+			}.bind(this))
 		}
 		this.$el.on('click','[name="reset-search"]', function(){
 			this.$el.find('[name="search"]').val('');
@@ -631,7 +640,7 @@ function berryTable(options) {
 				this.$el.find('.table-container > div').css('width', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
 				this.$el.find('.table-container > div').css('minWidth', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
 			}catch(e){}
-		}	
+		}
 	}
 
 	this.grab = function(options) {
@@ -673,35 +682,55 @@ function berryTable(options) {
 		this.$el.empty();
 	}
 
-		this.settings = {
+		this.state = {
 		get:function(){
-
-		},
+			var temp = {count:this.options.count,page:this.options.page};
+			if(this.$el.find('[name="search"]').length && this.$el.find('[name="search"]').val().length){
+				temp.search = this.$el.find('[name="search"]').val();
+			}else{
+				temp.sort = options.sort;
+				temp.reverse = options.reverse;
+				temp.filters = {};
+				_.each(this.options.filterFields, function(item){
+					temp.filters[item.search] = this[item.id]
+				}.bind(this.filter.toJSON()))
+			}
+			temp.columns = _.map(_.pluck(_.filter(this.summary.items,function(item){return item.isEnabled}),'id'),function(id){
+				return _.findWhere(this.options.filterFields, {id:id}).search;
+			}.bind(this))
+			return temp;
+		}.bind(this),
 		set:function(settings){
+			if(typeof settings.columns !== 'undefined' && settings.columns.length){
 
-			// debugger;
-			this.summary.items = _.map(this.summary.items, function(item) {
-				// debugger;
-				item.isEnabled = _.contains(settings.columns,this.filterMap[item.cname])
-				return item;
-			})
+				this.summary.items = _.map(this.summary.items, function(item) {
+					item.isEnabled = _.contains(settings.columns, this.filterMap[item.cname])
+					return item;
+				})
+				this.$el.find('.columnEnables [type="checkbox"]').each(function(e){
+					this.checked = false
+				})
+
+				_.each(settings.columns, function(item){
+					this.$el.find('.columnEnables [data-field="'+_.findWhere(this.options.filterFields, {search: item}).id+'"] [type="checkbox"]')[0].checked = true;
+					
+				}.bind(this))
+			}
 
 			this.filterValues = {};
 			_.each(settings.filters, function(item, index){
-				for(var i in this.filterMap){
-					if(this.filterMap[i] == index)break;
-				}				
-				this.filterValues[i] = item
+				this.filterValues[_.findWhere(this.options.filterFields, {search: index}).id] = item
 			}.bind(this))
-
-
-			// this.filterValues = settings.filters;
+			if(typeof sort == 'string'){
+				processSort.call(this,settings.sort || options.sort, settings.reverse);
+			}
 			this.filter.populate(this.filterValues);
-			// settings.sort;
-			// settings.reverse;
+
 			if(typeof settings.search !== 'undefined' && settings.search !== ''){
 				this.$el.find('[name="search"]').val(settings.search)
 			}
+			this.options.page = settings.page;
+			this.options.count = settings.count;
 			this.draw();
 		}.bind(this)
 	}
@@ -720,7 +749,6 @@ function berryTable(options) {
 	onload.call(this, $(options.container));
 	this.getCSV = function(title){
 		var lookup = this.filterMap
-		// debugger;
 		csvify(
 			_.map(this.filtered, function(item){return item.attributes}),
 			_.map(_.filter(this.summary.items, function(item){return item.isEnabled}) ,function(item){
@@ -734,9 +762,7 @@ function berryTable(options) {
 
 	this.$el.find('.table-container > div').css('overflow', 'auto');
 	$(window).on('resize orientationChange', this.fixStyle.bind(this));
-
-
+	if(loaded){
+		this.state.set(loaded);
+	}
 }
-
-
-

@@ -1,0 +1,13 @@
+<tr><td colspan="100%" class="filterable">		
+ 	{{#options.hasActions}}
+
+ 	<span style="">
+ 		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 8px 0 4px;">
+    	</span>
+ 		{{/options.hasActions}}
+ <div>
+ 	{{#items}}
+ 	{{#visible}}{{#isEnabled}}<div class="row" style="min-width:85px"><span class="col-sm-3"><b>{{label}}</b></span><span class="col-sm-9 col-xs-12">{{{name}}}</span></div>{{/isEnabled}}{{/visible}}
+ 	{{/items}}
+ 	</div>
+</td></tr>

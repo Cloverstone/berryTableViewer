@@ -63,8 +63,6 @@ function tableModel (owner, initial) {
 			this.checked = !this.checked;
 		}
 		this.trigger('check');
-
-		// this.owner.updateState();
 	}
 	$.extend(true, this.attributes, initial);
 	processAtts.call(this);
@@ -74,7 +72,6 @@ function tableModel (owner, initial) {
 			this.attributes = this.attribute_history.pop();
 			processAtts.call(this);
 			this.owner.draw();
-			//this.set(this.attribute_history.pop());
 		}
 	}
 	this.delete = function(){
@@ -88,9 +85,3 @@ function tableModel (owner, initial) {
 	this.trigger = Berry.prototype.trigger;
 
 };
-
-// tableModel.prototype.events = {initialize: []};
-// tableModel.prototype.addSub = Berry.prototype.addSub;
-// tableModel.prototype.on = Berry.prototype.on;
-// tableModel.prototype.off = Berry.prototype.off;
-// tableModel.prototype.trigger = Berry.prototype.trigger;

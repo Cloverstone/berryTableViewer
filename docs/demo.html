@@ -121,25 +121,26 @@
 				// 	console.log(models)
 				// },
 				add: true,
-				click: function(model){
-					model.toggle();
-				},
+				// click: function(model){
+				// 	model.toggle();
+				// },
+				name:"bt",
 				delete:true,
 				entries:[2,5,10],
 				count:10000,
-				item_template: `<tr><td colspan="100%" class="filterable">		
-	{{#options.hasActions}}
+// 				item_template: `<tr><td colspan="100%" class="filterable">		
+// 	{{#options.hasActions}}
 
-	<span style="">
-		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 8px 0 4px;">
-   	</span>
-		{{/options.hasActions}}
-<div>
-	{{#items}}
-	{{#visible}}{{#isEnabled}}<div class="row" style="min-width:85px"><span class="col-sm-3" style="text-align:right"><b>{{label}}:</b></span><span class="col-sm-9 col-xs-12">{{{name}}}</span></div>{{/isEnabled}}{{/visible}}
-	{{/items}}
-	</div>
-</td></tr>`,
+// 	<span style="">
+// 		<input type="checkbox" {{start}}#checked{{end}}checked="checked"{{start}}/checked{{end}} data-event="mark" style="margin: 0 8px 0 4px;">
+//    	</span>
+// 		{{/options.hasActions}}
+// <div>
+// 	{{#items}}
+// 	{{#visible}}{{#isEnabled}}<div class="row" style="min-width:85px"><span class="col-sm-3" style="text-align:right"><b>{{label}}:</b></span><span class="col-sm-9 col-xs-12">{{{name}}}</span></div>{{/isEnabled}}{{/visible}}
+// 	{{/items}}
+// 	</div>
+// </td></tr>`,
 				events:[
 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
 						console.log(model.attributes);
@@ -157,8 +158,8 @@
 			], data: data}
 
 			bt = new berryTable(options)
-			new berryTable($.extend({},options,{container: '#second'}))
-			new berryTable($.extend({},options,{container: '#third'}))
+			// new berryTable($.extend({},options,{container: '#second'}))
+			// new berryTable($.extend({},options,{container: '#third'}))
 			// bt = new berryTable({
 			// 	container: '#first',
 			// 	search: false,
@@ -197,6 +198,8 @@
            //     {name:'second'},
            //     {name:'first'},
            // ]})
+
+					//  console.log(localStorage.getItem('bt'));
 		</script>
 
 </body></html>
