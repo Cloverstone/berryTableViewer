@@ -95,6 +95,10 @@ function berryTable(options) {
 		}
 	}
 
+	this.drawHead = function(){
+
+	}
+
 	var changePage = function(e) {
 		e.stopPropagation();
 		e.preventDefault();
@@ -133,6 +137,7 @@ function berryTable(options) {
 			current.addClass('text-primary');
 		}
 		options.sort = sortField;
+		this.drawHead();
 		this.draw();
 	}
 
@@ -365,6 +370,13 @@ function berryTable(options) {
 		}
 
 		this.$el.on('change', '.csvFileInput', _.partial(handleFiles, this));
+		this.$el.on('change', '.sortBy', function(e) {
+			// debugger;
+			if($(e.currentTarget).val() !== ''){
+				this.state.set({sort: _.findWhere(this.options.filterFields, {id:$(e.currentTarget).val()}).search});
+			}
+		}.bind(this));
+
 		this.$el.on('click','[name="bt-upload"]', function(){
 			this.$el.find('.csvFileInput').click();
 		}.bind(this));
@@ -452,11 +464,14 @@ function berryTable(options) {
 
 
 		if($el.find('.filter').length) {
-			this.filter = $el.find('.filter').berry({name:'filter'+this.options.id,renderer: 'inline', attributes: this.defaults ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
+			this.filter = $el.find('.filter').berry({name:'filter'+this.options.id,renderer: 'inline' ,disableMath: true, suppress: true, fields: options.filterFields }).on('change', function(){
 				this.$el.find('[name="search"]').val('');
 				this.filterValues = this.filter.toJSON();
 				this.draw();
 			}, this);
+			silentPopulate.call(this.filter, this.defaults);
+
+			//attributes: this.defaults
 		}
 
 		this.updateCount =function(count) {
@@ -466,11 +481,11 @@ function berryTable(options) {
 			var checkbox = this.$el.find('[data-event="select_all"].fa');
 
 			if(count>0 && count == this.models.length){
-				checkbox.attr('class', 'fa fa-2x fa-fw fa-check-square-o');
+				checkbox.attr('class', 'fa fa-2x fa-check-square-o');
 			}else if(count == 0){
-				checkbox.attr('class', 'fa fa-2x fa-fw fa-square-o');
+				checkbox.attr('class', 'fa fa-2x fa-square-o');
 			}else{
-				checkbox.attr('class', 'fa fa-2x fa-fw fa-minus-square-o');
+				checkbox.attr('class', 'fa fa-2x fa-minus-square-o');
 			}
 
 		}
@@ -692,24 +707,26 @@ function berryTable(options) {
 			}else{
 				temp.sort = options.sort;
 				temp.reverse = options.reverse;
-				temp.filters = {};
-				_.each(this.options.filterFields, function(item){
-					temp.filters[item.search] = this[item.id]
-				}.bind(this.filter.toJSON()))
+				if(typeof this.filter !== 'undefined'){
+					temp.filters = {};
+					_.each(this.options.filterFields, function(item){
+						temp.filters[item.search] = this[item.id]
+					}.bind(this.filter.toJSON()))
+				}
 			}
-			temp.columns = _.map(_.pluck(_.filter(this.summary.items,function(item){return item.isEnabled}),'id'),function(id){
+			temp.columns = _.map(_.pluck(_.filter(this.summary.items, function(item){return item.isEnabled}),'id'),function(id){
 				return _.findWhere(this.options.filterFields, {id:id}).search;
 			}.bind(this))
 			return temp;
 		}.bind(this),
-		set:function(settings){
-			if(typeof settings.columns !== 'undefined' && settings.columns.length){
+		set: function(settings) {
 
+			if(typeof settings.columns !== 'undefined' && settings.columns.length) {
 				this.summary.items = _.map(this.summary.items, function(item) {
 					item.isEnabled = _.contains(settings.columns, this.filterMap[item.cname])
 					return item;
 				})
-				this.$el.find('.columnEnables [type="checkbox"]').each(function(e){
+				this.$el.find('.columnEnables [type="checkbox"]').each(function(e) {
 					this.checked = false
 				})
 				if(options.columns) {
@@ -718,19 +735,25 @@ function berryTable(options) {
 					}.bind(this))
 				}
 			}
-
-			this.filterValues = {};
-			_.each(settings.filters, function(item, index){
-				this.filterValues[_.findWhere(this.options.filterFields, {search: index}).id] = item
-			}.bind(this))
-			if(typeof sort == 'string'){
-				processSort.call(this,settings.sort || options.sort, settings.reverse);
+			if(typeof settings.filters !== 'undefined') {
+				this.filterValues = {};
+				_.each(settings.filters, function(item, index) {
+					this.filterValues[_.findWhere(this.options.filterFields, {search: index}).id] = item
+				}.bind(this))
 			}
-			this.filter.populate(this.filterValues);
 
-			if(typeof settings.search !== 'undefined' && settings.search !== ''){
+			if(typeof settings.sort !== 'undefined' && typeof settings.sort == 'string') {
+					processSort.call(this,settings.sort || options.sort, settings.reverse);
+			}
+			
+			if(typeof this.filter !== 'undefined') {
+				// this.filter.populate(this.filterValues);
+				silentPopulate.call(this.filter, this.filterValues)
+			}
+			if(typeof settings.search !== 'undefined' && settings.search !== '') {
 				this.$el.find('[name="search"]').val(settings.search)
 			}
+
 			this.options.page = settings.page;
 			this.options.count = settings.count;
 			this.draw();
@@ -765,6 +788,6 @@ function berryTable(options) {
 	this.$el.find('.table-container > div').css('overflow', 'auto');
 	$(window).on('resize orientationChange', this.fixStyle.bind(this));
 	if(loaded){
-		this.state.set(loaded);
+		// this.state.set(loaded);
 	}
 }

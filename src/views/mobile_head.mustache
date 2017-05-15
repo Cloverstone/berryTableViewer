@@ -1,0 +1,32 @@
+  <tr style="background:#fff;cursor:pointer" class="noselect">
+    {{#options.hasActions}}
+    <th style="width: 60px;min-width:60px;padding: 0 0 0 15px;"><i data-event="select_all" class="fa fa-2x fa-square-o"></i></th>
+    {{/options.hasActions}}
+
+    {{#items}}
+    {{#visible}}
+    <th data-sort="{{cname}}"><h6 style="margin: 2px;font-size:13px;white-space: nowrap">{{#options.sort}}<i class="fa fa-sort text-muted"></i> {{/options.sort}}{{label}}</h6></th>
+    {{/visible}}
+    {{/items}}
+  </tr>
+  {{#options.filter}}
+  <tr style="background:#fff;" class="filter">
+    {{#options.hasActions}}<td>
+    <div name="reset-search" style="position:relative" class="btn" data-toggle="tooltip" data-placement="left" title="Clear Filters">
+      <i class="fa fa-filter"></i>
+      <i class="fa fa-times text-danger" style="position: absolute;right: 5px;"></i>
+    </div>
+    </td>{{/options.hasActions}}
+    <td>
+    <select class="form-control sortBy">
+      <option value="">None</option>
+
+    {{#items}}
+    {{#visible}}
+    <option value="{{id}}">{{label}}</option>
+    {{/visible}}
+    {{/items}}
+    <select>
+    </td>
+  </tr>
+  {{/options.filter}}
