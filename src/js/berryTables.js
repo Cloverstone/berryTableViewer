@@ -116,29 +116,33 @@ function berryTable(options) {
 	}
 
 	var processSort = function(sortField, reverse) {
-		if(typeof reverse == 'undefined') {
-			if(options.sort == sortField) {
-				options.reverse = !options.reverse;
-			}else{
-				options.reverse = false;
-			}
+		if(sortField == true){
+			this.$el.find('.reverse, [data-sort]').removeClass('text-primary').find('i').attr('class', 'fa fa-sort text-muted')
+			this.$el.find('.sortBy').val('true');
 		}else{
-			options.reverse = reverse;
-		}
-		var current = this.$el.find('[data-sort=' + _.findWhere(this.options.filterFields,{search:sortField}).id + ']')
-		if(typeof current !== 'undefined'){
-			if(options.reverse) {
-				current.find('i').attr('class', 'fa fa-sort-asc');
+			if(typeof reverse == 'undefined') {
+				if(options.sort == sortField) {
+					options.reverse = !options.reverse;
+				}else{
+					options.reverse = false;
+				}
 			}else{
-				current.find('i').attr('class', 'fa fa-sort-desc');
+				options.reverse = reverse;
 			}
-			current.siblings('[data-sort]').removeClass('text-primary');
-			current.siblings('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
-			current.addClass('text-primary');
+			var current = this.$el.find('.reverse, [data-sort=' + _.findWhere(this.options.filterFields,{search:sortField}).id + ']')
+			if(typeof current !== 'undefined'){
+				if(options.reverse) {
+					current.find('i').attr('class', 'fa fa-sort-asc');
+				}else{
+					current.find('i').attr('class', 'fa fa-sort-desc');
+				}
+				current.siblings('[data-sort]').removeClass('text-primary');
+				current.siblings('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
+				current.addClass('text-primary');
+			}
 		}
 		options.sort = sortField;
-		this.drawHead();
-		this.draw();
+
 	}
 
 	var options = $.extend({count: options.count || 25, page: 1, sort: 'createdAt', reverse: false}, options);
@@ -365,17 +369,32 @@ function berryTable(options) {
 				e.stopPropagation();
 				_.findWhere(this.summary.items, {id:e.currentTarget.dataset.field}).isEnabled = e.currentTarget.childNodes[0].checked;
 				this.draw();
-
 			}.bind(this));
 		}
 
 		this.$el.on('change', '.csvFileInput', _.partial(handleFiles, this));
 		this.$el.on('change', '.sortBy', function(e) {
-			// debugger;
 			if($(e.currentTarget).val() !== ''){
-				this.state.set({sort: _.findWhere(this.options.filterFields, {id:$(e.currentTarget).val()}).search});
+				processSort.call(this,(_.findWhere(this.options.filterFields, {id:$(e.currentTarget).val()}) || {search:true}).search)
+				this.draw();
 			}
+		}.bind(this));		
+
+		this.$el.on('click', '.reverse', function(e) {
+				processSort.call(this, this.options.sort)
+				this.draw();
 		}.bind(this));
+
+		this.$el.on('click', '.filterForm', function(e) {
+				this.$el.find('[name="search"]').val('');
+
+				$().berry({legend:"Filter By" ,name:'modal_filter'+this.options.id,attributes:this.filterValues, disableMath: true, suppress: true, fields: options.filterFields }).on('save', function(){
+					this.filterValues = Berries['modal_filter'+this.options.id].toJSON();
+
+					Berries['modal_filter'+this.options.id].trigger('close');
+					this.draw();
+				}, this);
+		}.bind(this));		
 
 		this.$el.on('click','[name="bt-upload"]', function(){
 			this.$el.find('.csvFileInput').click();
@@ -520,13 +539,15 @@ function berryTable(options) {
 				e.stopPropagation();
 				e.preventDefault();
 				processSort.call(this, _.findWhere(this.options.filterFields, {name: $(e.currentTarget).data('sort')}).search)
+				//this.drawHead();
+				this.draw();
 			}.bind(this))
 		}
 		this.$el.on('click','[name="reset-search"]', function(){
 			this.$el.find('[name="search"]').val('');
-			options.sort = null;
-			this.$el.find('[data-sort]').removeClass('text-primary');
-			this.$el.find('[data-sort]').find('i').attr('class', 'fa fa-sort text-muted');
+			// options.sort = null;
+			processSort.call(this, true);
+
 			if(this.filter) {
 				silentPopulate.call(this.filter, this.defaults)
 			}
@@ -742,7 +763,7 @@ function berryTable(options) {
 				}.bind(this))
 			}
 
-			if(typeof settings.sort !== 'undefined' && typeof settings.sort == 'string') {
+			if(typeof settings.sort !== 'undefined') {
 					processSort.call(this,settings.sort || options.sort, settings.reverse);
 			}
 			
@@ -754,8 +775,8 @@ function berryTable(options) {
 				this.$el.find('[name="search"]').val(settings.search)
 			}
 
-			this.options.page = settings.page;
-			this.options.count = settings.count;
+			this.options.page = settings.page || this.options.page;
+			this.options.count = settings.count || this.options.count;
 			this.draw();
 		}.bind(this)
 	}
