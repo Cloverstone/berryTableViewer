@@ -272,7 +272,16 @@ function berryTable(options) {
 		this.defaults[val.name] = val.value;
 	}.bind(this));
 	this.summary = summary;
-	var template = Hogan.compile(templates['table'].render(summary, templates));
+	var template;
+	if(options.template ){
+		template= Hogan.compile(Hogan.compile(options.template).render(summary, templates));  
+	}else{
+		if(window.outerWidth > 991){//767){
+			template = Hogan.compile(templates['table'].render(summary, templates));
+		}else{
+			template = Hogan.compile(templates['mobile_table'].render(summary, templates));
+		}
+	}
 
 	function render(){
 		return template.render();

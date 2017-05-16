@@ -1,41 +1,32 @@
+{{#options.hasActions}}
+  <div style="width: 60px;min-width:60px;padding: 0 0 0 20px;"><i data-event="select_all" class="fa fa-2x fa-square-o"></i></div>
+{{/options.hasActions}}
+<div>
 
+  {{#options.sort}}
 
-  <tr style="background:#fff;" class="filter">
+  {{#options.filter}}
+      <div name="reset-search" style="position:relative" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="Clear Filters">
+        <i class="fa fa-filter"></i>
+        <i class="fa fa-times text-danger" style="position: absolute;right: 5px;"></i>
+      </div>    
 
-      {{#options.hasActions}}
-    <th style="width: 60px;min-width:60px;padding: 0 0 0 20px;"><i data-event="select_all" class="fa fa-2x fa-square-o"></i></th>
-    {{/options.hasActions}}
-    {{#options.sort}}
-    {{#options.hasActions}}<th>
-    <div name="reset-search" style="position:relative" class="btn" data-toggle="tooltip" data-placement="left" title="Clear Filters">
-      <i class="fa fa-filter"></i>
-      <i class="fa fa-times text-danger" style="position: absolute;right: 5px;"></i>
-    </div>    
-
-    {{/options.hasActions}}
-
-
-<div class="input-group">
-
-  <span class="input-group-btn">
-    <button class="btn btn-default reverse" type="button" tabindex="-1"><i class="fa fa-sort text-muted"></i></button>
-  </span>
-    <select class="form-control sortBy">
-      <option value=true>None</option>
-
-    {{#items}}
-    {{#visible}}
-    <option value="{{id}}">{{label}}</option>
-    {{/visible}}
-    {{/items}}
-    <select>
-</div>
+    <div class="btn btn-info filterForm">Column Filter</div>
+  {{/options.filter}}
     
+    <div class="input-group">
+      <span class="input-group-btn">
+        <button class="btn btn-default reverse" type="button" tabindex="-1"><i class="fa fa-sort text-muted"></i></button>
+      </span>
+        <select class="form-control sortBy">
+          <option value=true>None</option>
+          {{#items}}
+            {{#visible}}
+              <option value="{{id}}">{{label}}</option>
+            {{/visible}}
+          {{/items}}
+        <select>
+    </div>
   {{/options.sort}}
-    {{#options.filter}}
 
-  <div class="btn btn-info filterForm">Column Filter</div>
-    {{/options.filter}}
-
-    </th>
-  </tr>
+</div>
