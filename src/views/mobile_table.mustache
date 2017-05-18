@@ -1,5 +1,7 @@
 <div class="well" style="background:#fff">
-	<div style="height:40px">
+	<div style="height:40px;">
+    <div name="events" class=" pull-left" style="margin-bottom:10px;width:62%" ></div>
+
 		<input type="file" class="csvFileInput" accept=".csv" style="display:none">
 
 		<div class="hiddenForm" style="display:none"></div>
@@ -33,14 +35,14 @@
 
 		</div>
 
-		<div name="events" class=" pull-left" style="margin-bottom:10px" ></div>
-		{{#options.search}}<input type="text" name="search" class="form-control pull-right" style="max-width:300px; margin-right:15px" placeholder="Search">{{/options.search}}
 
 	</div>	
-	<div class="small-filter"> </div>
 			{{>mobile_head}}
 
-	<div class="paginate-footer" style="overflow:hidden;margin-top:10px;clear:both"></div>
+
+{{#options.hasActions}}
+  <div style="padding: 16px 0 0 15px;"><i data-event="select_all" class="fa fa-2x fa-square-o"></i></div>
+{{/options.hasActions}}
 
 	<div class="table-container" style="width:100%;overflow:auto">
 

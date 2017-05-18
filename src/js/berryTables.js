@@ -20,18 +20,18 @@ function berryTable(options) {
 		_.each(this.summary.items, function(item){
 			this.$el.find('.filter #'+item.id+',[data-sort='+item.id+']').toggle(item.isEnabled);
 		}.bind(this))
-		if(this.$el.find('.filter').length){
-			var o = this.filterValues;
-			_.each(o, function(v, k) {
-				if(!v && (v !== 0)) {
-					delete o[k];
+		// if(this.$el.find('.filter').length){
+			options.search = this.filterValues;
+			_.each(options.search, function(item, index) {
+				if(!item && (item !== 0)) {
+					delete options.search[index];
 				}
 			});
 
-			options.search = o;
-		}else{
-			options.search = {};
-		}
+			// options.search = o;
+		// }else{
+		// 	options.search = {};
+		// }
 		var pagebuffer = options.pagebuffer || 2;
 
 		if(this.$el.find('[name="search"]').length && this.$el.find('[name="search"]').val().length){
@@ -329,8 +329,10 @@ function berryTable(options) {
 				      for(var j in temp[0]){
 				      	newtemp[temp[0][j]] = temp[i][j]
 				      }
-				      var status = table.validate(newtemp);
-				      if(!table.validate(newtemp)){valid =false; break;}
+				      valid = table.validate(newtemp);
+				      if(!valid){
+								 break;
+								}
 				      items.push(status);
 			    	}else{
 			    		itemCount--;
@@ -346,7 +348,8 @@ function berryTable(options) {
 				    }
 			    }else{
 			    	ref.find('.btn').html('Done');
-			    	ref.find('.status').html('<div class="alert alert-danger">Error in row '+i+ ', failed to validate!</div>')
+						debugger;
+			    	ref.find('.status').html('<div class="alert alert-danger">Error(s) in row '+i+ ', failed to validate!<ul><li>'+_.filter(table.errors,function(item){return item.length;}).join('</li><li>')+'</li></div>')
 			    	return;
 			    }
 		    	ref.find('.status').html('<div class="alert alert-success">Successfully processed file, '+itemCount+ ' rows were added!</div>')
@@ -399,9 +402,9 @@ function berryTable(options) {
 
 				$().berry({legend:"Filter By" ,name:'modal_filter'+this.options.id,attributes:this.filterValues, disableMath: true, suppress: true, fields: options.filterFields }).on('save', function(){
 					this.filterValues = Berries['modal_filter'+this.options.id].toJSON();
-
+					this.draw();					
 					Berries['modal_filter'+this.options.id].trigger('close');
-					this.draw();
+
 				}, this);
 		}.bind(this));		
 
@@ -590,8 +593,9 @@ function berryTable(options) {
 		var status = false;
 		var tempForm = this.$el.find('.hiddenForm').berry({fields: options.schema,attributes:item});
 		if(tempForm.validate()){
-			status = tempForm.toJSON(); 
+			status = tempForm.toJSON();
 		}else{
+			this.errors = tempForm.errors;
 			console.log('Model not valid');
 		}
 		tempForm.destroy();
