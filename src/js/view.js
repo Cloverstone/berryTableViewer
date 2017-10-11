@@ -4,6 +4,9 @@ function viewitem(options){
 
 		this.$el.find('[data-event]').off();
 		this.$el.off();
+		if(typeof this.model.owner.options.preDraw !== 'undefined'){
+			this.model.owner.options.preDraw(this.model);
+		}
 		this.$el.replaceWith(this.setElement(options.view.render(this.model , templates)).$el);
 
 		if(this.$el.find('[data-popins]').length > 0){
@@ -13,7 +16,7 @@ function viewitem(options){
 		if(typeof this.model.owner.options.click == 'function'){
 			this.$el.on('click',function(e){
 				if(typeof e.target.dataset.event ==  'undefined'){
-					this.model.owner.options.click(this.model);
+					this.model.owner.options.click(this.model, this);
 				}
 			}.bind(this))
 		}
@@ -27,6 +30,7 @@ function viewitem(options){
 			}
 		},this));
 
+
 		this.$el.find(".btn-group > .dropdown-toggle").on('click',function(e) {
 		    e.stopPropagation();
 		    $(this).next('.dropdown-menu').toggle();
@@ -35,13 +39,18 @@ function viewitem(options){
 		this.$el.find('[data-event="edit"]').on('click', $.proxy(function(e){
 			e.stopPropagation();
 			$(e.target).closest('.dropdown-menu').toggle()
+			this.edit();
+		},this));
+
+		this.edit = function(){
 			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Edit', model: this.model}, this.model.owner.options.berry || {} ) ).on('saved', function() {
 				if(typeof this.model.owner.options.edit == 'function') {
 					this.model.owner.options.edit(this.model);
 				}
 				this.update();
 			}, this)
-		},this));
+		}
+
 		this.$el.find('[data-event="mark"]').on('click', $.proxy(function(e){
 			e.stopPropagation();
 			this.model.toggle(e.currentTarget.checked);

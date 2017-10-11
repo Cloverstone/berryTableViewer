@@ -119,10 +119,11 @@ function berryTable(options) {
 		if(sortField == true){
 			this.$el.find('.reverse, [data-sort]').removeClass('text-primary').find('i').attr('class', 'fa fa-sort text-muted')
 			this.$el.find('.sortBy').val('true');
+			options.reverse = false;
 		}else{
 			if(typeof reverse == 'undefined') {
 				if(options.sort == sortField) {
-					options.reverse = !options.reverse;
+						options.reverse = !options.reverse;
 				}else{
 					options.reverse = false;
 				}
@@ -147,7 +148,8 @@ function berryTable(options) {
 
 	var options = $.extend({count: options.count || 25, page: 1, sort: 'createdAt', reverse: false}, options);
 	self = this;
-	options.schema = _.map(_.map(options.schema, function(item){
+	options.schema = //_.map(
+		_.map(options.schema, function(item){
 		return Berry.processOpts(item,{update:function(options){
 			this.item.choices = options.choices; 
 			this.item.options = options.choices; 
@@ -159,11 +161,12 @@ function berryTable(options) {
 			this.self.draw();
 
 		}.bind({item:item,self:self}) });
-	} ), function(item){
-		item.value = item.value || item.default;
-		delete item.default;
-		return item;
-	});
+	} )
+	// 	, function(item){
+	// 	item.value = item.value || item.default;
+	// 	delete item.default;
+	// 	return item;
+	// });
 
 	if(typeof options.filters !== 'undefined'){
 		options.filters = _.map(options.filters, Berry.processOpts)
@@ -171,17 +174,8 @@ function berryTable(options) {
 	options.filterFields = _.map($.extend(true, {}, options.filters || options.schema), function(val){
 		val = Berry.normalizeItem(val);
 		name = val.name;
+		val.value = '';
 		switch(val.type){
-			case 'textarea':
-			case 'contenteditable':
-			case 'ace':
-			case 'color':
-			case 'date':
-			case 'number':
-			case 'email':
-			case 'base64':
-				val.type = 'text';
-				break;
 			case 'checkbox':
 				val.choices = [{label: 'False', value: 'false'}, {label: val.truestate || 'True', value: val.truestate || 'true'}];
 				if(typeof val.falsestate !== 'undefined'){
@@ -192,9 +186,11 @@ function berryTable(options) {
 				val.type = 'select';
 			case 'select':
 				val.default = {label: 'No Filter', value: ''};
-				val.value = '';
+				break;
+		case 'hidden':
 				break;
 			default:
+				val.type = 'text';
 		}
 		if(val.options){
 			val.options = _.map(val.options, function(item){
@@ -333,12 +329,13 @@ function berryTable(options) {
 				      if(!valid){
 								 break;
 								}
-				      items.push(status);
+				      items.push(valid);
 			    	}else{
 			    		itemCount--;
 			    	}
 						ref.find('.progress-bar').width((i/totalProgress)*100 +'%')
 			    }
+
 			    if(valid){
 			    	ref.find('.status').html('Adding Items...');
 			      for(var i = 0; i<items.length; i++){
@@ -348,7 +345,6 @@ function berryTable(options) {
 				    }
 			    }else{
 			    	ref.find('.btn').html('Done');
-						debugger;
 			    	ref.find('.status').html('<div class="alert alert-danger">Error(s) in row '+i+ ', failed to validate!<ul><li>'+_.filter(table.errors,function(item){return item.length;}).join('</li><li>')+'</li></div>')
 			    	return;
 			    }
@@ -357,7 +353,7 @@ function berryTable(options) {
 		    	ref.find('.progress').hide();
 		    	if(typeof table.options.onBulkLoad == 'function'){
 						table.options.onBulkLoad();
-					}
+					}		    	
 
 		    }
 	      reader.onerror = function (evt) {
@@ -550,7 +546,12 @@ function berryTable(options) {
 			this.$el.on('click','[data-sort]', function(e) {
 				e.stopPropagation();
 				e.preventDefault();
-				processSort.call(this, _.findWhere(this.options.filterFields, {name: $(e.currentTarget).data('sort')}).search)
+				var sortField = _.findWhere(this.options.filterFields, {name: $(e.currentTarget).data('sort')}).search;
+				if(this.options.reverse && this.options.sort == sortField){
+					processSort.call(this, true);
+				}else{
+					processSort.call(this, sortField);
+				}
 				//this.drawHead();
 				this.draw();
 			}.bind(this))
@@ -602,10 +603,12 @@ function berryTable(options) {
 		return status
 	}
 	this.add = function(item){
-		var newModel = new tableModel(this, item);
+		var newModel = new tableModel(this, item).on('check', function(){
+			this.owner.updateCount(_.where(this.owner.models, {checked: true}).length);
+			this.owner.$el.find('[name="events"]').html(templates['events'].render(this.owner.summary, templates));
+		});
 		var tempForm = this.$el.find('.hiddenForm').berry({fields: options.schema,model:newModel});
-		if(tempForm.validate()){
-
+		if(tempForm.validate()) {
 			this.models.push(newModel);
 			this.draw();
 			
@@ -616,6 +619,7 @@ function berryTable(options) {
 			console.log('Model not valid');
 		}
 		tempForm.destroy();
+		return newModel;
 	}
 	this.search = function(options) {
 		var ordered = _.sortBy(this.models, function(obj) { return obj.attributes[options.sort]; });
@@ -712,7 +716,7 @@ function berryTable(options) {
 		} else {
 			var newSchema = _.filter(this.options.schema, function(item){return common_fields.indexOf(item.name) >= 0})
 
-			$().berry({legend:'Common Field Editor', fields:newSchema, attributes: $.extend(true,{},_.pick(selectedModels[0].attributes, common_fields))}).on('save', function(){
+			$().berry({legend:'('+selectedModels.length+') Common Field Editor', fields:newSchema, attributes: $.extend(true,{},_.pick(selectedModels[0].attributes, common_fields))}).on('save', function(){
 				var newValues = this.toJSON();
 				_.map(selectedModels,function(model){
 					model.set($.extend(true,{}, model.attributes, newValues));
@@ -765,7 +769,8 @@ function berryTable(options) {
 				})
 				if(options.columns) {
 					_.each(settings.columns, function(item){
-						this.$el.find('.columnEnables [data-field="'+_.findWhere(this.options.filterFields, {search: item}).id+'"] [type="checkbox"]')[0].checked = true;
+						var temp = this.$el.find('.columnEnables [data-field="'+_.findWhere(this.options.filterFields, {search: item}).id+'"] [type="checkbox"]');
+						if(temp.length)temp[0].checked = true;
 					}.bind(this))
 				}
 			}
@@ -822,6 +827,6 @@ function berryTable(options) {
 	this.$el.find('.table-container > div').css('overflow', 'auto');
 	$(window).on('resize orientationChange', this.fixStyle.bind(this));
 	if(loaded){
-		// this.state.set(loaded);
+		this.state.set(loaded);
 	}
 }

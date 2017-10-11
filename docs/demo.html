@@ -141,25 +141,36 @@
 // 	{{/items}}
 // 	</div>
 // </td></tr>`,
+				preDraw: function(model){
+					model.stuff = 'yippe';
+				},
 				events:[
 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
 						console.log(model.attributes);
-					},multiEdit:true,complete:function(){						alert('Manage');}}
+					}, multiEdit: true, complete: function(){alert('Manage');}}
 				],
 				schema:[
 
 				{type:"text", name:"berry_id", label:"berry_id", required:false},
 				// {type:"base64", name:"other", label:"Other", required:false, template:'<img style="max-width:100px" src="{{value}}""></b>'},
 				{type:"text", name:"title", label:"Title", template:"<b>{{value}}</b>",showColumn: false,required:true},
-				// {type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
-,
-				{type:"select", name:"status", label: "Status", showColumn: true, choices:'./assets/js/options.json'}
+        {
+            "label": "complete",
+            "name": "COMPLETE",
+            "type": "checkbox",
+            // "truestate": "true",
+            // "falsestate": "false",            
+            "template":'{{#attributes.COMPLETE}}<span class="fa fa-check-square-o"></span>{{/attributes.COMPLETE}}{{^attributes.COMPLETE}}<span class="fa fa-square-o"></span>{{/attributes.COMPLETE}}'
+        },           				// {type:"select", name:"priority", label: "Stat", showColumn: true, choices:'./assets/js/options.json'}
+// ,							{label: 'Endpoint', name:'endpoint', default: {name: 'External (no auth)', value: 'External', target:''}, type: 'select', choices: '/endpoints/list/'+model.group_id},
+
+				{type:"select", name:"status", label: "Status", default: {name: 'External (no auth)', value: 'External', target:''}, showColumn: true, choices:'./assets/js/options.json'}
 
 			], data: data}
 
 			bt = new berryTable(options)
-			new berryTable($.extend({},options,{container: '#second', name: 'second'}))
-			new berryTable($.extend({},options,{container: '#third', name: 'third'}))
+			// new berryTable($.extend({},options,{container: '#second', name: 'second'}))
+			// new berryTable($.extend({},options,{container: '#third', name: 'third'}))
 			// bt = new berryTable({
 			// 	container: '#first',
 			// 	search: false,

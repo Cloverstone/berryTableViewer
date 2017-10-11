@@ -56,7 +56,7 @@ function tableModel (owner, initial) {
 		processAtts.call(this);
 	}
 	this.checked = false;
-	this.toggle = function(statem){
+	this.toggle = function(statem) {
 		if(typeof state === 'bool') {
 			this.checked = state;
 		}else{
