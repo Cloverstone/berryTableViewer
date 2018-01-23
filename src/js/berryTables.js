@@ -1,5 +1,5 @@
 function berryTable(options) {
-
+	this.version = '0.1.0';
 	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
 	var loaded = false;
 	if (window.localStorage && options.name) {
@@ -571,22 +571,28 @@ function berryTable(options) {
 			this.getCSV();
 		}.bind(this));
 		this.$el.find('[data-event="add"]').on('click', function(){
-			$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
-				if(Berries.modal.validate()){
-					var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function() {
-						this.updateCount(_.where(this.models, {checked: true}).length);
-						this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
-					}.bind(this));
-					this.models.push(newModel);
-					Berries.modal.trigger('saved');
-					this.draw();
-					this.updateCount(this.summary.checked_count);
-					
-					if(typeof this.options.add == 'function') {
-						this.options.add(newModel);
+			var event = _.findWhere(this.options.events, {name:'add'});
+
+			if(typeof event !== 'undefined' && typeof event.callback == 'function'){
+				event.callback.call(this);
+			}else{
+				$().berry($.extend(true,{},{name:'modal', legend: '<i class="fa fa-pencil-square-o"></i> Create New', fields: options.schema}, options.berry || {} )).on('save', function() {
+					if(Berries.modal.validate()){
+						var newModel = new tableModel(this, Berries.modal.toJSON()).on('check', function() {
+							this.updateCount(_.where(this.models, {checked: true}).length);
+							this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
+						}.bind(this));
+						this.models.push(newModel);
+						Berries.modal.trigger('saved');
+						this.draw();
+						this.updateCount(this.summary.checked_count);
+						
+						if(typeof this.options.add == 'function') {
+							this.options.add(newModel);
+						}
 					}
-				}
-			}, this)
+				}, this)
+			}
 		}.bind(this));
 		this.draw();
 	}
@@ -602,6 +608,8 @@ function berryTable(options) {
 		tempForm.destroy();
 		return status
 	}
+
+
 	this.add = function(item){
 		var newModel = new tableModel(this, item).on('check', function(){
 			this.owner.updateCount(_.where(this.owner.models, {checked: true}).length);
@@ -611,7 +619,8 @@ function berryTable(options) {
 		if(tempForm.validate()) {
 			this.models.push(newModel);
 			this.draw();
-			
+			this.updateCount(this.summary.checked_count);
+
 			if(typeof this.options.add == 'function'){
 				this.options.add(newModel);
 			}

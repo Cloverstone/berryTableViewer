@@ -59,6 +59,7 @@ csvify = function(data, columns, title){
   },this)
   .join('\n') 
   .replace(/(^\[)|(\]$)/mg, '')
+  .split('\"').join("")
 
   var link = document.createElement("a");
   link.setAttribute("href", 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
