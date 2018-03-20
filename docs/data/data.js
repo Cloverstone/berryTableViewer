@@ -29,7 +29,8 @@ data = [
 "status_Started": false,
 "status_Created": false,
 "status_Finished": false,
-"status_Committed": true
+"status_Committed": true,
+"order": 3
 },
 {
 "_id": "568c1a740083b3326f95705c",
@@ -59,7 +60,8 @@ data = [
 "username": "cloverstone"
 },
 "status_Started": true,
-"status_Created": false
+"status_Created": false,
+"order": 2
 },
 {
 "_id": "568c1a9f0083b3326f95705f",
@@ -89,7 +91,8 @@ data = [
 "username": "cloverstone"
 },
 "status_Started": true,
-"status_Created": false
+"status_Created": false,
+"order": 1
 },
 {
 "_id": "568c1ac80083b3326f957061",
@@ -117,7 +120,8 @@ data = [
 "last_name": "Smallcomb",
 "email": "atsmallcomb@gmail.com",
 "username": "cloverstone"
-}
+},
+"order": 0
 },
 {
 "_id": "568c1ad60083b3326f957062",
@@ -147,7 +151,8 @@ data = [
 "username": "cloverstone"
 },
 "status_Started": true,
-"status_Created": false
+"status_Created": false,
+"order": 4
 },
 {
 "_id": "568c1b4b0083b3326f957063",
@@ -175,7 +180,8 @@ data = [
 "last_name": "Smallcomb",
 "email": "atsmallcomb@gmail.com",
 "username": "cloverstone"
-}
+},
+"order": 5
 },
 {
 "_id": "568c1baa0083b3326f957065",
@@ -203,7 +209,8 @@ data = [
 "last_name": "Smallcomb",
 "email": "atsmallcomb@gmail.com",
 "username": "cloverstone"
-}
+},
+"order": 6
 },
 {
 "_id": "568d75c82d82b87a741b042a",
@@ -280,6 +287,7 @@ data = [
 "last_name": "Smallcomb",
 "email": "atsmallcomb@gmail.com",
 "username": "cloverstone"
-}
+},
+"order": 7
 }
 ]

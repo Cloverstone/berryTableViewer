@@ -351,6 +351,10 @@ function berryTable(options) {
 		    	ref.find('.status').html('<div class="alert alert-success">Successfully processed file, '+itemCount+ ' rows were added!</div>')
 		    	ref.find('.btn').toggleClass('btn-danger btn-success').html('Done');
 		    	ref.find('.progress').hide();
+					if(typeof table.options.defaultSort !== 'undefined'){
+						table.models = _.sortBy(table.models, function(obj) { return obj.attributes[this.options.defaultSort]; }.bind(table)).reverse();
+					}
+
 		    	if(typeof table.options.onBulkLoad == 'function'){
 						table.options.onBulkLoad();
 					}		    	
@@ -540,6 +544,10 @@ function berryTable(options) {
 				);
 			}
 		}
+		if(typeof this.options.defaultSort !== 'undefined'){
+			this.models = _.sortBy(this.models, function(obj) { return obj.attributes[this.options.defaultSort]; }.bind(this)).reverse();
+		}
+
 
 		this.$el.on('click','[data-page]', changePage.bind(this));
 		if(options.sort){
@@ -583,6 +591,9 @@ function berryTable(options) {
 							this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
 						}.bind(this));
 						this.models.push(newModel);
+						if(typeof this.options.defaultSort !== 'undefined'){
+							this.models = _.sortBy(this.models, function(obj) { return obj.attributes[this.options.defaultSort]; }.bind(this)).reverse();
+						}
 						Berries.modal.trigger('saved');
 						this.draw();
 						this.updateCount(this.summary.checked_count);
