@@ -133,6 +133,9 @@
 				entries:[2,5,10],
 				count:10000,
 				defaultSort: 'order',
+				onSort: function(){
+
+				},
 // 				item_template: `<tr><td colspan="100%" class="filterable">		
 // 	{{#options.hasActions}}
 
@@ -152,7 +155,11 @@
 				events:[
 					{'name': 'manage', 'label': '<i class="fa fa-cogs"></i> Manage', callback: function(model){
 						console.log(model.attributes);
-					}, multiEdit: true, complete: function(){alert('Manage');}}
+					}, multiEdit: true, complete: function(){alert('Manage');}},
+					{'name': 'sort', 'label': '<i class="fa fa-sort"></i> Sort', 
+					callback: function(collection){
+						console.log(collection[0].attributes);
+					}, global: true}
 				],
 				schema:[
 

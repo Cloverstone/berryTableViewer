@@ -1,6 +1,10 @@
 function berryTable(options) {
 	this.version = '0.1.0';
 	options = $.extend(true, {filter: true, sort: true, search: true, download: true, upload: true, columns: true, id:Berry.getUID()}, options);
+	options.events = _.map(options.events,function(event){
+    return $.extend(true, {global:false},event)
+	})
+
 	var loaded = false;
 	if (window.localStorage && options.name) {
 		try{
@@ -87,7 +91,6 @@ function berryTable(options) {
 		this.$el.find('.paginate-footer').html(templates['table_footer'].render(this.renderObj, templates));
 		this.summary.checked_count = _.where(this.models, {checked: true}).length;
 		this.summary.multi_checked = (this.summary.checked_count>1);
-
 		this.$el.find('[name="events"]').html(templates['events'].render(this.summary, templates));
 		this.fixStyle();
 		if (window.localStorage && options.name) {
@@ -248,7 +251,7 @@ function berryTable(options) {
 	options.hasDelete = !!(options.delete);
 	options.entries = options.entries || [25, 50 ,100];
 	summary.options = options;
-	summary.showAdd = !!(options.add);
+	summary.showAdd = !!(options.add) || options.showAdd;
 
 	this.defaults = {};
 	_.map(options.filterFields, function(val){
@@ -462,7 +465,15 @@ function berryTable(options) {
 			}
 
 		}.bind(this));
+		this.$el.on('click','[data-event].custom-event-collection', function(e){
+			e.stopPropagation();
+			var event = _.findWhere(this.options.events, {name:e.target.dataset.event})
 
+			if(typeof event !== 'undefined' && typeof event.callback == 'function'){
+					event.callback.call(this,this.models);
+			}
+
+		}.bind(this));
 		this.$el.on('click','[data-event="edit_all"]', function(e){
 			e.stopPropagation();
 			if(	typeof this.options.multiEdit !== 'undefined' && 
@@ -605,6 +616,8 @@ function berryTable(options) {
 				}, this)
 			}
 		}.bind(this));
+
+
 		this.draw();
 	}
 	this.validate = function(item){
