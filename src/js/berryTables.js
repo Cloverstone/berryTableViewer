@@ -189,6 +189,9 @@ function berryTable(options) {
 				val.type = 'select';
 			case 'select':
 				val.default = {label: 'No Filter', value: ''};
+				if(val.value_key == 'index'){
+					delete val.value_key;
+				}
 				break;
 		case 'hidden':
 				break;
@@ -666,9 +669,9 @@ function berryTable(options) {
 			for(var filter in options.search) {
 					var temp;
 					if(_.where(options.filterFields, {id:filter})[0] && typeof _.where(options.filterFields, {id:filter})[0].options == 'undefined') {
-						temp = ($.score((anyModel.attributes[this.filterMap[filter]]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
+						temp = ($.score((anyModel.display[this.filterMap[filter]]+'').replace(/\s+/g, " ").toLowerCase(), (options.search[filter]+'').toLowerCase() ) > 0.40);
 					}else{
-						temp = (anyModel.attributes[this.filterMap[filter]]+'' == options.search[filter]+'')
+						temp = (anyModel.display[this.filterMap[filter]]+'' == options.search[filter]+'')
 					}
 					keep = temp;
 					if(!keep){break;}
