@@ -72,3 +72,13 @@ thead .form-group{margin-bottom:0;}
   user-select: none;           /* Non-prefixed version, currently
                                   not supported by any browser */
 }
+
+
+table.table-fixed td{
+word-wrap:break-word;
+}
+.table-fixed{
+  table-layout: fixed;
+}
+.table {
+  max-width: none;

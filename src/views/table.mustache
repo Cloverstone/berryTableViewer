@@ -57,13 +57,26 @@
 
 
 	<div style="min-height:100px">
-		<table class="table {{^options.noborder}}table-bordered{{/options.noborder}} table-striped table-hover dataTable" style="margin-bottom:0px">
+		<table class="table {{^options.noborder}}table-bordered{{/options.noborder}} table-striped table-hover dataTable" style="margin-bottom:0px;{{#options.autoSize}}margin-top: -19px;{{/options.autoSize}}">
 			{{^options.autoSize}}
 			<thead class="head">
 			{{>table_head}}
 			</thead>
 			{{/options.autoSize}}
-
+{{#options.autoSize}}
+			<thead>
+						<tr  class="list-group-row">
+						    {{#options.hasActions}}
+    <th style="width:60px" class="select-column"></th>
+    {{/options.hasActions}}
+			    {{#items}}
+    {{#visible}}
+	<th  style="min-width:85px">
+    {{/visible}}
+    {{/items}}
+		</tr>
+		</thead>
+{{/options.autoSize}}
 			<tbody class="list-group">
 				<tr><td>
 					<div class="alert alert-info" role="alert">You have no items.</div>

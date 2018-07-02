@@ -12,7 +12,7 @@ function berryTable(options) {
 		}catch(e){};
 	}
 	if(options.item_template ){options.item_template= Hogan.compile(options.item_template)}else{
-		if(window.outerWidth > 991){//767){
+		if(window.outerWidth > 767 || window.outerWidth == 0){
 			options.item_template = templates['table_row'];
 		}else{
 			options.item_template = templates['mobile_row'];
@@ -250,8 +250,12 @@ function berryTable(options) {
 		return {'isEnabled': (typeof val.showColumn =='undefined' || val.showColumn), 'label': val.label, 'name': name, 'cname': (val.name|| val.label.split(' ').join('_').toLowerCase()), 'id': val.id, 'visible':!(val.type == 'hidden')} 
 	})};
 	options.hasActions = !!(options.edit || options.delete || options.events);
-	options.hasEdit = !!(options.edit);
-	options.hasDelete = !!(options.delete);
+	if(typeof options.hasEdit == 'undefined'){
+		options.hasEdit = !!(options.edit);			
+	}
+	if(typeof options.hasDelete == 'undefined'){
+		options.hasDelete = !!(options.delete);
+	}
 	options.entries = options.entries || [25, 50 ,100];
 	summary.options = options;
 	summary.showAdd = !!(options.add) || options.showAdd;
@@ -278,7 +282,7 @@ function berryTable(options) {
 	if(options.template ){
 		template= Hogan.compile(Hogan.compile(options.template).render(summary, templates));  
 	}else{
-		if(window.outerWidth > 991){//767){
+		if(window.outerWidth > 767 || window.outerWidth == 0){
 			template = Hogan.compile(templates['table'].render(summary, templates));
 		}else{
 			template = Hogan.compile(templates['mobile_table'].render(summary, templates));
@@ -608,7 +612,7 @@ function berryTable(options) {
 						if(typeof this.options.defaultSort !== 'undefined'){
 							this.models = _.sortBy(this.models, function(obj) { return obj.attributes[this.options.defaultSort]; }.bind(this)).reverse();
 						}
-						Berries.modal.trigger('saved');
+						// Berries.modal.trigger('cancel');
 						this.draw();
 						this.updateCount(this.summary.checked_count);
 						
@@ -716,23 +720,104 @@ function berryTable(options) {
 		this.lastGrabbed = this.filtered.length;
 	}
 
+	// this.fixStyle = function(){
+	// 	if(this.options.autoSize){
+	// 		try{
+	// 			var container = this.$el.find('.table-container > div');
+	// 			var headers = this.$el.find('.table-container > table tr th:visible');
+	// 			container.css('width', 'auto') 
+	// 			container.css('minWidth', 'auto') 
+	// 			headers.css('width','auto')
+	// 			headers.css('minWidth','85px')
+	// 			this.$el.find('.list-group tr:first td').css('width','auto')
+	// 			this.$el.find('.list-group tr:first td').css('minWidth','auto')
+	// 			container.css('height', $(window).height() - container.offset().top - (88+ this.options.autoSize) +'px');
+	// 			_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
+	// 				if(headers[index].offsetWidth > item.offsetWidth){
+	// 					item.width = headers[index].offsetWidth+'px';
+	// 					item.minWidth = headers[index].offsetWidth+'px';
+	// 				}
+	// 				headers[index].style.width = item.offsetWidth+'px';
+	// 				headers[index].style.minWidth = item.offsetWidth+'px';
+	// 			}.bind(this))
+
+	// 			var target = this.$el.find('.table-container > div table')[0].offsetWidth;
+	// 			if(this.$el.find('.table-container > table')[0].offsetWidth > target){target = this.$el.find('.table-container > table')[0].offsetWidth;}
+
+	// 			container.css('width', target + 'px') 
+	// 			container.css('minWidth', target + 'px') 
+
+	// 		}catch(e){}
+	// 	}
+	// }
+
+
 	this.fixStyle = function(){
+		// debugger;
 		if(this.options.autoSize){
 			try{
-				this.$el.find('.table-container > div').css('width', 'auto') 
-				this.$el.find('.table-container > div').css('minWidth', 'auto') 
-				this.$el.find('.table-container > div').css('height', $(window).height() - $('.table-container > div').offset().top - (88+ this.options.autoSize) +'px');
-				_.each(	this.$el.find('.list-group tr:first td'), function(item, index){
-					this.$el.find('.table-container > table tr th:visible')[index].style.width = item.offsetWidth+'px';
-					this.$el.find('.table-container > table tr th:visible')[index].style.minWidth = item.offsetWidth+'px';
+				var container = this.$el.find('.table-container > div');
+				var headers = this.$el.find('.table-container > table tr th:visible');
+				var columns = this.$el.find('.list-group-row th');
+				this.$el.find('.table-container table').removeClass('table-fixed')
+				
+				container.css('width', 'auto') 
+				container.css('minWidth', 'auto') 
+				headers.css('width','auto')
+				headers.css('minWidth','85px')
+				this.$el.find('.table-container > table tr th.select-column').css('minWidth','60px')
+				this.$el.find('.table-container > table tr th.select-column').css('width','60px')
+				columns.css('width','auto')
+				columns.css('minWidth','auto')
+				// this.$el.find('.list-group tr:first td').css('width','auto')
+				// this.$el.find('.list-group tr:first td').css('minWidth','auto')
+				// $('table td').css({wordWrap:"break-word"});
+				container.css('height', $(window).height() - container.offset().top - (88+ this.options.autoSize) +'px');
+				_.each(	columns, function(column, index){
+					// debugger;
+					if(typeof headers[index] !== 'undefined'){
 
+						// $(column).css('width', 'auto') 
+						// $(column).css('minWidth', 'auto') 
+						column.style.display = 'table-cell';
+						if(headers[index].offsetWidth > column.offsetWidth){
+							$(column).css('width',headers[index].offsetWidth+'px');
+							$(column).css('minWidth',headers[index].offsetWidth+'px');
+							$(headers[index]).css('width',headers[index].offsetWidth+'px')
+							$(headers[index]).css('minWidth',headers[index].offsetWidth+'px')
+						}else{
+							$(headers[index]).css('width',headers[index].offsetWidth+'px')
+							$(headers[index]).css('minWidth',headers[index].offsetWidth+'px')
+
+							$(column).css('width',headers[index].offsetWidth+'px');
+							$(column).css('minWidth',headers[index].offsetWidth+'px');
+							
+						}
+					}else{
+// debugger;
+						// $(column).css('width', 'auto') 
+						// $(column).css('minWidth', 'auto') 
+						column.style.display = 'none';
+					}
 				}.bind(this))
 
-				this.$el.find('.table-container > div').css('width', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
-				this.$el.find('.table-container > div').css('minWidth', this.$el.find('.table-container > div table')[0].offsetWidth + 'px') 
+				this.$el.find('.table-container table').addClass('table-fixed')
+				
+				var target = this.$el.find('.table-container > div table')[0].offsetWidth;
+				if(this.$el.find('.table-container > table')[0].offsetWidth > target){target = this.$el.find('.table-container > table')[0].offsetWidth;}
+
+				container.css('width', target + 'px') 
+				container.css('minWidth', target + 'px') 
+				if(target > this.$el.find('.table-container')[0].offsetWidth){
+					this.$el.find('.table-container').css('overflow','auto');
+				}else{
+					this.$el.find('.table-container').css('overflow','hidden');					
+				}
+
 			}catch(e){}
 		}
 	}
+
 
 	this.grab = function(options) {
 		return this.filtered.slice((options.count * (options.page-1) ), (options.count * (options.page-1) ) + options.count)
