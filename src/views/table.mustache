@@ -26,10 +26,10 @@
 			    <i class="fa fa-list"></i>
 			    <span class="caret"></span>
 			  </button>
-			  <ul class="dropdown-menu pull-right" style="padding-top:10px" aria-labelledby="enables_{{options.id}}">
+			  <ul class="dropdown-menu pull-right" style="padding-top:10px;padding-left:10px" aria-labelledby="enables_{{options.id}}">
 			  	{{#items}}
 			  	{{#visible}}
-			    <li><label data-field="{{id}}" style="width:100%;font-weight:normal"><input type="checkbox" {{#isEnabled}}checked="checked"{{/isEnabled}} style="margin: 5px 0 5px 15px;"> {{label}}</label></li>
+			    <li><label data-field="{{id}}" style="width:100%;font-weight:normal"><input type="checkbox" {{#isEnabled}}checked="checked"{{/isEnabled}}> {{label}}</label></li>
 					{{/visible}}
 			    {{/items}}
 			  </ul>
